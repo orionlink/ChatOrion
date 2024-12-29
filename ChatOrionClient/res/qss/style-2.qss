@@ -378,6 +378,56 @@ QLineEdit{
    border: none;
 }
 
+/************************* 错误框显示样式 *****************************/
+#err_msg[state='normal']
+{
+	font: 12pt;
+	color: green;
+}
+
+#err_msg[state='err']
+{
+	font: 12pt;
+	color: red;
+}
+
+#err_msg_2[state='normal']
+{
+	font: 12pt;
+	color: green;
+}
+
+#err_msg_2[state='err']
+{
+	font: 12pt;
+	color: red;
+}
+
+#err_msg_3[state='normal']
+{
+	font: 12pt;
+	color: green;
+}
+
+#err_msg_3[state='err']
+{
+	font: 12pt;
+	color: red;
+}
+
+#err_msg_4[state='normal']
+{
+	font: 12pt;
+	color: green;
+}
+
+#err_msg_4[state='err']
+{
+	font: 12pt;
+	color: red;
+}
+/*********  错误框显示样式 end ************************/
+
 /*按钮-粉红*/
 #btn_1{
 color:#e83737;

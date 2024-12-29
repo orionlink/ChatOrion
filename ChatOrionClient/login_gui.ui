@@ -248,8 +248,7 @@
                             <item>
                              <widget class="QLabel" name="err_msg">
                               <property name="styleSheet">
-                               <string notr="true">color: rgb(255, 0, 0);
-font: 12pt &quot;黑体&quot;;</string>
+                               <string notr="true"/>
                               </property>
                               <property name="text">
                                <string>正在登陆 ...</string>
@@ -1017,8 +1016,7 @@ font: 12pt &quot;黑体&quot;;</string>
                            <item>
                             <widget class="QLabel" name="err_msg_3">
                              <property name="styleSheet">
-                              <string notr="true">color: rgb(255, 0, 0);
-font: 12pt &quot;黑体&quot;;</string>
+                              <string notr="true"/>
                              </property>
                              <property name="text">
                               <string/>
@@ -1610,8 +1608,7 @@ font: 12pt &quot;黑体&quot;;</string>
                            <item>
                             <widget class="QLabel" name="err_msg_2">
                              <property name="styleSheet">
-                              <string notr="true">color: rgb(255, 0, 0);
-font: 12pt &quot;黑体&quot;;</string>
+                              <string notr="true"/>
                              </property>
                              <property name="text">
                               <string/>
@@ -2615,8 +2612,7 @@ font: 12pt &quot;黑体&quot;;</string>
                            <item>
                             <widget class="QLabel" name="err_msg_4">
                              <property name="styleSheet">
-                              <string notr="true">color: rgb(255, 0, 0);
-font: 12pt &quot;黑体&quot;;</string>
+                              <string notr="true"/>
                              </property>
                              <property name="text">
                               <string/>
@@ -3577,182 +3573,6 @@ font: 12pt &quot;黑体&quot;;</string>
  </resources>
  <connections>
   <connection>
-   <sender>btn_login_page</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>LoginPage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>425</x>
-     <y>528</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>496</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_register_2</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>Register()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>426</x>
-     <y>592</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>325</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>getcodeButton_3</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>GetCode()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>414</x>
-     <y>464</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>523</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_forget_2</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>LoginPage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>425</x>
-     <y>528</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>502</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_email_login</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>EmailLogin()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>434</x>
-     <y>628</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>356</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_wb_2</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>EmailPage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>432</x>
-     <y>656</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>527</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_wb_3</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>EmailPage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>432</x>
-     <y>656</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>537</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_submit</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>ForgetPassword()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>433</x>
-     <y>592</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>310</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>getcodeButton</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>GetCode()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>414</x>
-     <y>464</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>484</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>getcodeButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>GetCode()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>415</x>
-     <y>432</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>477</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_username</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>LoginPage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>426</x>
-     <y>535</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>510</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>closePushButton</sender>
    <signal>clicked()</signal>
    <receiver>LoginGUI</receiver>
@@ -3775,76 +3595,12 @@ font: 12pt &quot;黑体&quot;;</string>
    <slot>showMinimized()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>475</x>
-     <y>25</y>
+     <x>503</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
      <x>485</x>
      <y>-49</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_forget</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>ForgetPage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>205</x>
-     <y>465</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>511</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_wb</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>EmailPage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>432</x>
-     <y>617</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>518</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_login</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>Login()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>432</x>
-     <y>541</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>393</x>
-     <y>651</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_register</sender>
-   <signal>clicked()</signal>
-   <receiver>LoginGUI</receiver>
-   <slot>RegisterPage()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>424</x>
-     <y>461</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>532</x>
-     <y>651</y>
     </hint>
    </hints>
   </connection>

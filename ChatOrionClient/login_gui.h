@@ -16,6 +16,9 @@
 namespace Ui {
 class LoginGUI;
 }
+class QLabel;
+
+#include "global.h"
 
 class LoginGUI : public QDialog
 {
@@ -32,28 +35,59 @@ public:
 public slots:
     void set_style();
 
-    void Login();
+    /**
+     * @brief 登录请求
+     */
+    void login();
 
-    void LoginPage();
+    /**
+     * @brief 登录界面切换
+     */
+    void loginPage();
 
-    void RegisterPage();
+    /**
+     * @brief 注册界面切换
+     */
+    void registerPage();
 
-    void EmailPage();
+    /**
+     * @brief 邮箱界面切换
+     */
+    void emailPage();
 
-    void ForgetPage();
+    /**
+     * @brief 忘记密码界面切换
+     */
+    void forgetPage();
 
-    void Register();
+    /**
+     * @brief 发起注册请求
+     */
+    void registerReq();
 
-    void GetCode();
+    /**
+     * @brief 发起获取验证码请求
+     */
+    void getCode();
 
-    void EmailLogin();
+    /**
+     * @brief 邮箱登录请求
+     */
+    void emailLogin();
 
-    void ForgetPassword();
+    /**
+     * @brief 忘记密码请求
+     */
+    void forgetPassword();
 
-    void UpdateButton(); // 新增的用于更新按钮状态的槽
+    void updateButton(); // 新增的用于更新按钮状态的槽
 protected:
     void paintEvent(QPaintEvent*) override;
+private:
+    void showTip(QLabel* label, const QString& tip, bool is_ok);
+    void initModulesHandlers();
 
+    void regModCallback(ReqId id, QJsonObject res, ErrorCodes err);
 private:
     Ui::LoginGUI*ui;
 

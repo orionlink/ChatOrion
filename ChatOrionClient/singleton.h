@@ -23,8 +23,10 @@ public:
         static std::once_flag flag;
         std::call_once(flag, [&]
         {
-            _instance = std::make_shared<T>;
+            _instance = std::shared_ptr<T>(new T);
         });
+
+        return _instance;
     }
 
     void PrintAddress()
@@ -32,7 +34,7 @@ public:
         std::cout << _instance.get() << std::endl;
     }
 
-    ~Singleton()
+    virtual ~Singleton()
     {
         std::cout << "this is singleton destruct" << std::endl;
     }

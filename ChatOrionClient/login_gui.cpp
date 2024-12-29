@@ -1,5 +1,7 @@
 ﻿#include "login_gui.h"
 #include "ui_login_gui.h"
+#include "global.h"
+#include "network/http_mgr.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -12,6 +14,8 @@
 #include <QTimer>
 #include <QPainter>
 #include <QStyleOption>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 using namespace std;
 
@@ -38,6 +42,24 @@ LoginGUI::LoginGUI(QDialog*parent) :
 //    connect(ui->btn_2,SIGNAL(clicked(bool)),this,SLOT(set_style()));
 //    connect(ui->btn_3,SIGNAL(clicked(bool)),this,SLOT(set_style()));
 //    connect(ui->btn_4,SIGNAL(clicked(bool)),this,SLOT(set_style()));
+
+    QObject::connect(ui->btn_register, &QPushButton::clicked, this, &LoginGUI::registerPage);
+    QObject::connect(ui->btn_register_2, &QPushButton::clicked, this, &LoginGUI::registerReq);
+    QObject::connect(ui->btn_username, &QPushButton::clicked, this, &LoginGUI::loginPage);
+    QObject::connect(ui->btn_login_page, &QPushButton::clicked, this, &LoginGUI::loginPage);
+    QObject::connect(ui->btn_login, &QPushButton::clicked, this, &LoginGUI::login);
+    QObject::connect(ui->btn_forget, &QPushButton::clicked, this, &LoginGUI::forgetPage);
+    QObject::connect(ui->btn_forget_2, &QPushButton::clicked, this, &LoginGUI::forgetPage);
+    QObject::connect(ui->btn_submit, &QPushButton::clicked, this, &LoginGUI::forgetPassword);
+    QObject::connect(ui->getcodeButton, &QPushButton::clicked, this, &LoginGUI::getCode);
+    QObject::connect(ui->getcodeButton_2, &QPushButton::clicked, this, &LoginGUI::getCode);
+    QObject::connect(ui->getcodeButton_3, &QPushButton::clicked, this, &LoginGUI::getCode);
+    QObject::connect(ui->btn_email_login, &QPushButton::clicked, this, &LoginGUI::emailLogin);
+    QObject::connect(ui->btn_wb, &QPushButton::clicked, this, &LoginGUI::emailPage);
+    QObject::connect(ui->btn_wb_2, &QPushButton::clicked, this, &LoginGUI::emailPage);
+    QObject::connect(ui->btn_wb_3, &QPushButton::clicked, this, &LoginGUI::emailPage);
+
+    initModulesHandlers();
 
     QPushButton* btn_login = ui->btn_login;
 
@@ -71,7 +93,7 @@ LoginGUI::LoginGUI(QDialog*parent) :
     ui->frame_err_4->hide();
 
     _countdown_timer = new QTimer(this);
-    connect(_countdown_timer, &QTimer::timeout, this, &LoginGUI::UpdateButton);
+    connect(_countdown_timer, &QTimer::timeout, this, &LoginGUI::updateButton);
     _remaining_time = 60; // 倒计时时间为60秒
 
     /// 邮箱格式
@@ -80,9 +102,21 @@ LoginGUI::LoginGUI(QDialog*parent) :
     ui->email_edit->setValidator(rval);
     ui->email_edit_2->setValidator(rval);
     ui->email_edit_3->setValidator(rval);
+
+    ui->err_msg->setProperty("state","normal");
+    repolish(ui->err_msg);
+
+    ui->err_msg_2->setProperty("state","normal");
+    repolish(ui->err_msg_2);
+
+    ui->err_msg_3->setProperty("state","normal");
+    repolish(ui->err_msg_3);
+
+    ui->err_msg_4->setProperty("state","normal");
+    repolish(ui->err_msg_4);
 }
 
-void LoginGUI::Login()
+void LoginGUI::login()
 {
     ui->frame_err->show();
     ui->err_msg->setText(QString::fromLocal8Bit("正在登陆 ..."));
@@ -90,7 +124,7 @@ void LoginGUI::Login()
     string password = ui->lineE_pwd->text().toUtf8().constData();
     if (username.empty() || password.empty()) 
     {
-        ui->err_msg->setText(QString::fromLocal8Bit("用户名或密码不能为空!"));
+        showTip(ui->err_msg, QString::fromLocal8Bit("用户名或密码不能为空!"), false);
         return;
     }
 
@@ -126,19 +160,19 @@ void LoginGUI::Login()
     QDialog::accept();
 }
 
-void LoginGUI::Register()
+void LoginGUI::registerReq()
 {
     ui->frame_err_2->show();
     if (ui->user_name_edit->text().isEmpty()
         || ui->pwd_edit->text().isEmpty())
     {
-        ui->err_msg_2->setText(QString::fromLocal8Bit("用户名或密码不能为空!"));
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("用户名或密码不能为空!"), false);
         return;
     }
 
     if (ui->code_edit->text().isEmpty())
     {
-        ui->err_msg_2->setText(QString::fromLocal8Bit("验证码不能为空!"));
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("验证码不能为空!"), false);
         return;
     }
 
@@ -189,7 +223,7 @@ void LoginGUI::Register()
 //    }
 }
 
-void LoginGUI::GetCode()
+void LoginGUI::getCode()
 {
     ui->frame_err_2->show();
     ui->frame_err_3->show();
@@ -198,9 +232,9 @@ void LoginGUI::GetCode()
     if (ui->email_edit->text().isEmpty() && ui->email_edit_2->text().isEmpty()
         && ui->email_edit_3->text().isEmpty())
     {
-        ui->err_msg_2->setText(QString::fromLocal8Bit("邮箱不能为空!"));
-        ui->err_msg_3->setText(QString::fromLocal8Bit("邮箱不能为空!"));
-        ui->err_msg_4->setText(QString::fromLocal8Bit("邮箱不能为空!"));
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("邮箱不能为空!"), false);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("邮箱不能为空!"), false);
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("邮箱不能为空!"), false);
         return;
     }
 
@@ -215,9 +249,9 @@ void LoginGUI::GetCode()
         && v2->validate(qemail_2, pos) != QValidator::Acceptable
         && v3->validate(qemail_3, pos) != QValidator::Acceptable)
     {
-        ui->err_msg_2->setText(QString::fromLocal8Bit("邮箱格式不正确!"));
-        ui->err_msg_3->setText(QString::fromLocal8Bit("邮箱格式不正确!"));
-        ui->err_msg_4->setText(QString::fromLocal8Bit("邮箱格式不正确!"));
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("邮箱格式不正确!"), false);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("邮箱格式不正确!"), false);
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("邮箱格式不正确!"), false);
         return;
     }
 
@@ -255,12 +289,12 @@ void LoginGUI::GetCode()
     ui->getcodeButton_3->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
 }
 
-void LoginGUI::EmailLogin()
+void LoginGUI::emailLogin()
 {
     ui->frame_err_3->show();
     if (ui->code_edit_2->text().isEmpty())
     {
-        ui->err_msg_3->setText(QString::fromLocal8Bit("验证码不能为空!"));
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("验证码不能为空!"), false);
         return;
     }
 
@@ -304,19 +338,19 @@ void LoginGUI::EmailLogin()
 //    QDialog::accept();
 }
 
-void LoginGUI::ForgetPassword()
+void LoginGUI::forgetPassword()
 {
     ui->frame_err_4->show();
     if (ui->user_name_edit_2->text().isEmpty()
         || ui->pwd_edit_2->text().isEmpty())
     {
-        ui->err_msg_4->setText(QString::fromLocal8Bit("用户名或密码不能为空!"));
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("用户名或密码不能为空!"), false);
         return;
     }
 
     if (ui->code_edit_3->text().isEmpty())
     {
-        ui->err_msg_4->setText(QString::fromLocal8Bit("验证码不能为空!"));
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("验证码不能为空!"), false);
         return;
     }
 
@@ -369,7 +403,7 @@ void LoginGUI::ForgetPassword()
 
 }
 
-void LoginGUI::LoginPage()
+void LoginGUI::loginPage()
 {
     ui->frame_err->hide();
     ui->frame_err_2->hide();
@@ -378,7 +412,7 @@ void LoginGUI::LoginPage()
     ui->frame_login->setCurrentIndex(0);
 }
 
-void LoginGUI::RegisterPage()
+void LoginGUI::registerPage()
 {
     ui->frame_err->hide();
     ui->frame_err_2->hide();
@@ -387,7 +421,7 @@ void LoginGUI::RegisterPage()
     ui->frame_login->setCurrentIndex(2);
 }
 
-void LoginGUI::EmailPage()
+void LoginGUI::emailPage()
 {
     ui->frame_err->hide();
     ui->frame_err_2->hide();
@@ -396,7 +430,7 @@ void LoginGUI::EmailPage()
     ui->frame_login->setCurrentIndex(1);
 }
 
-void LoginGUI::ForgetPage()
+void LoginGUI::forgetPage()
 {
     ui->frame_err->hide();
     ui->frame_err_2->hide();
@@ -405,7 +439,7 @@ void LoginGUI::ForgetPage()
     ui->frame_login->setCurrentIndex(3);
 }
 
-void LoginGUI::UpdateButton()
+void LoginGUI::updateButton()
 {
     _remaining_time--;
     if (_remaining_time <= 0)
@@ -426,12 +460,60 @@ void LoginGUI::UpdateButton()
     }
 }
 
+void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
+{
+    if (err == ErrorCodes::ERR_NETWORK)
+    {
+        showTip(ui->err_msg_3, tr("网络连接失败"), false);
+    }
+
+    switch (id)
+    {
+    case ReqId::ID_GET_VARIFY_CODE:
+    {
+        int error = res["error"].toInt();
+        if(error != ErrorCodes::SUCCESS){
+            showTip(ui->err_msg_3, tr("参数错误"),false);
+            return;
+        }
+        auto email = res["email"].toString();
+        showTip(ui->err_msg_3, tr("验证码已发送到邮箱，注意查收"), true);
+        qDebug()<< "email is " << email ;
+    }
+        break;
+    case ReqId::ID_REG_USER:
+        break;
+    default:
+        break;
+    }
+}
+
 void LoginGUI::paintEvent(QPaintEvent *)
 {
     QStyleOption opt;
     opt.init(this);
     QPainter painter(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+}
+
+void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)
+{
+    if (label)
+    {
+        if (is_ok) label->setProperty("state", "normal");
+        else label->setProperty("state", "err");
+
+        label->setText(tip);
+        repolish(label);
+    }
+}
+
+void LoginGUI::initModulesHandlers()
+{
+    HttpMgr::GetInstance()->registerModulesHandlers(Modules::REGISTER_MOD,
+                                                    std::bind(&LoginGUI::regModCallback, this,
+                                                    std::placeholders::_1, std::placeholders::_2,
+                                                    std::placeholders::_3));
 }
 
 /* 
