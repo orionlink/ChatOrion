@@ -30,12 +30,6 @@ LoginGUI::LoginGUI(QDialog*parent) :
     setAttribute(Qt::WA_TranslucentBackground);  //设置窗口背景透明
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinMaxButtonsHint);  //去掉窗口边框
 
-    this->setStyleSheet("#frame_background{ border-radius: 10px;"
-                        "border-style:solid;"
-                        "border-width:2px;"
-                        "border-color:rgb(213, 213, 213);}"
-                        );
-
     ui->lineE_pwd->setEchoMode(QLineEdit::Password);//设置为小黑点
 
 //    connect(ui->btn_1,SIGNAL(clicked(bool)),this,SLOT(set_style()));

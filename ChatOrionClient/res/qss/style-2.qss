@@ -378,6 +378,24 @@ QLineEdit{
    border: none;
 }
 
+/******************************* 设置窗口圆角 ****************************/
+#frame_login
+{
+   border-radius: 10px;
+}
+
+#frame
+{
+   border-radius: 10px;
+}
+
+#frame_background{ 
+	border-radius: 10px;
+        border-style:solid;
+        border-width:2px;
+        border-color:rgb(213, 213, 213);
+}
+
 /************************* 错误框显示样式 *****************************/
 #err_msg[state='normal']
 {
