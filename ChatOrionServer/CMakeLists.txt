@@ -5,19 +5,20 @@ project(ChatOrionServer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+file(GLOB HEADER_FILES "*.h")
 file(GLOB SEC_LSIT "*cpp" "*.cc" "*.cxx")
 
-# 手动设置 Boost 的库文件路径
-set(BOOST_LIBRARYDIR "/usr/lib/x86_64-linux-gnu")
-find_package(Boost 1.71 REQUIRED COMPONENTS filesystem system)
-
-message(STATUS "Boost found at: ${Boost_INCLUDE_DIRS}")
-message(STATUS "Boost libraries: ${Boost_LIBRARIES}")
-
-#find_package(jsoncpp REQUIRED)
-set(JSONCPP_LIBRARIES /usr/local/lib/)
+include_directories(${CMAKE_SOURCE_DIR}/../third/include)
 
 add_executable(ChatOrionServer ${SEC_LSIT})
 
-# 使用 Boost_LIBRARIES 进行链接
-target_link_libraries(ChatOrionServer ${Boost_LIBRARIES} ${JSONCPP_LIBRARIES}/libjsoncpp.so)
+
+# 指定 Boost 安装的根目录
+set(BOOST_ROOT "${CMAKE_SOURCE_DIR}/../third/")
+
+# 查找 Boost 库
+find_package(Boost REQUIRED COMPONENTS system filesystem)
+
+set(JSONCPP_LIBRARIES "${CMAKE_SOURCE_DIR}/../third/lib/linux/jsoncpp")
+
+target_link_libraries (ChatOrionServer pthread ${Boost_LIBRARIES} ${JSONCPP_LIBRARIES}/libjsoncpp.so)
