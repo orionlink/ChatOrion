@@ -1,8 +1,8 @@
 #include "http_mgr.h"
 
-#include <QJsonObject>
 #include <QJsonDocument>
 #include <QNetworkReply>
+#include <QMetaObject>   // 后面再包含其他需要的头文件
 
 HttpMgr::HttpMgr()
 {
@@ -24,11 +24,12 @@ void HttpMgr::postHttpReq(QUrl url, QJsonObject json, Modules mod, ReqId req_id)
    auto self = shared_from_this();
    QObject::connect(reply, &QNetworkReply::finished, [self, reply, req_id, mod]()
    {
-       if (reply->error() != QNetworkReply::NetworkError::NoError)
+       if (reply->error() != QNetworkReply::NoError)
        {
            qDebug() << reply->errorString();
            emit self->sig_http_finish(mod, req_id, "", ErrorCodes::ERR_NETWORK);
            reply->deleteLater();
+           return;
        }
 
        QString res = reply->readAll();
@@ -49,16 +50,10 @@ void HttpMgr::unregisterModulesHandlers(Modules mod)
 
 void HttpMgr::slot_http_finish(Modules mod, ReqId id, QString res, ErrorCodes err)
 {
-    auto iter = _modules_handlers_map.find(mod);
-    if (iter == _modules_handlers_map.end())
-    {
-        qDebug() << "Modules not find modules: " << mod;
-        return;
-    }
-
     QJsonDocument json_doc = QJsonDocument::fromJson(res.toUtf8());
     if (json_doc.isEmpty() || !json_doc.isObject())
     {
+        err = ERR_JSON;
         qDebug() << "Json 解析失败或者为空";
     }
 

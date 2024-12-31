@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QDialog>
+#include <QJsonObject>
+#include <QMetaObject>   // 后面再包含其他需要的头文件
 /******************************************************************************
  *
  * @file       login_gui.h
@@ -81,13 +83,13 @@ public slots:
     void forgetPassword();
 
     void updateButton(); // 新增的用于更新按钮状态的槽
+
+    void regModCallback(ReqId id, QJsonObject res, ErrorCodes err);
 protected:
     void paintEvent(QPaintEvent*) override;
 private:
     void showTip(QLabel* label, const QString& tip, bool is_ok);
     void initModulesHandlers();
-
-    void regModCallback(ReqId id, QJsonObject res, ErrorCodes err);
 private:
     Ui::LoginGUI*ui;
 

@@ -5,11 +5,12 @@ project(ChatOrionServer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB HEADER_FILES "*.h")
+file(GLOB HEADER_FILES "*.h" "*.hpp")
 file(GLOB SEC_LSIT "*cpp" "*.cc" "*.cxx")
 
 include_directories(${CMAKE_SOURCE_DIR}/../third/include)
 
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../bin)
 add_executable(ChatOrionServer ${SEC_LSIT})
 
 

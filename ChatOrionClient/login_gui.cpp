@@ -15,7 +15,6 @@
 #include <QPainter>
 #include <QStyleOption>
 #include <QJsonDocument>
-#include <QJsonObject>
 
 using namespace std;
 
@@ -53,7 +52,8 @@ LoginGUI::LoginGUI(QDialog*parent) :
     QObject::connect(ui->btn_wb_2, &QPushButton::clicked, this, &LoginGUI::emailPage);
     QObject::connect(ui->btn_wb_3, &QPushButton::clicked, this, &LoginGUI::emailPage);
 
-    initModulesHandlers();
+    HttpMgr::GetInstance()->registerModulesHandlers(Modules::REGISTER_MOD, std::bind(&LoginGUI::regModCallback, this, std::placeholders::_1,
+                                                                                     std::placeholders::_2, std::placeholders::_3));
 
     QPushButton* btn_login = ui->btn_login;
 
@@ -271,6 +271,9 @@ void LoginGUI::getCode()
     }       
 
 //    AuthClient::GetInstance()->GetAuthCodeReq(email);
+    QJsonObject request_json;
+    request_json["email"] = email.c_str();
+    HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/get_varifycode"), request_json, Modules::REGISTER_MOD, ReqId::ID_GET_VARIFY_CODE);
 
     // 开始倒计时
     ui->getcodeButton_2->setDisabled(true);
@@ -456,9 +459,12 @@ void LoginGUI::updateButton()
 
 void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
 {
-    if (err == ErrorCodes::ERR_NETWORK)
+    if (err == ErrorCodes::ERR_NETWORK || err == ErrorCodes::ERR_JSON)
     {
-        showTip(ui->err_msg_3, tr("网络连接失败"), false);
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("网络连接失败"), false);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("网络连接失败"), false);
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("网络连接失败"), false);
+        return;
     }
 
     switch (id)
@@ -466,12 +472,17 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
     case ReqId::ID_GET_VARIFY_CODE:
     {
         int error = res["error"].toInt();
-        if(error != ErrorCodes::SUCCESS){
-            showTip(ui->err_msg_3, tr("参数错误"),false);
+        if(error != ErrorCodes::SUCCESS)
+        {
+            showTip(ui->err_msg_2, QString::fromLocal8Bit("参数错误"), false);
+            showTip(ui->err_msg_3, QString::fromLocal8Bit("参数错误"), false);
+            showTip(ui->err_msg_4, QString::fromLocal8Bit("参数错误"), false);
             return;
         }
         auto email = res["email"].toString();
-        showTip(ui->err_msg_3, tr("验证码已发送到邮箱，注意查收"), true);
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("验证码已发送到邮箱，注意查收"), true);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("验证码已发送到邮箱，注意查收"), true);
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("验证码已发送到邮箱，注意查收"), true);
         qDebug()<< "email is " << email ;
     }
         break;
@@ -494,20 +505,17 @@ void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)
 {
     if (label)
     {
+        ui->frame_err_2->show();
+        ui->frame_err_3->show();
+        ui->frame_err_4->show();
+
+        qDebug() << "tip: " << tip;
         if (is_ok) label->setProperty("state", "normal");
         else label->setProperty("state", "err");
 
         label->setText(tip);
         repolish(label);
     }
-}
-
-void LoginGUI::initModulesHandlers()
-{
-    HttpMgr::GetInstance()->registerModulesHandlers(Modules::REGISTER_MOD,
-                                                    std::bind(&LoginGUI::regModCallback, this,
-                                                    std::placeholders::_1, std::placeholders::_2,
-                                                    std::placeholders::_3));
 }
 
 /* 

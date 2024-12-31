@@ -2,6 +2,7 @@
 #define HTTPMGR_H
 
 #include <QObject>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 
 #include "global.h"
@@ -22,6 +23,7 @@ public:
     void unregisterModulesHandlers(Modules mod);
 signals:
     void sig_http_finish(Modules mod, ReqId req_id, QString res, ErrorCodes err);
+//    void sig_reg_mod_finish(ReqId id, QJsonObject res, ErrorCodes err);
 public slots:
     void slot_http_finish(Modules mod, ReqId req_id, QString res, ErrorCodes err);
 private:
@@ -29,6 +31,7 @@ private:
     HttpMgr();
 private:
     QNetworkAccessManager _manager;
+
     QMap<Modules, modules_handlers_t> _modules_handlers_map;
 };
 
