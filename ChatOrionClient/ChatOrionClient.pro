@@ -28,7 +28,10 @@ FORMS += \
 
 DESTDIR = $$PWD/bin
 
-win32:CONFIG(release, debug | release) {
+DISTFILES += \
+    config.ini
+
+win32:CONFIG(debug, debug | release) {
     # Windows 环境配置
     TargetConfig = $${PWD}/config.ini
     TargetConfig = $$replace(TargetConfig, /, \\)  # 将路径中的 '/' 替换为 '\\'
@@ -41,22 +44,18 @@ win32:CONFIG(release, debug | release) {
     QMAKE_POST_LINK += copy /Y \"$$TargetConfig\" \"$$OutputDir\"
 }
 
-unix:CONFIG(release, debug | release) {
+unix:CONFIG(debug, debug | release) {
     # Linux 环境配置
-    TargetConfig = $${PWD}/config.ini
-    TargetConfig = $$replace(TargetConfig, /, /)  # Linux 本来就使用 '/'，不需要替换
-
-    # 获取输出目录并保持 Linux 格式
-    OutputDir = $${OUT_PWD}/$${DESTDIR}
+    TargetConfig = $$PWD/config.ini  # 当前目录下的 config.ini 文件
+    OutputDir = $$DESTDIR  # 输出目录
 
     # 输出调试信息
     message("TargetConfig: $$TargetConfig")
     message("OutputDir: $$OutputDir")
 
-    # 在 Linux 上使用 `cp` 命令
-    QMAKE_POST_LINK += cp -f \"$$TargetConfig\" \"$$OutputDir\"
+    # 拷贝 config.ini 到输出目录
+    QMAKE_POST_LINK += cp -f "$$TargetConfig" "$$OutputDir"
 }
-
 
 
 # Default rules for deployment.
