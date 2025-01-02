@@ -71,3 +71,7 @@ Thumbs.db
 *.dll
 *.exe
 
+GateServer/.idea/*
+GateServer/cmake-build*/*
+bin/
+
