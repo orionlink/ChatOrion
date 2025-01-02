@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ############################### 执行构建proto文件脚本 ###############################
 execute_process(
         COMMAND /bin/bash ${CMAKE_SOURCE_DIR}/../protocol/build_proto.sh
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/config.ini ${CMAKE_SOURCE_DIR}/../bin
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../protocol/
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
@@ -27,14 +28,10 @@ endif()
 
 ###################################### 查找grpc库 ######################
 # 设置 gRPC 和 protobuf 安装的根目录路径
-set(GRPC_DIR "/home/hwk/code/item/ChatOrion/third/lib/linux/grpc")
-set(Protobuf_DIR "/home/hwk/code/item/ChatOrion/third/lib/linux/grpc/cmake/")
-
-message("grpc 路径: " ${GRPC_DIR})
-message("Protobuf_DIR 路径: " ${Protobuf_DIR})
+set(GRPC_DIR ${CMAKE_SOURCE_DIR}/../../third/lib/linux/grpc)
 
 # 设置 CMake 查找模块路径
-list(APPEND CMAKE_PREFIX_PATH ${GRPC_DIR} ${Protobuf_DIR})
+list(APPEND CMAKE_PREFIX_PATH ${GRPC_DIR})
 
 # 查找 gRPC 和 protobuf
 find_package(Threads REQUIRED)
@@ -60,16 +57,19 @@ file(GLOB SEC_LSIT "*cpp" "*.cc" "*.cxx")
 include_directories(${CMAKE_SOURCE_DIR}/../../third/include)
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../bin)
-add_executable(${ITEM_NAME} ${SEC_LSIT})
+add_executable(${ITEM_NAME} ${SEC_LSIT}
+        verify_grpc_client.h
+        Settings.cpp
+        Settings.h)
 
 
 # 指定 Boost 安装的根目录
-set(BOOST_ROOT "${CMAKE_SOURCE_DIR}/../../third/")
+set(BOOST_ROOT ${CMAKE_SOURCE_DIR}/../../third/lib/linux/boost)
 
 # 查找 Boost 库
-find_package(Boost REQUIRED COMPONENTS system filesystem)
+find_package(Boost REQUIRED COMPONENTS filesystem system)
 
-set(JSONCPP_LIBRARIES "${CMAKE_SOURCE_DIR}/../../third/lib/linux/jsoncpp")
+set(JSONCPP_LIBRARIES ${CMAKE_SOURCE_DIR}/../../third/lib/linux/jsoncpp)
 
 target_link_libraries (${ITEM_NAME} ${_REFLECTION}
         ${_GRPC_GRPCPP}

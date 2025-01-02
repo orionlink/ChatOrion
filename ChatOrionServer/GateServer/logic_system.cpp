@@ -1,5 +1,6 @@
 #include "logic_system.h"
 #include "http_connection.h"
+#include "verify_grpc_client.h"
 
 LogicSystem::LogicSystem()
 {
@@ -32,8 +33,9 @@ LogicSystem::LogicSystem()
         }
 
         std::string email = src_root["email"].asString();
+        message::GetVarifyRsp rsp = VerifyGrpcClient::GetInstance()->GetVarifyCode(email);
         std::cout << "email is " << email << std::endl;
-        root["error"] = 0;
+        root["error"] = rsp.error();
         root["email"] = src_root["email"];
         std::string jsonstr = root.toStyledString();
         boost::beast::ostream(connection->_response.body()) << jsonstr;
