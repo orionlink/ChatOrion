@@ -1,0 +1,13 @@
+prefix=/home/hwk/github/grpc/grpc_lib
+exec_prefix=/home/hwk/github/grpc/grpc_lib
+libdir=/home/hwk/github/grpc/grpc_lib/lib
+sharedlibdir=/home/hwk/github/grpc/grpc_lib/lib
+includedir=/home/hwk/github/grpc/grpc_lib/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.11
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

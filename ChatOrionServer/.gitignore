@@ -74,4 +74,6 @@ Thumbs.db
 GateServer/.idea/*
 GateServer/cmake-build*/*
 bin/
+VarifyServer/.idea/*
+VarifyServer/node_modules/*
 
