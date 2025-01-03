@@ -64,13 +64,25 @@ namespace config
     class Settings
     {
     public:
-        explicit Settings(const std::string& filename);
         ~Settings() = default;
         
         Settings(const Settings&) = default;
         Settings& operator=(const Settings&) = default;
         Settings(Settings&&) noexcept = default;
         Settings& operator=(Settings&&) noexcept = default;
+
+        static Settings& GetInstance()
+        {
+            static Settings settings;
+            return settings;
+        }
+
+        void setFileName(const std::string &filename)
+        {
+            _filename = filename;
+        }
+
+        void load();
 
         template<typename T>
         ValueWrapper value(const std::string& key, const T& default_value = T()) const
@@ -92,10 +104,13 @@ namespace config
         }
 
     private:
+        explicit Settings();
+
         void saveToFile() const;
         
         std::map<std::string, SectionInfo> _config_map;
         std::string _current_file_path;
+        std::string _filename;
     };
 } // namespace config
 

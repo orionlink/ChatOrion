@@ -8,7 +8,10 @@ int main()
 {
     try
     {
-        config::Settings settings("config.ini");
+        auto &settings = config::Settings::GetInstance();
+        settings.setFileName("config.ini");
+        settings.load();
+
         unsigned short port = settings.value("GateServer/Port", 8080).toInt();
         net::io_context ioc{1};
         boost::asio::signal_set signal(ioc, SIGINT, SIGTERM);
@@ -20,6 +23,7 @@ int main()
         });
         std::make_shared<CServer>(ioc, port)->start();
         std::cout << "Gate Server listen on port: " << port << std::endl;
+        std::cout << "主线程 id: " << std::this_thread::get_id() << std::endl;
         ioc.run();
     }
     catch (std::exception& ex)

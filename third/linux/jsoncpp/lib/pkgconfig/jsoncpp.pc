@@ -1,5 +1,5 @@
-prefix=/home/hwk/下载/jsoncpp-master/lib
-exec_prefix=/home/hwk/下载/jsoncpp-master/lib
+prefix=/home/hwk/下载/jsoncpp-master/lib_jsoncpp
+exec_prefix=/home/hwk/下载/jsoncpp-master/lib_jsoncpp
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 

@@ -54,12 +54,16 @@ namespace config
         }
     }
 
-    Settings::Settings(const std::string& filename)
+    Settings::Settings()
+    {
+    }
+
+    void Settings::load()
     {
         try {
             boost::filesystem::path current_path = boost::filesystem::current_path();
             std::string config_path = current_path.string();
-            config_path += "/" + filename;
+            config_path += "/" + _filename;
             _current_file_path = config_path;
 
             boost::property_tree::ptree ptree;

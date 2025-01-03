@@ -87,8 +87,8 @@ list(APPEND _BOOST_IOSTREAMS_DEPS random regex system headers)
 
 if(CMAKE_CONFIGURATION_TYPES)
   set_property(TARGET Boost::iostreams APPEND PROPERTY INTERFACE_LINK_LIBRARIES
-    "$<$<CONFIG:release>:icudata;icui18n;icuuc;lzma;z>")
+    "$<$<CONFIG:release>:bz2;icudata;icui18n;icuuc;lzma;z>")
 else()
   set_property(TARGET Boost::iostreams APPEND PROPERTY INTERFACE_LINK_LIBRARIES
-    icudata icui18n icuuc lzma z)
+    bz2 icudata icui18n icuuc lzma z)
 endif()

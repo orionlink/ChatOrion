@@ -15,10 +15,10 @@ mark_as_advanced(boost_stacktrace_from_exception_DIR)
 get_filename_component(_BOOST_CMAKEDIR "${CMAKE_CURRENT_LIST_DIR}/../" REALPATH)
 
 # If the computed and the original directories are symlink-equivalent, use original
-if(EXISTS "/home/hwk/下载/boost_1_87_0/lib/lib/cmake")
-  get_filename_component(_BOOST_CMAKEDIR_ORIGINAL "/home/hwk/下载/boost_1_87_0/lib/lib/cmake" REALPATH)
+if(EXISTS "/home/hwk/下载/boost_1_87_0/lib_boost/lib/cmake")
+  get_filename_component(_BOOST_CMAKEDIR_ORIGINAL "/home/hwk/下载/boost_1_87_0/lib_boost/lib/cmake" REALPATH)
   if(_BOOST_CMAKEDIR STREQUAL _BOOST_CMAKEDIR_ORIGINAL)
-    set(_BOOST_CMAKEDIR "/home/hwk/下载/boost_1_87_0/lib/lib/cmake")
+    set(_BOOST_CMAKEDIR "/home/hwk/下载/boost_1_87_0/lib_boost/lib/cmake")
   endif()
   unset(_BOOST_CMAKEDIR_ORIGINAL)
 endif()

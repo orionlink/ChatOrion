@@ -6,6 +6,12 @@
 #define VERIFY_GRPC_CLIENT_H
 
 #include <grpcpp/grpcpp.h>
+#include <queue>
+#include <mutex>
+#include <memory>
+#include <condition_variable>
+#include <atomic>
+
 #include "message.grpc.pb.h"
 #include "const.h"
 #include "Settings.h"
@@ -19,45 +25,37 @@ using message::GetVarifyReq;
 using message::GetVarifyRsp;
 using message::VarifyService;
 
+class GPCConnectPool
+{
+public:
+    GPCConnectPool(int pool_size, const std::string& host, const std::string& port);
+
+    ~GPCConnectPool();
+
+    std::unique_ptr<VarifyService::Stub> getConnection();
+    void returnConnection(std::unique_ptr<VarifyService::Stub> stub);
+
+    void close();
+private:
+    std::queue<std::unique_ptr<VarifyService::Stub>> _stub_queue;
+    int _pool_size;
+    std::mutex _mtx;
+    std::condition_variable _condition_var;
+    std::atomic<bool> _b_stop;
+    std::string _host;
+    std::string _port;
+};
+
 class VerifyGrpcClient : public Singleton<VerifyGrpcClient>
 {
     friend class Singleton<VerifyGrpcClient>;
 public:
-    GetVarifyRsp GetVarifyCode(const std::string &email)
-    {
-        grpc::ClientContext context;
-        GetVarifyReq request;
-        GetVarifyRsp response;
-        request.set_email(email);
-        Status status = _stub->GetVarifyCode(&context, request, &response);
-        if (status.ok())
-        {
-            return response;
-        }
-        else {
-            response.set_error(ErrorCodes::RPCFailed);
-            return response;
-        }
-    }
+    GetVarifyRsp GetVarifyCode(const std::string &email);
 
-    void setUrl(const std::string &url)
-    {
-        _url = url;
-    }
 private:
-    VerifyGrpcClient()
-    {
-        config::Settings settings("config.ini");
-        unsigned int port = settings.value("VarifyServer/Port", 50051).toInt();
-        _url = "127.0.0.1";
-        _url += ":" + std::to_string(port);
+    VerifyGrpcClient();
 
-        std::shared_ptr<grpc::Channel> channal = grpc::CreateChannel(_url, grpc::InsecureChannelCredentials());
-        _stub = message::VarifyService::NewStub(channal);
-    }
-
-    std::unique_ptr<message::VarifyService::Stub> _stub;
-    std::string _url{"127.0.0.1:50051"};
+    std::unique_ptr<GPCConnectPool> _rcp_pool;
 };
 
 #endif //VERIFY_GRPC_CLIENT_H

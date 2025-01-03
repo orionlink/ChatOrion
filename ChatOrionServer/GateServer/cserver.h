@@ -17,7 +17,6 @@ public:
 private:
     boost::asio::ip::tcp::acceptor _acceptor;
     boost::asio::io_context& _ioc;
-    boost::asio::ip::tcp::socket _socket;
 };
 
 #endif // CSERVER_H

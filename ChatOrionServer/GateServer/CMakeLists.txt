@@ -82,6 +82,8 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
         verify_grpc_client.h
         Settings.cpp
         Settings.h
+        AsioIOServicePool.h
+        verify_grpc_client.cpp
 )
 
 # Boost配置

@@ -5,11 +5,14 @@ const config_module = require("./config")
  */
 let transport = nodemailer.createTransport({
     host: 'smtp.163.com',
-    port: 465,
+    port: 994,
     secure: true,
     auth: {
         user: config_module.email_user, // 发送方邮箱地址
         pass: config_module.email_pass // 邮箱授权码或者密码
+    },
+    tls: {
+        rejectUnauthorized: false  // 禁用证书验证（仅调试用）
     }
 });
 

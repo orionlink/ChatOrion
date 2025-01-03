@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-HttpConnection::HttpConnection(tcp::socket socket)
-    :_socket(std::move(socket))
+HttpConnection::HttpConnection(boost::asio::io_context& ioc)
+    :_socket(ioc)
 {
 }
 
@@ -22,6 +22,8 @@ void HttpConnection::start()
                 std::cout << "http read err is " << ec.what() << std::endl;
                 return;
             }
+
+            std::cout << "async_read work id: " << std::this_thread::get_id() << std::endl;
 
             boost::ignore_unused(bytes_transferred);
             self->hanleReq();
