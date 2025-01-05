@@ -48,14 +48,20 @@ set(JSONCPP_PATHS
         "${THIRD_PARTY_ROOT}/linux/jsoncpp"
 )
 
+# 设置 hredis 的路径列表
+set(HIREDIS_PATHS
+        "${THIRD_PARTY_ROOT}/linux/hiredis"
+)
+
 # 将所有路径加入到 CMAKE_PREFIX_PATH
-list(APPEND CMAKE_PREFIX_PATH ${GRPC_PATHS} ${BOOST_PATHS} ${JSONCPP_PATHS})
+list(APPEND CMAKE_PREFIX_PATH ${GRPC_PATHS} ${BOOST_PATHS} ${JSONCPP_PATHS} ${HREDIS_PATHS})
 
 # 添加include路径
 include_directories(
         ${GRPC_PATHS}/include
         ${BOOST_PATHS}/include
         ${JSONCPP_PATHS}/include
+        ${HIREDIS_PATHS}/include
 )
 
 # 查找线程库
@@ -93,6 +99,8 @@ find_package(Boost REQUIRED COMPONENTS filesystem system)
 # JsonCpp配置
 set(JSONCPP_LIBRARIES ${JSONCPP_PATHS}/lib/libjsoncpp.so)
 
+set(HIREDIS_LIBRARIES ${HIREDIS_PATHS}/lib/libhiredis.so)
+
 # 链接库
 target_link_libraries(${ITEM_NAME}
         PRIVATE
@@ -102,6 +110,7 @@ target_link_libraries(${ITEM_NAME}
         Threads::Threads
         ${Boost_LIBRARIES}
         ${JSONCPP_LIBRARIES}
+        ${HIREDIS_LIBRARIES}
 )
 
 # 打印调试信息
