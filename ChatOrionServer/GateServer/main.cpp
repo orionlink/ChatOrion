@@ -6,17 +6,21 @@
 
 #include <hiredis/hiredis.h>
 
+#include "RedisManager.h"
+
 void TestRedis();
+void TestRedisManager();
 
 int main()
 {
-    TestRedis();
-
+    // TestRedis();
     try
     {
         auto &settings = config::Settings::GetInstance();
         settings.setFileName("config.ini");
         settings.load();
+
+        TestRedisManager();
 
         unsigned short port = settings.value("GateServer/Port", 8080).toInt();
         net::io_context ioc{1};
@@ -41,6 +45,27 @@ int main()
     return 0;
 }
 
+void TestRedisManager()
+{
+    assert(RedisManager::GetInstance()->set("blogwebsite","llfc.club"));
+    std::string value="";
+    assert(RedisManager::GetInstance()->get("blogwebsite", value) );
+    assert(RedisManager::GetInstance()->get("nonekey", value) == false);
+    assert(RedisManager::GetInstance()->hset("bloginfo","blogwebsite", "llfc.club"));
+    assert(RedisManager::GetInstance()->hget("bloginfo","blogwebsite", value));
+    assert(RedisManager::GetInstance()->existsKey("bloginfo"));
+    assert(RedisManager::GetInstance()->del("bloginfo"));
+    assert(RedisManager::GetInstance()->del("bloginfo"));
+    assert(RedisManager::GetInstance()->existsKey("bloginfo") == false);
+    assert(RedisManager::GetInstance()->lpush("lpushkey1", "lpushvalue1"));
+    assert(RedisManager::GetInstance()->lpush("lpushkey1", "lpushvalue2"));
+    assert(RedisManager::GetInstance()->lpush("lpushkey1", "lpushvalue3"));
+    assert(RedisManager::GetInstance()->rpop("lpushkey1", value));
+    assert(RedisManager::GetInstance()->rpop("lpushkey1", value));
+    assert(RedisManager::GetInstance()->lpop("lpushkey1", value));
+    assert(RedisManager::GetInstance()->lpop("lpushkey2", value)==false);
+}
+
 void TestRedis()
 {
     //连接redis 需要启动才可以进行连接
@@ -53,7 +78,7 @@ void TestRedis()
     }
     printf("Connect to redisServer Success\n");
     std::string redis_password = "123456";
-    redisReply* r = (redisReply*)redisCommand(c, "AUTH %s %s", "default", redis_password);
+    redisReply* r = (redisReply*)redisCommand(c, "AUTH %s %s", "default", redis_password.c_str());
      if (r->type == REDIS_REPLY_ERROR) {
          printf("Redis认证失败！错误信息：%s\n", r->str);
     }else {

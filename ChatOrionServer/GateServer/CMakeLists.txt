@@ -90,6 +90,10 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
         Settings.h
         AsioIOServicePool.h
         verify_grpc_client.cpp
+        RedisManager.cpp
+        RedisManager.h
+        RedisConnectPool.cpp
+        RedisConnectPool.h
 )
 
 # Boost配置
