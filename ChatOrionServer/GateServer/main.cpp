@@ -20,7 +20,7 @@ int main()
         settings.setFileName("config.ini");
         settings.load();
 
-        TestRedisManager();
+        // TestRedisManager();
 
         unsigned short port = settings.value("GateServer/Port", 8080).toInt();
         net::io_context ioc{1};
