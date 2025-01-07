@@ -53,8 +53,13 @@ set(HIREDIS_PATHS
         "${THIRD_PARTY_ROOT}/linux/hiredis"
 )
 
+# 设置 mysql_connector 的路径列表
+set(MYSQL_CONNECTOR_PATHS
+        "${THIRD_PARTY_ROOT}/linux/mysql_connector"
+)
+
 # 将所有路径加入到 CMAKE_PREFIX_PATH
-list(APPEND CMAKE_PREFIX_PATH ${GRPC_PATHS} ${BOOST_PATHS} ${JSONCPP_PATHS} ${HREDIS_PATHS})
+list(APPEND CMAKE_PREFIX_PATH ${GRPC_PATHS} ${BOOST_PATHS} ${JSONCPP_PATHS} ${HREDIS_PATHS} ${MYSQL_CONNECTOR_PATHS})
 
 # 添加include路径
 include_directories(
@@ -62,11 +67,14 @@ include_directories(
         ${BOOST_PATHS}/include
         ${JSONCPP_PATHS}/include
         ${HIREDIS_PATHS}/include
+        ${MYSQL_CONNECTOR_PATHS}/include
 )
 
 # 查找线程库
 find_package(Threads REQUIRED)
 
+###############################################################################
+# 查找 grpc 依赖
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
@@ -78,6 +86,19 @@ set(_REFLECTION gRPC::grpc++_reflection)
 find_package(gRPC CONFIG REQUIRED)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 set(_GRPC_GRPCPP gRPC::grpc++)
+##################################################################################
+
+# Boost配置
+#set(BOOST_ROOT ${THIRD_PARTY_ROOT}/lib/linux/boost)
+find_package(Boost REQUIRED COMPONENTS filesystem system)
+
+# mysql_connector
+find_package(mysql-concpp REQUIRED)
+
+# JsonCpp配置
+set(JSONCPP_LIBRARIES ${JSONCPP_PATHS}/lib/libjsoncpp.so)
+
+set(HIREDIS_LIBRARIES ${HIREDIS_PATHS}/lib/libhiredis.so)
 
 # 源文件
 file(GLOB HEADER_FILES "*.h" "*.hpp")
@@ -94,16 +115,8 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
         RedisManager.h
         RedisConnectPool.cpp
         RedisConnectPool.h
+        ConnectionPoolProxy.h
 )
-
-# Boost配置
-#set(BOOST_ROOT ${THIRD_PARTY_ROOT}/lib/linux/boost)
-find_package(Boost REQUIRED COMPONENTS filesystem system)
-
-# JsonCpp配置
-set(JSONCPP_LIBRARIES ${JSONCPP_PATHS}/lib/libjsoncpp.so)
-
-set(HIREDIS_LIBRARIES ${HIREDIS_PATHS}/lib/libhiredis.so)
 
 # 链接库
 target_link_libraries(${ITEM_NAME}
@@ -115,6 +128,8 @@ target_link_libraries(${ITEM_NAME}
         ${Boost_LIBRARIES}
         ${JSONCPP_LIBRARIES}
         ${HIREDIS_LIBRARIES}
+        mysql::concpp-xdevapi
+        mysql::concpp-jdbc
 )
 
 # 打印调试信息

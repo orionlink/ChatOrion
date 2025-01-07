@@ -31,6 +31,8 @@ LoginGUI::LoginGUI(QDialog*parent) :
 
     ui->lineE_pwd->setEchoMode(QLineEdit::Password);//设置为小黑点
 
+    ui->frame_login->setCurrentIndex(0);
+
 //    connect(ui->btn_1,SIGNAL(clicked(bool)),this,SLOT(set_style()));
 //    connect(ui->btn_2,SIGNAL(clicked(bool)),this,SLOT(set_style()));
 //    connect(ui->btn_3,SIGNAL(clicked(bool)),this,SLOT(set_style()));
@@ -179,42 +181,12 @@ void LoginGUI::registerReq()
     string email = ui->email_edit->text().toUtf8().constData();
     string code = ui->code_edit->text().toUtf8().constData();
 
-//    msg::RegisterUserReq req;
-//    req.set_username(username);
-//    req.set_password(password);
-//    req.set_email(email);
-//    req.set_code(code);
-
-//    AuthClient::GetInstance()->RegisterUserReq(req);
-
-//    QCoreApplication::processEvents(); // 允许事件处理，以便定时器能够更新
-
-//    int ret = AuthClient::GetInstance()->GetResult(3000);
-
-//    QCoreApplication::processEvents(); // 再次处理事件，以确保超时处理逻辑可以执行
-
-//    ui->btn_register_2->setText(QString::fromLocal8Bit("注册"));
-//    ui->frame_err_2->show();
-//    ui->btn_register_2->setEnabled(true);
-//    switch (ret)
-//    {
-//    case 0:
-//        ui->err_msg_2->setText(QString::fromLocal8Bit("注册超时!"));
-//        break;
-//    case 1:
-//        ui->err_msg_2->setText(QString::fromLocal8Bit("验证码错误!"));
-//        break;
-//    case 2:
-//        ui->err_msg_2->setText(QString::fromLocal8Bit("用户名已存在或邮箱已被绑定!"));
-//        break;
-//    case 3:
-//        ui->err_msg_2->setText(QString::fromLocal8Bit("注册成功请登录"));
-//        ui->lineE_user_name->setText(username.c_str());
-//        ui->lineE_pwd->setText(password.c_str());
-//        break;
-//    default:
-//        break;
-//    }
+    QJsonObject request_json;
+    request_json["username"] = username.c_str();
+    request_json["password"] = password.c_str();
+    request_json["email"] = email.c_str();
+    request_json["code"] = code.c_str();
+    HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/user_register"), request_json, Modules::REGISTER_MOD, ReqId::ID_REG_USER);
 }
 
 void LoginGUI::getCode()
@@ -487,6 +459,26 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
     }
         break;
     case ReqId::ID_REG_USER:
+    {
+        ui->btn_register_2->setEnabled(true);
+        ui->btn_register_2->setText("注册");
+
+        int error = res["error"].toInt();
+        if(error != ErrorCodes::SUCCESS)
+        {
+            QString error_msg = res["error_msg"].toString();
+            showTip(ui->err_msg_2, error_msg, false);
+            showTip(ui->err_msg_3, error_msg, false);
+            showTip(ui->err_msg_4, error_msg, false);
+            return;
+        }
+
+        auto username = res["username"].toString();
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("用户注册成功，返回登录界面登录"), true);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("用户注册成功，返回登录界面登录"), true);
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("用户注册成功，返回登录界面登录"), true);
+        qDebug()<< "username is " << username ;
+    }
         break;
     default:
         break;

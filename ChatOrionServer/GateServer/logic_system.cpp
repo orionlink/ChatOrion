@@ -1,5 +1,6 @@
 #include "logic_system.h"
 #include "http_connection.h"
+#include "RedisManager.h"
 #include "verify_grpc_client.h"
 
 LogicSystem::LogicSystem()
@@ -39,6 +40,63 @@ LogicSystem::LogicSystem()
         root["email"] = src_root["email"];
         std::string jsonstr = root.toStyledString();
         boost::beast::ostream(connection->_response.body()) << jsonstr;
+    });
+
+    regPost("/user_register", [](std::shared_ptr<HttpConnection> connection) {
+        auto body_str = boost::beast::buffers_to_string(connection->_request.body().data());
+        // std::cout << "receive body is " << body_str << std::endl;
+        connection->_response.set(http::field::content_type, "text/json");
+
+        Json::Value root;
+        Json::Value src_root;
+        Json::Reader reader;
+        bool sueccss = reader.parse(body_str, src_root);
+        if (!sueccss)
+        {
+            std::cout << "Failed to parse JSON data!" << std::endl;
+            root["error"] = ErrorCodes::Error_Json;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return;
+        }
+
+        std::string username = src_root["username"].asString();
+        std::string password = src_root["password"].asString();
+        std::string email = src_root["email"].asString();
+        std::string code = src_root["code"].asString();
+
+        //先查找redis中email对应的验证码是否合理
+        std::string varify_code;
+        bool b_get_varify = RedisManager::GetInstance()->get(CODE_PREFIX + email, varify_code);
+        if (!b_get_varify)
+        {
+            std::cout << "get varify code expired" << std::endl;
+            root["error"] = ErrorCodes::VarifyExpired;
+            root["error_msg"] = "get varify code expired";
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return;
+        }
+
+        if (varify_code != code)
+        {
+            std::cout << "varify code error" << std::endl;
+            root["error"] = ErrorCodes::VarifyCodeErr;
+            root["error_msg"] = "varify code error";
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return;
+        }
+
+        //查找数据库判断用户是否存在
+
+        root["error"] = 0;
+        root["email"] = email;
+        root ["username"]= username;
+        root["password"] = password;
+        root["code"] = code;
+        std::string jsonstr = root.toStyledString();
+        beast::ostream(connection->_response.body()) << jsonstr;
     });
 }
 

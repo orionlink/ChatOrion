@@ -3,6 +3,7 @@
 //
 
 #include "verify_grpc_client.h"
+#include "ConnectionPoolProxy.h"
 
 GPCConnectPool::GPCConnectPool(int pool_size, const std::string& host, const std::string& port)
     :_pool_size(pool_size), _b_stop(false), _host(host), _port(port)
@@ -68,8 +69,19 @@ GetVarifyRsp VerifyGrpcClient::GetVarifyCode(const std::string& email)
     GetVarifyReq request;
     GetVarifyRsp response;
     request.set_email(email);
-    auto stub = _rcp_pool->getConnection();
-    Status status = stub->GetVarifyCode(&context, request, &response);
+
+    ConnectionPoolProxy<std::unique_ptr<VarifyService::Stub>, GPCConnectPool> proxy(
+        *_rcp_pool.get(),
+        [this]() {
+            return this->_rcp_pool->getConnection(); // 获取连接
+        },
+        [this](std::unique_ptr<VarifyService::Stub> stub) {
+            this->_rcp_pool->returnConnection(std::move(stub)); // 释放连接
+        }
+    );
+
+    // auto stub = _rcp_pool->getConnection();
+    Status status = proxy->GetVarifyCode(&context, request, &response);
     if (status.ok())
     {
         return response;
@@ -83,7 +95,7 @@ GetVarifyRsp VerifyGrpcClient::GetVarifyCode(const std::string& email)
 VerifyGrpcClient::VerifyGrpcClient()
 {
     config::Settings& settings = config::Settings::GetInstance();
-    unsigned int port = settings.value("VarifyServer/Port", 50051).toInt();
+    unsigned int port = settings.value("VarifyServer/port", 50051).toInt();
     std::string host = "127.0.0.1";
     std::string port_str = std::to_string(port);
 

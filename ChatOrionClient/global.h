@@ -14,8 +14,15 @@ enum ReqId{
 
 enum ErrorCodes{
     SUCCESS = 0,
-    ERR_JSON = 1001, //Json解析失败
+    ERR_JSON = 1001,        //Json解析失败
     ERR_NETWORK = 1002,
+    VarifyExpired = 1003,   // 验证码过期
+    VarifyCodeErr = 1004,   // 验证码错误
+    UserExist = 1005,       // 用户存在
+    PasswdErr = 1006,       // 密码错误
+    EmailNotMatch = 1007,   // 邮箱不匹配
+    PasswdUpdataFailed = 1008,// 更新密码失败
+    PasswdInvalid = 1009    // 密码无效
 };
 
 enum Modules{
