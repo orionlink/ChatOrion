@@ -23,7 +23,8 @@ void test_mysql_connection();
 int main()
 {
     // TestRedis();
-    test_mysql_connection();
+    // test_mysql_connection();
+
     try
     {
         auto &settings = config::Settings::GetInstance();
@@ -165,7 +166,7 @@ void test_mysql_connection()
 {
     try {
         sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
-        std::unique_ptr<sql::Connection> con(driver->connect("localhost", "root", "123456"));
+        std::unique_ptr<sql::Connection> con(driver->connect("127.0.0.1", "root", "123456"));
     }
     catch (sql::SQLException& e) {
         // 处理异常

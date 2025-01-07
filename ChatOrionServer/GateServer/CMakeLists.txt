@@ -116,6 +116,12 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
         RedisConnectPool.cpp
         RedisConnectPool.h
         ConnectionPoolProxy.h
+        MySQLConnectPool.cpp
+        MySQLConnectPool.h
+        MySQLManager.cpp
+        MySQLManager.h
+        MySQLDao.cpp
+        MySQLDao.h
 )
 
 # 链接库

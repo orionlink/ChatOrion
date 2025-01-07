@@ -9,6 +9,12 @@
 #include <json/value.h>
 #include <json/reader.h>
 
+#include <iostream>
+#include <functional>
+#include <string>
+#include <memory>
+#include <queue>
+
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
@@ -28,5 +34,17 @@ enum ErrorCodes {
 };
 
 const std::string CODE_PREFIX = "code_";
+
+class Defer
+{
+public:
+    Defer(std::function<void()> func) : _func(func) {}
+    ~Defer()
+    {
+        _func();
+    }
+private:
+    std::function<void()> _func;
+};
 
 #endif // CONST_H
