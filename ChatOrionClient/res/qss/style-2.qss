@@ -446,6 +446,57 @@ QLineEdit{
 }
 /*********  ´íÎó¿òÏÔÊ¾ÑùÊ½ end ************************/
 
+
+/***************** ÃÜÂë¿òÏÔÒþ ****************************/
+#pass_visible[state='unvisible']{
+   border-image: url(:/res/pic/unvisible.png);
+}
+
+#pass_visible[state='unvisible_hover']{
+   border-image: url(:/res/pic/unvisible_hover.png);
+}
+
+#pass_visible[state='visible']{
+   border-image: url(:/res/pic/visible.png);
+}
+
+#pass_visible[state='visible_hover']{
+   border-image: url(:/res/pic/visible_hover.png);
+}
+
+#pass_visible_2[state='unvisible']{
+   border-image: url(:/res/pic/unvisible.png);
+}
+
+#pass_visible_2[state='unvisible_hover']{
+   border-image: url(:/res/pic/unvisible_hover.png);
+}
+
+#pass_visible_2[state='visible']{
+   border-image: url(:/res/pic/visible.png);
+}
+
+#pass_visible_2[state='visible_hover']{
+   border-image: url(:/res/pic/visible_hover.png);
+}
+
+#pass_visible_3[state='unvisible']{
+   border-image: url(:/res/pic/unvisible.png);
+}
+
+#pass_visible_3[state='unvisible_hover']{
+   border-image: url(:/res/pic/unvisible_hover.png);
+}
+
+#pass_visible_3[state='visible']{
+   border-image: url(:/res/pic/visible.png);
+}
+
+#pass_visible_3[state='visible_hover']{
+   border-image: url(:/res/pic/visible_hover.png);
+}
+/*************************************************************/
+
 /*°´Å¥-·Ûºì*/
 #btn_1{
 color:#e83737;

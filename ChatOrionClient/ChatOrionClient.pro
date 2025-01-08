@@ -9,24 +9,33 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    custom_ui/clicked_label.cpp \
+    custom_ui/timer_btn.cpp \
     global.cpp \
     login_gui.cpp \
     main.cpp \
     mainwindow.cpp \
-    network/http_mgr.cpp
+    network/http_mgr.cpp \
+    tools.cpp
 
 HEADERS += \
+    custom_ui/clicked_label.h \
+    custom_ui/timer_btn.h \
     global.h \
     login_gui.h \
     mainwindow.h \
     network/http_mgr.h \
-    singleton.h
+    singleton.h \
+    tools.h
 
 FORMS += \
     login_gui.ui \
     mainwindow.ui
 
 DESTDIR = $$PWD/bin
+
+INCLUDEPATH += $$PWD/custom_ui
+INCLUDEPATH += $$PWD/network
 
 DISTFILES += \
     config.ini

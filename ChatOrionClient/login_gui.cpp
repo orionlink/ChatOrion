@@ -1,6 +1,7 @@
 ﻿#include "login_gui.h"
 #include "ui_login_gui.h"
 #include "global.h"
+#include "tools.h"
 #include "network/http_mgr.h"
 
 #include <QFile>
@@ -110,21 +111,25 @@ LoginGUI::LoginGUI(QDialog*parent) :
 
     ui->err_msg_4->setProperty("state","normal");
     repolish(ui->err_msg_4);
+
+    ui->pass_visible->SetState("unvisible","unvisible_hover","","visible",
+                                "visible_hover","");
+    ui->pass_visible_2->SetState("unvisible","unvisible_hover","","visible",
+                                "visible_hover","");
+    ui->pass_visible_3->SetState("unvisible","unvisible_hover","","visible",
+                                "visible_hover","");
+    connect(ui->pass_visible, &ClickedLabel::clicked, this, &LoginGUI::onPassVisible);
+    connect(ui->pass_visible_2, &ClickedLabel::clicked, this, &LoginGUI::onPassVisible);
+    connect(ui->pass_visible_3, &ClickedLabel::clicked, this, &LoginGUI::onPassVisible);
 }
 
 void LoginGUI::login()
 {
-    ui->frame_err->show();
-    ui->err_msg->setText(QString::fromLocal8Bit("正在登陆 ..."));
-    string username = ui->lineE_user_name->text().toUtf8().constData();
-    string password = ui->lineE_pwd->text().toUtf8().constData();
-    if (username.empty() || password.empty()) 
+    if (!checkUserValid() || !checkPassValid())
     {
-        showTip(ui->err_msg, QString::fromLocal8Bit("用户名或密码不能为空!"), false);
         return;
     }
 
-    ui->frame_err->hide();
     ui->btn_login->setEnabled(false);
     ui->btn_login->setText(QString::fromLocal8Bit("登陆中..."));
 
@@ -158,26 +163,16 @@ void LoginGUI::login()
 
 void LoginGUI::registerReq()
 {
-    ui->frame_err_2->show();
-    if (ui->user_name_edit->text().isEmpty()
-        || ui->pwd_edit->text().isEmpty())
+    if (!checkUserValid() || !checkPassValid() || !checkVarifyValid() || !checkEmailValid())
     {
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("用户名或密码不能为空!"), false);
         return;
     }
 
-    if (ui->code_edit->text().isEmpty())
-    {
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("验证码不能为空!"), false);
-        return;
-    }
-
-    ui->frame_err_2->hide();
 //    ui->btn_register_2->setText(QString::fromLocal8Bit("正在注册..."));
 //    ui->btn_register_2->setEnabled(false);
 
     string username = ui->user_name_edit->text().toUtf8().constData();
-    string password = ui->pwd_edit->text().toUtf8().constData();
+    string password = Tools::hashString(ui->pwd_edit->text(), QCryptographicHash::Sha256).toStdString();
     string email = ui->email_edit->text().toUtf8().constData();
     string code = ui->code_edit->text().toUtf8().constData();
 
@@ -191,39 +186,10 @@ void LoginGUI::registerReq()
 
 void LoginGUI::getCode()
 {
-    ui->frame_err_2->show();
-    ui->frame_err_3->show();
-    ui->frame_err_4->show();
-
-    if (ui->email_edit->text().isEmpty() && ui->email_edit_2->text().isEmpty()
-        && ui->email_edit_3->text().isEmpty())
+    if (!checkEmailValid())
     {
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("邮箱不能为空!"), false);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("邮箱不能为空!"), false);
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("邮箱不能为空!"), false);
         return;
     }
-
-    const QValidator* v1 = ui->email_edit->validator();
-    const QValidator* v2 = ui->email_edit_2->validator();
-    const QValidator* v3 = ui->email_edit_3->validator();
-    int pos = 0;
-    QString qemail_1 = ui->email_edit->text();
-    QString qemail_2 = ui->email_edit_2->text();
-    QString qemail_3 = ui->email_edit_3->text();
-    if (v1->validate(qemail_1, pos) != QValidator::Acceptable
-        && v2->validate(qemail_2, pos) != QValidator::Acceptable
-        && v3->validate(qemail_3, pos) != QValidator::Acceptable)
-    {
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("邮箱格式不正确!"), false);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("邮箱格式不正确!"), false);
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("邮箱格式不正确!"), false);
-        return;
-    }
-
-    ui->frame_err_2->hide();
-    ui->frame_err_3->hide();
-    ui->frame_err_4->hide();
 
     int index = ui->frame_login->currentIndex();
     string email = "";
@@ -262,14 +228,16 @@ void LoginGUI::getCode()
 
 void LoginGUI::emailLogin()
 {
-    ui->frame_err_3->show();
-    if (ui->code_edit_2->text().isEmpty())
+    if (!checkEmailValid())
     {
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("验证码不能为空!"), false);
         return;
     }
 
-    ui->frame_err_3->hide();
+    if (!checkVarifyValid())
+    {
+        return;
+    }
+
     ui->btn_email_login->setText(QString::fromLocal8Bit("正在登陆..."));
     ui->btn_email_login->setEnabled(false);
 
@@ -311,21 +279,11 @@ void LoginGUI::emailLogin()
 
 void LoginGUI::forgetPassword()
 {
-    ui->frame_err_4->show();
-    if (ui->user_name_edit_2->text().isEmpty()
-        || ui->pwd_edit_2->text().isEmpty())
+    if (!checkUserValid() || !checkPassValid() || !checkVarifyValid() || !checkEmailValid())
     {
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("用户名或密码不能为空!"), false);
         return;
     }
 
-    if (ui->code_edit_3->text().isEmpty())
-    {
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("验证码不能为空!"), false);
-        return;
-    }
-
-    ui->frame_err_4->hide();
     ui->btn_submit->setText(QString::fromLocal8Bit("正在提交..."));
     ui->btn_submit->setEnabled(false);
 
@@ -487,6 +445,39 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
     }
 }
 
+void LoginGUI::onPassVisible()
+{
+    auto state = ui->pass_visible->GetCurState();
+    if(state == ClickLbState::Normal)
+    {
+        ui->lineE_pwd->setEchoMode(QLineEdit::Password);
+    }
+    else
+    {
+        ui->lineE_pwd->setEchoMode(QLineEdit::Normal);
+    }
+
+    state = ui->pass_visible_2->GetCurState();
+    if(state == ClickLbState::Normal)
+    {
+        ui->pwd_edit->setEchoMode(QLineEdit::Password);
+    }
+    else
+    {
+        ui->pwd_edit->setEchoMode(QLineEdit::Normal);
+    }
+
+    state = ui->pass_visible_3->GetCurState();
+    if(state == ClickLbState::Normal)
+    {
+        ui->pwd_edit_2->setEchoMode(QLineEdit::Password);
+    }
+    else
+    {
+        ui->pwd_edit_2->setEchoMode(QLineEdit::Normal);
+    }
+}
+
 void LoginGUI::paintEvent(QPaintEvent *)
 {
     QStyleOption opt;
@@ -499,6 +490,7 @@ void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)
 {
     if (label)
     {
+        ui->frame_err->show();
         ui->frame_err_2->show();
         ui->frame_err_3->show();
         ui->frame_err_4->show();
@@ -510,6 +502,101 @@ void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)
         label->setText(tip);
         repolish(label);
     }
+}
+
+bool LoginGUI::checkUserValid()
+{
+    if (ui->lineE_user_name->text().isEmpty() && ui->user_name_edit->text().isEmpty()
+            && ui->user_name_edit_2->text().isEmpty())
+    {
+        AddTipErr(TipErr::TIP_USER_ERR, "用户名不能为空");
+        return false;
+    }
+
+    DelTipErr(TipErr::TIP_USER_ERR);
+    return true;
+}
+
+bool LoginGUI::checkPassValid()
+{
+    if (ui->lineE_pwd->text().isEmpty() && ui->pwd_edit->text().isEmpty()
+            && ui->pwd_edit_2->text().isEmpty())
+    {
+        AddTipErr(TipErr::TIP_PWD_ERR, "密码不能为空");
+        return false;
+    }
+
+    DelTipErr(TipErr::TIP_PWD_ERR);
+    return true;
+}
+
+bool LoginGUI::checkEmailValid()
+{
+    if (ui->email_edit->text().isEmpty() && ui->email_edit_2->text().isEmpty() && ui->email_edit_3->text().isEmpty())
+    {
+        AddTipErr(TipErr::TIP_EMAIL_ERR, "邮箱不能为空");
+        return false;
+    }
+
+    const QValidator* v1 = ui->email_edit->validator();
+    const QValidator* v2 = ui->email_edit_2->validator();
+    const QValidator* v3 = ui->email_edit_3->validator();
+    int pos = 0;
+    QString qemail_1 = ui->email_edit->text();
+    QString qemail_2 = ui->email_edit_2->text();
+    QString qemail_3 = ui->email_edit_3->text();
+    if (v1->validate(qemail_1, pos) != QValidator::Acceptable
+        && v2->validate(qemail_2, pos) != QValidator::Acceptable
+        && v3->validate(qemail_3, pos) != QValidator::Acceptable)
+    {
+        AddTipErr(TipErr::TIP_EMAIL_ERR, "邮箱格式不正确");
+        return false;
+    }
+
+    DelTipErr(TipErr::TIP_EMAIL_ERR);
+    return true;
+}
+
+bool LoginGUI::checkVarifyValid()
+{
+    if (ui->code_edit->text().isEmpty() && ui->code_edit_2->text().isEmpty() && ui->code_edit_3->text().isEmpty())
+    {
+        AddTipErr(TipErr::TIP_VARIFY_ERR, "验证码不能为空");
+        return false;
+    }
+    DelTipErr(TipErr::TIP_VARIFY_ERR);
+    return true;
+}
+
+void LoginGUI::AddTipErr(TipErr te, QString tips)
+{
+    _tip_errs[te] = tips;
+    showTip(ui->err_msg, tips, false);
+    showTip(ui->err_msg_2, tips, false);
+    showTip(ui->err_msg_3, tips, false);
+    showTip(ui->err_msg_4, tips, false);
+}
+
+void LoginGUI::DelTipErr(TipErr te)
+{
+    _tip_errs.remove(te);
+    if(_tip_errs.empty())
+    {
+      ui->err_msg->clear();
+      ui->err_msg_2->clear();
+      ui->err_msg_3->clear();
+      ui->err_msg_4->clear();
+      ui->frame_err->hide();
+      ui->frame_err_2->hide();
+      ui->frame_err_3->hide();
+      ui->frame_err_4->hide();
+      return;
+    }
+
+    showTip(ui->err_msg, _tip_errs.first(), false);
+    showTip(ui->err_msg_2, _tip_errs.first(), false);
+    showTip(ui->err_msg_3, _tip_errs.first(), false);
+    showTip(ui->err_msg_4, _tip_errs.first(), false);
 }
 
 /* 

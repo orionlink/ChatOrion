@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>res/pic/email.png</file>
         <file>res/pic/email-hover.png</file>
-        <file>res/pic/disk_logo.png</file>
         <file>res/qss/style-1.qss</file>
         <file>res/qss/style-2.qss</file>
         <file>res/qss/style-3.qss</file>
@@ -28,5 +27,55 @@
         <file>res/pic/btn_sys_minimize.png</file>
         <file>res/pic/btn_sys_restore.png</file>
         <file>res/icon/ChatOrion.ico</file>
+        <file>res/pic/add_friend.png</file>
+        <file>res/pic/add_friend_hover.png</file>
+        <file>res/pic/add_friend_normal.png</file>
+        <file>res/pic/addtip.png</file>
+        <file>res/pic/arowdown.png</file>
+        <file>res/pic/chat_icon.png</file>
+        <file>res/pic/chat_icon_hover.png</file>
+        <file>res/pic/chat_icon_press.png</file>
+        <file>res/pic/chat_icon_select_hover.png</file>
+        <file>res/pic/chat_icon_select_press.png</file>
+        <file>res/pic/close_search.png</file>
+        <file>res/pic/close_transparent.png</file>
+        <file>res/pic/contact_list.png</file>
+        <file>res/pic/contact_list_hover.png</file>
+        <file>res/pic/contact_list_press.png</file>
+        <file>res/pic/female.png</file>
+        <file>res/pic/filedir.png</file>
+        <file>res/pic/filedir_hover.png</file>
+        <file>res/pic/filedir_press.png</file>
+        <file>res/pic/head.png</file>
+        <file>res/pic/head_1.jpg</file>
+        <file>res/pic/head_2.jpg</file>
+        <file>res/pic/head_3.jpg</file>
+        <file>res/pic/head_4.jpg</file>
+        <file>res/pic/head_5.jpg</file>
+        <file>res/pic/ice.png</file>
+        <file>res/pic/loading.gif</file>
+        <file>res/pic/male.png</file>
+        <file>res/pic/msg_chat_hover.png</file>
+        <file>res/pic/msg_chat_normal.png</file>
+        <file>res/pic/msg_chat_press.png</file>
+        <file>res/pic/qq-old.png</file>
+        <file>res/pic/red_point.png</file>
+        <file>res/pic/right_tip.png</file>
+        <file>res/pic/search.png</file>
+        <file>res/pic/smile.png</file>
+        <file>res/pic/smile_hover.png</file>
+        <file>res/pic/smile_press.png</file>
+        <file>res/pic/tipclose.png</file>
+        <file>res/pic/unvisible.png</file>
+        <file>res/pic/unvisible_hover.png</file>
+        <file>res/pic/video_chat_hover.png</file>
+        <file>res/pic/video_chat_normal.png</file>
+        <file>res/pic/video_chat_press.png</file>
+        <file>res/pic/visible.png</file>
+        <file>res/pic/visible_hover.png</file>
+        <file>res/pic/voice_chat_hover.png</file>
+        <file>res/pic/voice_chat_normal.png</file>
+        <file>res/pic/voice_chat_press.png</file>
+        <file>res/pic/windowBkg.png</file>
     </qresource>
 </RCC>

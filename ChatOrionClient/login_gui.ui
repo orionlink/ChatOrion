@@ -104,7 +104,7 @@
                   <enum>QFrame::Raised</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>3</number>
                  </property>
                  <widget class="QWidget" name="loginPage">
                   <layout class="QGridLayout" name="gridLayout_5">
@@ -521,6 +521,25 @@
                               </property>
                               <property name="clearButtonEnabled">
                                <bool>true</bool>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="ClickedLabel" name="pass_visible">
+                              <property name="minimumSize">
+                               <size>
+                                <width>20</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>20</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                              <property name="text">
+                               <string/>
                               </property>
                              </widget>
                             </item>
@@ -1883,6 +1902,25 @@
                              </property>
                             </widget>
                            </item>
+                           <item>
+                            <widget class="ClickedLabel" name="pass_visible_2">
+                             <property name="minimumSize">
+                              <size>
+                               <width>20</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>20</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
                           </layout>
                          </item>
                         </layout>
@@ -2887,6 +2925,25 @@
                              </property>
                             </widget>
                            </item>
+                           <item>
+                            <widget class="ClickedLabel" name="pass_visible_3">
+                             <property name="minimumSize">
+                              <size>
+                               <width>20</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>20</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string/>
+                             </property>
+                            </widget>
+                           </item>
                           </layout>
                          </item>
                         </layout>
@@ -3568,6 +3625,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ClickedLabel</class>
+   <extends>QLabel</extends>
+   <header>clicked_label.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="pic.qrc"/>
  </resources>

@@ -3,8 +3,9 @@
 
 #include <QWidget>
 #include <QDialog>
+#include <QMap>
 #include <QJsonObject>
-#include <QMetaObject>   // 后面再包含其他需要的头文件
+#include <QMetaObject>
 /******************************************************************************
  *
  * @file       login_gui.h
@@ -21,6 +22,16 @@ class LoginGUI;
 class QLabel;
 
 #include "global.h"
+
+enum TipErr{
+    TIP_SUCCESS = 0,
+    TIP_EMAIL_ERR = 1,
+    TIP_PWD_ERR = 2,
+    TIP_CONFIRM_ERR = 3,
+    TIP_PWD_CONFIRM = 4,
+    TIP_VARIFY_ERR = 5,
+    TIP_USER_ERR = 6
+};
 
 class LoginGUI : public QDialog
 {
@@ -85,14 +96,25 @@ public slots:
     void updateButton(); // 新增的用于更新按钮状态的槽
 
     void regModCallback(ReqId id, QJsonObject res, ErrorCodes err);
+
+    void onPassVisible();
 protected:
     void paintEvent(QPaintEvent*) override;
 private:
     void showTip(QLabel* label, const QString& tip, bool is_ok);
     void initModulesHandlers();
+
+    bool checkUserValid();
+    bool checkPassValid();
+    bool checkEmailValid();
+    bool checkVarifyValid();
+
+    void AddTipErr(TipErr te, QString tips);
+    void DelTipErr(TipErr te);
 private:
     Ui::LoginGUI*ui;
 
+    QMap<TipErr, QString> _tip_errs;
     QTimer* _countdown_timer; // 新增的计时器
     int _remaining_time;      // 倒计时剩余时间
 };
