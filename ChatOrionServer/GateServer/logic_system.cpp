@@ -1,5 +1,6 @@
 #include "logic_system.h"
 #include "http_connection.h"
+#include "MySQLManager.h"
 #include "RedisManager.h"
 #include "verify_grpc_client.h"
 
@@ -72,7 +73,7 @@ LogicSystem::LogicSystem()
         {
             std::cout << "get varify code expired" << std::endl;
             root["error"] = ErrorCodes::VarifyExpired;
-            root["error_msg"] = "get varify code expired";
+            root["error_msg"] = "验证码不存在";
             std::string jsonstr = root.toStyledString();
             beast::ostream(connection->_response.body()) << jsonstr;
             return;
@@ -82,13 +83,23 @@ LogicSystem::LogicSystem()
         {
             std::cout << "varify code error" << std::endl;
             root["error"] = ErrorCodes::VarifyCodeErr;
-            root["error_msg"] = "varify code error";
+            root["error_msg"] = "验证码错误";
             std::string jsonstr = root.toStyledString();
             beast::ostream(connection->_response.body()) << jsonstr;
             return;
         }
 
         //查找数据库判断用户是否存在
+        int uid = MySQLManager::GetInstance()->registerUser(username, email, password, "");
+        if (uid == 0 || uid == -1)
+        {
+            std::cout << " user or email exist" << std::endl;
+            root["error"] = ErrorCodes::UserExist;
+            root["error_msg"] = "用户或邮箱已经存在";
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return;
+        }
 
         root["error"] = 0;
         root["email"] = email;

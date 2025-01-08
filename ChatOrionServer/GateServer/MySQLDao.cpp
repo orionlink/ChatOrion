@@ -3,3 +3,139 @@
 //
 
 #include "MySQLDao.h"
+#include "Settings.h"
+#include "tools.h"
+
+MySQLDao::MySQLDao()
+{
+    config::Settings& settings = config::Settings::GetInstance();
+    std::string host = settings.value<std::string>("MySQL/host", "127.0.0.1").toString();
+    int port = settings.value("MySQL/port", 3306).toInt();
+    std::string url = host + ":" + std::to_string(port);
+    std::string user = settings.value("MySQL/user", "root").toString();
+    std::string password = settings.value("MySQL/password", "123456").toString();
+    std::string database = settings.value("MySQL/database", "ChatOrion").toString();
+    _pool.reset(new MySQLConnectPool(5, url, user, password, database));
+
+    std::string sql_content = Tools::ReadFile("user.sql");
+    std::string sql_procedure = Tools::ReadFile("reg_user_procedure.sql");
+    if (!sql_content.empty())
+    {
+        try
+        {
+            auto conn = _pool->getConnection();
+            Defer defer([&conn, this] {
+                if (conn != nullptr) _pool->returnConnection(std::move(conn));
+            });
+
+            std::unique_ptr<sql::Statement> stmt(conn->_connection->createStatement());
+
+            // 拆分 SQL 脚本为多个语句
+            std::vector<std::string> sql_statements = splitSQLScript(sql_content);
+
+            // 逐条执行 SQL 语句
+            for (const auto& statement : sql_statements) {
+                stmt->execute(statement);
+            }
+
+            stmt->execute(sql_procedure);
+
+            std::cout << "SQL script executed successfully" << std::endl;
+        } catch (sql::SQLException& e) {
+            std::cerr << "SQLException: " << e.what();
+            std::cerr << " (MySQL error code: " << e.getErrorCode();
+            std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        }
+    }
+}
+
+MySQLDao::~MySQLDao()
+{
+    _pool->close();
+}
+
+int MySQLDao::registerUser(const std::string &name, const std::string &email, const std::string &pwd)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this] {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 准备调用存储过程
+        std::unique_ptr <sql::PreparedStatement> stmt(conn->_connection->prepareStatement("CALL reg_user(?,?,?,@result)"));
+
+        // 设置参数
+        stmt->setString(1, name);
+        stmt->setString(2, email);
+        stmt->setString(3, pwd);
+
+        // 由于PreparedStatement不直接支持注册输出参数，我们需要使用会话变量或其他方法来获取输出参数的值
+        // 执行存储过程
+        stmt->execute();
+
+        std::unique_ptr <sql::Statement> stmtResult(conn->_connection->createStatement());
+        std::unique_ptr<sql::ResultSet> res(stmtResult->executeQuery("SELECT @result AS result"));
+        if (res->next())
+        {
+            int result = res->getInt("result");
+            std::cout << "Result: " << result << std::endl;
+            return result;
+        }
+
+        return -1;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return -1;
+    }
+}
+
+int MySQLDao::registerTransaction(const std::string &name, const std::string &email, const std::string &pwd,
+    const std::string &icon)
+{
+}
+
+bool MySQLDao::checkEmail(const std::string &name, const std::string &email) {
+}
+
+bool MySQLDao::updatePassword(const std::string &name, const std::string &newpwd) {
+}
+
+bool MySQLDao::checkPassword(const std::string &name, const std::string &pwd, UserInfo &userInfo) {
+}
+
+bool MySQLDao::testProcedure(const std::string &email, int &uid, std::string &name) {
+}
+
+std::vector<std::string> MySQLDao::splitSQLScript(const std::string& sql_content)
+{
+    std::vector<std::string> sql_statements;
+    std::string content = sql_content; // 创建一个非 const 的副本
+    size_t pos = 0;
+
+    while ((pos = content.find(';')) != std::string::npos) {
+        std::string statement = content.substr(0, pos);
+        statement = Tools::Trim(statement); // 去除空白字符
+
+        if (!statement.empty()) {
+            sql_statements.push_back(statement);
+        }
+
+        content.erase(0, pos + 1); // 对副本进行操作
+    }
+
+    // 处理最后一条语句（如果没有分号结尾）
+    std::string last_statement = Tools::Trim(content);
+    if (!last_statement.empty()) {
+        sql_statements.push_back(last_statement);
+    }
+
+    return sql_statements;
+}

@@ -1,6 +1,10 @@
 #include "tools.h"
 
 #include <cassert>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <iostream>
 
 Tools::Tools()
 {
@@ -67,4 +71,23 @@ std::string Tools::UrlDecode(const std::string &str)
         else strTemp += str[i];
     }
     return strTemp;
+}
+
+std::string Tools::ReadFile(const std::string &file_path)
+{
+    std::ifstream file(file_path);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open SQL file: " + file_path);
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+std::string Tools::Trim(const std::string &str)
+{
+    size_t first = str.find_first_not_of(" \t\n\r");
+    if (first == std::string::npos) return "";
+    size_t last = str.find_last_not_of(" \t\n\r");
+    return str.substr(first, last - first + 1);
 }

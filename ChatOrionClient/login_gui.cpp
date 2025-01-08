@@ -173,8 +173,8 @@ void LoginGUI::registerReq()
     }
 
     ui->frame_err_2->hide();
-    ui->btn_register_2->setText(QString::fromLocal8Bit("正在注册..."));
-    ui->btn_register_2->setEnabled(false);
+//    ui->btn_register_2->setText(QString::fromLocal8Bit("正在注册..."));
+//    ui->btn_register_2->setEnabled(false);
 
     string username = ui->user_name_edit->text().toUtf8().constData();
     string password = ui->pwd_edit->text().toUtf8().constData();
@@ -247,6 +247,7 @@ void LoginGUI::getCode()
     request_json["email"] = email.c_str();
     HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/get_varifycode"), request_json, Modules::REGISTER_MOD, ReqId::ID_GET_VARIFY_CODE);
 
+#if 0
     // 开始倒计时
     ui->getcodeButton_2->setDisabled(true);
     ui->getcodeButton_3->setDisabled(true);
@@ -256,6 +257,7 @@ void LoginGUI::getCode()
     ui->getcodeButton->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
     ui->getcodeButton_2->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
     ui->getcodeButton_3->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
+#endif
 }
 
 void LoginGUI::emailLogin()

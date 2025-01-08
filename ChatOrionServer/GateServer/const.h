@@ -47,4 +47,11 @@ private:
     std::function<void()> _func;
 };
 
+struct UserInfo {
+    std::string name;
+    std::string pwd;
+    int uid;
+    std::string email;
+};
+
 #endif // CONST_H

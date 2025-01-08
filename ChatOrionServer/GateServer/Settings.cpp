@@ -6,26 +6,26 @@
 
 namespace config
 {
-    ValueWrapper Settings::value(const std::string& key, const std::string& default_value) const
-    {
-        size_t separator_pos = key.find('/');
-        if (separator_pos != std::string::npos)
-        {
-            std::string section = key.substr(0, separator_pos);
-            std::string key_in_section = key.substr(separator_pos + 1);
-
-            auto section_it = _config_map.find(section);
-            if (section_it != _config_map.end())
-            {
-                auto key_it = section_it->second._section_datas.find(key_in_section);
-                if (key_it != section_it->second._section_datas.end())
-                {
-                    return key_it->second;
-                }
-            }
-        }
-        return ValueWrapper(default_value);
-    }
+    // ValueWrapper Settings::value(const std::string& key, const std::string& default_value) const
+    // {
+    //     size_t separator_pos = key.find('/');
+    //     if (separator_pos != std::string::npos)
+    //     {
+    //         std::string section = key.substr(0, separator_pos);
+    //         std::string key_in_section = key.substr(separator_pos + 1);
+    //
+    //         auto section_it = _config_map.find(section);
+    //         if (section_it != _config_map.end())
+    //         {
+    //             auto key_it = section_it->second._section_datas.find(key_in_section);
+    //             if (key_it != section_it->second._section_datas.end())
+    //             {
+    //                 return key_it->second;
+    //             }
+    //         }
+    //     }
+    //     return ValueWrapper(default_value);
+    // }
 
     int Settings::valueInt(const std::string& key, int default_value) const
     {
@@ -56,6 +56,24 @@ namespace config
 
     Settings::Settings()
     {
+    }
+
+    std::string Settings::getRawValue(const std::string &key) const
+    {
+        size_t separator_pos = key.find('/');
+        if (separator_pos != std::string::npos) {
+            std::string section = key.substr(0, separator_pos);
+            std::string key_in_section = key.substr(separator_pos + 1);
+
+            auto section_it = _config_map.find(section);
+            if (section_it != _config_map.end()) {
+                auto key_it = section_it->second._section_datas.find(key_in_section);
+                if (key_it != section_it->second._section_datas.end()) {
+                    return key_it->second.toString(); // 返回配置值
+                }
+            }
+        }
+        return ""; // 如果未找到，返回空字符串
     }
 
     void Settings::load()

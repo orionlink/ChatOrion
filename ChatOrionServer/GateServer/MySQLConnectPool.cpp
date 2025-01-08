@@ -6,7 +6,8 @@
 
 MySQLConnectPool::MySQLConnectPool(size_t pool_size, const std::string& url, const std::string& user,
     const std::string& password, const std::string& database)
-    :_pool_size(pool_size), _url(url), _user(user), _password(password), _database(database), _is_stop(false)
+    :_pool_size(pool_size), _url(url), _user(user), _password(password),
+    _database(database), _is_stop(false)
 {
     try
     {
@@ -20,6 +21,8 @@ MySQLConnectPool::MySQLConnectPool(size_t pool_size, const std::string& url, con
             // 将时间戳转换为秒
             long long timestamp = std::chrono::duration_cast<std::chrono::seconds>(currentTime).count();
             _pool.push(std::make_unique<SqlConnection>(conn, timestamp));
+
+            std::cout << "mysql connect (" << i + 1<< ") success" << std::endl;
 
             _check_thread = std::thread([this]
             {

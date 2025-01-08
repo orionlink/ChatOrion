@@ -12,6 +12,11 @@ public:
 
     static std::string UrlEncode(const std::string& str);
     static std::string UrlDecode(const std::string& str);
+
+    static std::string ReadFile(const std::string& file_path);
+
+    // 去除字符串前后的空白字符
+    static std::string Trim(const std::string& str);
 private:
     Tools();
 };

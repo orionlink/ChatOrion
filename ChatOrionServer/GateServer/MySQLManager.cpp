@@ -4,23 +4,23 @@
 
 #include "MySQLManager.h"
 
-int MySQLManager::RegUser(const std::string& name, const std::string& email, const std::string& pwd,
-    const std::string& icon)
+int MySQLManager::registerUser(const std::string& name, const std::string& email,  const std::string& pwd, const std::string& icon)
+{
+    return _dao.registerUser(name, email, pwd);
+}
+
+bool MySQLManager::checkEmail(const std::string& name, const std::string& email)
 {
 }
 
-bool MySQLManager::CheckEmail(const std::string& name, const std::string& email)
+bool MySQLManager::updatePassword(const std::string& name, const std::string& email)
 {
 }
 
-bool MySQLManager::UpdatePwd(const std::string& name, const std::string& email)
+bool MySQLManager::checkPassword(const std::string& email, const std::string& pwd, UserInfo& userInfo)
 {
 }
 
-bool MySQLManager::CheckPwd(const std::string& email, const std::string& pwd, UserInfo& userInfo)
-{
-}
-
-bool MySQLManager::TestProcedure(const std::string& email, int& uid, std::string& name)
+bool MySQLManager::testProcedure(const std::string& email, int& uid, std::string& name)
 {
 }

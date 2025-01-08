@@ -10,7 +10,12 @@ namespace config
     class ValueWrapper
     {
     public:
-        explicit ValueWrapper(const std::string& value = "") : _value(value) {}
+        ValueWrapper() : _value("") {}
+        explicit ValueWrapper(const std::string& value) : _value(value) {}
+        explicit ValueWrapper(const char* value) : _value(value) {}
+        explicit ValueWrapper(int value) : _value(std::to_string(value)) {} // 支持 int
+        explicit ValueWrapper(double value) : _value(std::to_string(value)) {} // 支持 double
+        explicit ValueWrapper(bool value) : _value(value ? "true" : "false") {} // 支持 bool
         
         std::string toString() const { return _value; }
         
@@ -84,14 +89,33 @@ namespace config
 
         void load();
 
+        // template<typename T>
+        // ValueWrapper value(const std::string& key, const T& default_value = T()) const
+        // {
+        //     auto val = value(key);
+        //     return val.get().empty() ? ValueWrapper(std::to_string(default_value)) : val;
+        // }
+
+        // 通用模板函数
         template<typename T>
-        ValueWrapper value(const std::string& key, const T& default_value = T()) const
-        {
-            auto val = value(key);
-            return val.get().empty() ? ValueWrapper(std::to_string(default_value)) : val;
+        ValueWrapper value(const std::string& key, const T& default_value = T()) const {
+            auto val = getRawValue(key);
+            return val.empty() ? ValueWrapper(default_value) : ValueWrapper(val);
         }
 
-        ValueWrapper value(const std::string& key, const std::string& default_value = "") const;
+        // 特化版本，支持 std::string
+        ValueWrapper value(const std::string& key, const std::string& default_value = "") const {
+            auto val = getRawValue(key);
+            return val.empty() ? ValueWrapper(default_value) : ValueWrapper(val);
+        }
+
+        // 特化版本，支持 const char*
+        ValueWrapper value(const std::string& key, const char* default_value) const {
+            auto val = getRawValue(key);
+            return val.empty() ? ValueWrapper(default_value) : ValueWrapper(val);
+        }
+
+        // ValueWrapper value(const std::string& key, const std::string& default_value = "") const;
         int valueInt(const std::string& key, int default_value = 0) const;
         double valueDouble(const std::string& key, double default_value = 0.0) const;
         bool valueBool(const std::string& key, bool default_value = false) const;
@@ -106,6 +130,7 @@ namespace config
     private:
         explicit Settings();
 
+        std::string getRawValue(const std::string& key) const;
         void saveToFile() const;
         
         std::map<std::string, SectionInfo> _config_map;

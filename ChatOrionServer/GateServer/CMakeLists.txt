@@ -17,6 +17,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 execute_process(
         COMMAND /bin/bash ${CMAKE_SOURCE_DIR}/../protocol/build_proto.sh
         COMMAND cp -rf ${CMAKE_SOURCE_DIR}/config.ini ${CMAKE_SOURCE_DIR}/../bin
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/user.sql ${CMAKE_SOURCE_DIR}/../bin
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/reg_user_procedure.sql ${CMAKE_SOURCE_DIR}/../bin
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../protocol/
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
