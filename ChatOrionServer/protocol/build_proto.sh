@@ -17,6 +17,7 @@ files_to_copy=$(find "$current_dir" -maxdepth 1 \( -name "*.h" -or -name "*.cpp"
 # 遍历每个文件并将其拷贝到GateServer目录
 for file in $files_to_copy; do
     cp -f "$file" "$current_dir/../GateServer"
+    cp -f "$file" "$current_dir/../StatusServer"
     echo "Copied: $file"
 done
 

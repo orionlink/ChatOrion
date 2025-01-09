@@ -71,8 +71,17 @@ Thumbs.db
 *.dll
 *.exe
 
+.idea/
+
+StatusServer/cmake-build*/*
+StatusServer/.idea/*
+
+platfrom/.idea/*
+platfrom/cmake-build*/*
+
 GateServer/.idea/*
 GateServer/cmake-build*/*
+
 bin/
 VarifyServer/.idea/*
 VarifyServer/node_modules/*

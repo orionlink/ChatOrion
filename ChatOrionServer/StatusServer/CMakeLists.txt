@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(ITEM_NAME GateServer)
+set(ITEM_NAME StatusServer)
 project(${ITEM_NAME} LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -16,9 +16,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 # 执行构建proto文件脚本
 execute_process(
         COMMAND /bin/bash ${CMAKE_SOURCE_DIR}/../protocol/build_proto.sh
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/config.ini ${CMAKE_SOURCE_DIR}/../bin
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/user.sql ${CMAKE_SOURCE_DIR}/../bin
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/reg_user_procedure.sql ${CMAKE_SOURCE_DIR}/../bin
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/../GateServer/config.ini ${CMAKE_SOURCE_DIR}/../bin
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../protocol/
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
@@ -32,13 +30,13 @@ else()
     message(WARNING "Error Output: ${error_output}")
 endif()
 
-# 设置third party根目录
-set(THIRD_PARTY_ROOT ${CMAKE_SOURCE_DIR}/../../third)
-
 # 设置platfrom
 set(PLATFROM_PATHS
         "${CMAKE_SOURCE_DIR}/../platfrom"
 )
+
+# 设置third party根目录
+set(THIRD_PARTY_ROOT ${CMAKE_SOURCE_DIR}/../../third)
 
 # 设置 gRPC 的路径列表
 set(GRPC_PATHS
@@ -108,22 +106,16 @@ set(JSONCPP_LIBRARIES ${JSONCPP_PATHS}/lib/libjsoncpp.so)
 
 set(HIREDIS_LIBRARIES ${HIREDIS_PATHS}/lib/libhiredis.so)
 
-set(PLATFROM_LIBRARIES ${CMAKE_SOURCE_DIR}/../lib/libplatfrom.so)
-
 # 源文件
 file(GLOB HEADER_FILES "*.h" "*.hpp")
 file(GLOB SEC_LSIT "*cpp" "*.cc" "*.cxx")
 
+set(PLATFROM_LIBRARIES ${CMAKE_SOURCE_DIR}/../lib/libplatfrom.so)
+
 # 添加可执行文件
 add_executable(${ITEM_NAME} ${SEC_LSIT}
-        verify_grpc_client.h
-        verify_grpc_client.cpp
-        MySQLManager.cpp
-        MySQLManager.h
-        MySQLDao.cpp
-        MySQLDao.h
-        StatusGrpcClient.cpp
-        StatusGrpcClient.h
+        StatusServiceImpl.cpp
+        StatusServiceImpl.h
 )
 
 # 链接库
