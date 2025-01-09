@@ -20,6 +20,13 @@ public:
     void regPost(std::string url, HttpHandler handler);
 private:
     LogicSystem();
+
+    void getVarifycodeCallback(std::shared_ptr<HttpConnection> connection);
+    void userRegsterCallback(std::shared_ptr<HttpConnection> connection);
+    void forgetPasswordCallback(std::shared_ptr<HttpConnection> connection);
+    void userLoginCallback(std::shared_ptr<HttpConnection> connection);
+    void emailLoginCallback(std::shared_ptr<HttpConnection> connection);
+
     std::map<std::string, HttpHandler> _get_handlers;
     std::map<std::string, HttpHandler> _post_handlers;
 };

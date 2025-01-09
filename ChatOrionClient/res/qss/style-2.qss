@@ -1,6 +1,12 @@
 /**
     该页面为黄绿色皮肤
 */
+
+QFrame
+{
+	border:none;
+}
+
 #frame_background{
 border-image:url(:/res/pic/background-2.png);
 }
@@ -379,15 +385,18 @@ QLineEdit{
 }
 
 /******************************* 设置窗口圆角 ****************************/
+
 #frame_login
 {
    border-radius: 10px;
 }
 
+
 #frame
 {
    border-radius: 10px;
 }
+
 
 #frame_background{ 
 	border-radius: 10px;

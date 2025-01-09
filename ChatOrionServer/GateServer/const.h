@@ -30,7 +30,8 @@ enum ErrorCodes {
     PasswdErr = 1006,       // 密码错误
     EmailNotMatch = 1007,   // 邮箱不匹配
     PasswdUpdataFailed = 1008,// 更新密码失败
-    PasswdInvalid = 1009    // 密码无效
+    PasswdInvalid = 1009,    // 密码无效
+    UserNotExist = 1010    // 用户不存在
 };
 
 const std::string CODE_PREFIX = "code_";

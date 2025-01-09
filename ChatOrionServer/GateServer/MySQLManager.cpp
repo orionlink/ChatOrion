@@ -9,16 +9,24 @@ int MySQLManager::registerUser(const std::string& name, const std::string& email
     return _dao.registerUser(name, email, pwd);
 }
 
-bool MySQLManager::checkEmail(const std::string& name, const std::string& email)
+bool MySQLManager::checkUsernameEmailMatch(const std::string& name, const std::string& email)
 {
+    return _dao.checkUsernameEmailMatch(name, email);
 }
 
-bool MySQLManager::updatePassword(const std::string& name, const std::string& email)
+bool MySQLManager::updatePassword(const std::string& name, const std::string& newpwd)
 {
+    return _dao.updatePassword(name, newpwd);
 }
 
-bool MySQLManager::checkPassword(const std::string& email, const std::string& pwd, UserInfo& userInfo)
+int MySQLManager::checkUserLogin(const std::string& name, const std::string& pwd, UserInfo& userInfo)
 {
+    return _dao.checkUserLogin(name, pwd, userInfo);
+}
+
+bool MySQLManager::checkEmailLoginWithCode(const std::string &email, UserInfo &userInfo)
+{
+    return _dao.checkEmailLoginWithCode(email, userInfo);
 }
 
 bool MySQLManager::testProcedure(const std::string& email, int& uid, std::string& name)

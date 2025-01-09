@@ -15,3 +15,21 @@ message GetVarifyRsp {
   string email = 2;
   string code = 3;
 }
+
+message GetChatServerReq
+{
+  int32 uid = 1;
+}
+
+message GetChatServerRes
+{
+  int32 error = 1;
+  string host = 2;
+  int32 port = 3;
+  string token = 4;
+}
+
+service StatusService
+{
+  rpc GetChatServer (GetChatServerReq) returns (GetChatServerRes);
+}

@@ -14,9 +14,14 @@ class MySQLManager : public Singleton<MySQLManager>
     friend class Singleton<MySQLManager>;
 public:
     int registerUser(const std::string& name, const std::string& email,  const std::string& pwd, const std::string& icon);
-    bool checkEmail(const std::string& name, const std::string & email);
+    bool checkUsernameEmailMatch(const std::string& name, const std::string & email);
     bool updatePassword(const std::string& name, const std::string& newpwd);
-    bool checkPassword(const std::string& name, const std::string& pwd, UserInfo& userInfo);
+
+    /**
+     * @return -1：SQL出错,　1: 用户不存在, 2: 密码错误, 0 校验成功
+     */
+    int checkUserLogin(const std::string& name, const std::string& pwd, UserInfo& userInfo);
+    bool checkEmailLoginWithCode(const std::string& email, UserInfo& userInfo);
     bool testProcedure(const std::string& email, int& uid, std::string& name);
 private:
     MySQLDao _dao;

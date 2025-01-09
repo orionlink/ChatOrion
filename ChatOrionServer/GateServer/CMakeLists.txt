@@ -124,6 +124,8 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
         MySQLManager.h
         MySQLDao.cpp
         MySQLDao.h
+        StatusGrpcClient.cpp
+        StatusGrpcClient.h
 )
 
 # 链接库

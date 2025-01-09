@@ -15,9 +15,10 @@ public:
     ~MySQLDao();
     int registerUser(const std::string& name, const std::string& email, const std::string& pwd);
     int registerTransaction(const std::string& name, const std::string& email, const std::string& pwd, const std::string& icon);
-    bool checkEmail(const std::string& name, const std::string & email);
+    bool checkUsernameEmailMatch(const std::string& name, const std::string & email);
     bool updatePassword(const std::string& name, const std::string& newpwd);
-    bool checkPassword(const std::string& name, const std::string& pwd, UserInfo& userInfo);
+    int checkUserLogin(const std::string& name, const std::string& pwd, UserInfo& userInfo);
+    bool checkEmailLoginWithCode(const std::string& email, UserInfo& userInfo);
     bool testProcedure(const std::string& email, int& uid, std::string& name);
 private:
     // 拆分 SQL 脚本为多个语句

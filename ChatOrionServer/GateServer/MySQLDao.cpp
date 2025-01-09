@@ -102,13 +102,169 @@ int MySQLDao::registerTransaction(const std::string &name, const std::string &em
 {
 }
 
-bool MySQLDao::checkEmail(const std::string &name, const std::string &email) {
+bool MySQLDao::checkUsernameEmailMatch(const std::string &name, const std::string &email)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this] {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 准备调用存储过程
+        std::unique_ptr <sql::PreparedStatement> pstmt(conn->_connection->prepareStatement("SELECT username, email FROM user WHERE username = ?"));
+
+        pstmt->setString(1, name);
+
+        // 执行查询
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        // 判断是否有结果
+        while (res->next()) {
+            // 获取结果集中的数据
+            std::string dbUsername = res->getString("username");
+            std::string dbEmail = res->getString("email");
+
+            // 判断是否完全匹配
+            if (dbUsername == name && dbEmail == email) {
+                return true; // 完全匹配
+            }
+        }
+
+        // 如果没有结果或不匹配
+        return false;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
 }
 
-bool MySQLDao::updatePassword(const std::string &name, const std::string &newpwd) {
+bool MySQLDao::updatePassword(const std::string &name, const std::string &newpwd)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this] {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 准备调用存储过程
+        std::unique_ptr <sql::PreparedStatement> pstmt(conn->_connection->prepareStatement("UPDATE user SET password = ? WHERE username = ?"));
+
+        pstmt->setString(2, name);
+        pstmt->setString(1, newpwd);
+
+        // 执行查询
+        int updateCount = pstmt->executeUpdate();
+
+        if (updateCount > 0) {
+            std::cout << "Rows affected: " << updateCount << std::endl;
+            return true;
+        } else if (updateCount == 0) {
+            std::cout << "No rows affected." << std::endl;
+            return true;
+        } else {
+            std::cout << "No row count available." << std::endl;
+            return false;
+        }
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
 }
 
-bool MySQLDao::checkPassword(const std::string &name, const std::string &pwd, UserInfo &userInfo) {
+int MySQLDao::checkUserLogin(const std::string &name, const std::string &pwd, UserInfo &userInfo)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this] {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 准备调用存储过程
+        std::unique_ptr <sql::PreparedStatement> pstmt(conn->_connection->prepareStatement("SELECT * FROM user WHERE username = ?"));
+
+        pstmt->setString(1, name);
+
+        // 执行查询
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (!res->next()) return 1;
+
+        std::string origin_pwd = res->getString("password");
+
+        if (origin_pwd != pwd) return 2;
+
+        userInfo.name = name;
+        userInfo.pwd = origin_pwd;
+        userInfo.email = res->getString("email");
+        userInfo.uid = res->getInt("uid");
+
+        return 0;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return -1;
+    }
+}
+
+bool MySQLDao::checkEmailLoginWithCode(const std::string &email, UserInfo &userInfo)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this] {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 准备调用存储过程
+        std::unique_ptr <sql::PreparedStatement> pstmt(conn->_connection->prepareStatement("SELECT * FROM user WHERE email = ?"));
+
+        pstmt->setString(1, email);
+
+        // 执行查询
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (!res->next()) return false;
+
+        std::string origin_email = res->getString("email");
+
+        if (origin_email != email) return false;
+
+        userInfo.name = res->getString("username");
+        userInfo.pwd = res->getString("password");
+        userInfo.email = origin_email;
+        userInfo.uid = res->getInt("uid");
+
+        return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
 }
 
 bool MySQLDao::testProcedure(const std::string &email, int &uid, std::string &name) {

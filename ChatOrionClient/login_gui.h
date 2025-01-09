@@ -97,6 +97,8 @@ public slots:
 
     void regModCallback(ReqId id, QJsonObject res, ErrorCodes err);
 
+    void loginModCallback(ReqId id, QJsonObject res, ErrorCodes err);
+
     void onPassVisible();
 protected:
     void paintEvent(QPaintEvent*) override;

@@ -58,6 +58,8 @@ LoginGUI::LoginGUI(QDialog*parent) :
     HttpMgr::GetInstance()->registerModulesHandlers(Modules::REGISTER_MOD, std::bind(&LoginGUI::regModCallback, this, std::placeholders::_1,
                                                                                      std::placeholders::_2, std::placeholders::_3));
 
+    HttpMgr::GetInstance()->registerModulesHandlers(Modules::LOGIN_MOD, std::bind(&LoginGUI::loginModCallback, this, std::placeholders::_1,
+                                                                                     std::placeholders::_2, std::placeholders::_3));
     QPushButton* btn_login = ui->btn_login;
 
     // 创建阴影效果并设置给按钮
@@ -133,32 +135,37 @@ void LoginGUI::login()
     ui->btn_login->setEnabled(false);
     ui->btn_login->setText(QString::fromLocal8Bit("登陆中..."));
 
-    auto tt = time(0);
+    QString username = ui->lineE_user_name->text().toUtf8().constData();
+    QString password = Tools::hashString(ui->lineE_pwd->text(), QCryptographicHash::Sha256);
 
-    QCoreApplication::processEvents(); // 允许事件处理，以便定时器能够更新
+    QJsonObject request_json;
+    request_json["username"] = username;
+    request_json["password"] = password;
+    HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/user_login"), request_json, Modules::LOGIN_MOD, ReqId::ID_LOGIN_USER);
+}
 
-//    bool loginSuccess = AuthClient::GetInstance()->Login(username, password);
+void LoginGUI::emailLogin()
+{
+    if (!checkEmailValid())
+    {
+        return;
+    }
 
-//    QCoreApplication::processEvents(); // 再次处理事件，以确保超时处理逻辑可以执行
+    if (!checkVarifyValid())
+    {
+        return;
+    }
 
-//    ui->frame_err->show();
-//    ui->btn_login->setEnabled(true);
-//    ui->btn_login->setText(QString::fromLocal8Bit("登陆"));
-//    if (tt + 3 <= time(0))
-//    {
-//        ui->err_msg->setText(QString::fromLocal8Bit("登陆超时!"));
-//        return;
-//    }
+    ui->btn_email_login->setText(QString::fromLocal8Bit("正在登陆..."));
+    ui->btn_email_login->setEnabled(false);
 
-//    if (!loginSuccess)
-//    {
-//        ui->err_msg->setText(QString::fromLocal8Bit("用户名或密码错误!"));
-//        return;
-//    }
+    QString email = ui->email_edit_2->text().toUtf8().constData();
+    QString code = ui->code_edit_2->text().toUtf8().constData();
 
-//    ui->btn_login->setText(QString::fromLocal8Bit("登陆"));
-//    ui->frame_err->hide();
-    QDialog::accept();
+    QJsonObject request_json;
+    request_json["email"] = email;
+    request_json["code"] = code;
+    HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/email_login"), request_json, Modules::LOGIN_MOD, ReqId::ID_LOGIN_EMAIL);
 }
 
 void LoginGUI::registerReq()
@@ -168,8 +175,8 @@ void LoginGUI::registerReq()
         return;
     }
 
-//    ui->btn_register_2->setText(QString::fromLocal8Bit("正在注册..."));
-//    ui->btn_register_2->setEnabled(false);
+    ui->btn_register_2->setText(QString::fromLocal8Bit("正在注册..."));
+    ui->btn_register_2->setEnabled(false);
 
     string username = ui->user_name_edit->text().toUtf8().constData();
     string password = Tools::hashString(ui->pwd_edit->text(), QCryptographicHash::Sha256).toStdString();
@@ -208,7 +215,6 @@ void LoginGUI::getCode()
         break;
     }       
 
-//    AuthClient::GetInstance()->GetAuthCodeReq(email);
     QJsonObject request_json;
     request_json["email"] = email.c_str();
     HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/get_varifycode"), request_json, Modules::REGISTER_MOD, ReqId::ID_GET_VARIFY_CODE);
@@ -226,57 +232,6 @@ void LoginGUI::getCode()
 #endif
 }
 
-void LoginGUI::emailLogin()
-{
-    if (!checkEmailValid())
-    {
-        return;
-    }
-
-    if (!checkVarifyValid())
-    {
-        return;
-    }
-
-    ui->btn_email_login->setText(QString::fromLocal8Bit("正在登陆..."));
-    ui->btn_email_login->setEnabled(false);
-
-    string email = ui->email_edit_2->text().toUtf8().constData();
-    string code = ui->code_edit_2->text().toUtf8().constData();
-
-//    AuthClient::GetInstance()->EmailLoginReq(email, code);
-
-//    QCoreApplication::processEvents(); // 允许事件处理，以便定时器能够更新
-
-//    auto ret = AuthClient::GetInstance()->GetEmailLogin(3000);
-
-//    QCoreApplication::processEvents(); // 再次处理事件，以确保超时处理逻辑可以执行
-
-//    ui->btn_email_login->setText(QString::fromLocal8Bit("登陆"));
-//    ui->frame_err_3->show();
-//    ui->btn_email_login->setEnabled(true);
-//    switch (ret)
-//    {
-//    case 0:
-//        ui->err_msg_3->setText(QString::fromLocal8Bit("登陆超时!"));
-//        return;
-//    case 1:
-//        ui->err_msg_3->setText(QString::fromLocal8Bit("登陆成功!"));
-//        break;
-//    case 3:
-//        ui->err_msg_3->setText(QString::fromLocal8Bit("验证码错误!"));
-//        return;
-//    case 4:
-//        ui->err_msg_3->setText(QString::fromLocal8Bit("该邮箱未绑定用户!"));
-//        return;
-//    default:
-//        return;
-//    }
-
-//    ui->frame_err_3->hide();
-//    QDialog::accept();
-}
-
 void LoginGUI::forgetPassword()
 {
     if (!checkUserValid() || !checkPassValid() || !checkVarifyValid() || !checkEmailValid())
@@ -288,48 +243,19 @@ void LoginGUI::forgetPassword()
     ui->btn_submit->setEnabled(false);
 
     string username = ui->user_name_edit_2->text().toUtf8().constData();
-    string password = ui->pwd_edit_2->text().toUtf8().constData();
+    QString password = ui->pwd_edit_2->text();
     string email = ui->email_edit_3->text().toUtf8().constData();
     string code = ui->code_edit_3->text().toUtf8().constData();
 
-//    msg::RegisterUserReq req;
-//    req.set_username(username);
-//    req.set_password(password);
-//    req.set_email(email);
-//    req.set_code(code);
+    //发送http重置用户请求
+    QJsonObject json_obj;
+    json_obj["username"] = username.c_str();
+    json_obj["password"] = Tools::hashString(password, QCryptographicHash::Sha256);
+    json_obj["email"] = email.c_str();
+    json_obj["code"] = code.c_str();
 
-//    AuthClient::GetInstance()->ForgetPasswordReq(req);
-
-//    QCoreApplication::processEvents(); // 允许事件处理，以便定时器能够更新
-
-//    auto ret = AuthClient::GetInstance()->GetResult(3000);
-
-//    QCoreApplication::processEvents(); // 再次处理事件，以确保超时处理逻辑可以执行
-
-//    ui->btn_submit->setText(QString::fromLocal8Bit("提交"));
-//    ui->frame_err_4->show();
-//    ui->btn_submit->setEnabled(true);
-//    switch (ret)
-//    {
-//    case 0:
-//        ui->err_msg_4->setText(QString::fromLocal8Bit("提交超时!"));
-//        break;
-//    case 1:
-//        ui->err_msg_4->setText(QString::fromLocal8Bit("密码修改成功，请登陆!"));
-//        break;
-//    case 2:
-//        ui->err_msg_4->setText(QString::fromLocal8Bit("验证码错误!"));
-//        break;
-//    case 3:
-//        ui->err_msg_4->setText(QString::fromLocal8Bit("该用户不存在!"));
-//        break;
-//    case 4:
-//        ui->err_msg_4->setText(QString::fromLocal8Bit("该用户绑定邮箱不正确!"));
-//        break;
-//    default:
-//        break;
-//    }
-
+    HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/reset_pwd"),
+                 json_obj, Modules::REGISTER_MOD, ReqId::ID_RESET_PWD);
 }
 
 void LoginGUI::loginPage()
@@ -391,6 +317,11 @@ void LoginGUI::updateButton()
 
 void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
 {
+    ui->btn_register_2->setEnabled(true);
+    ui->btn_register_2->setText("注册");
+    ui->btn_submit->setEnabled(true);
+    ui->btn_submit->setText("提交");
+
     if (err == ErrorCodes::ERR_NETWORK || err == ErrorCodes::ERR_JSON)
     {
         showTip(ui->err_msg_2, QString::fromLocal8Bit("网络连接失败"), false);
@@ -420,9 +351,6 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
         break;
     case ReqId::ID_REG_USER:
     {
-        ui->btn_register_2->setEnabled(true);
-        ui->btn_register_2->setText("注册");
-
         int error = res["error"].toInt();
         if(error != ErrorCodes::SUCCESS)
         {
@@ -438,6 +366,66 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
         showTip(ui->err_msg_3, QString::fromLocal8Bit("用户注册成功，返回登录界面登录"), true);
         showTip(ui->err_msg_4, QString::fromLocal8Bit("用户注册成功，返回登录界面登录"), true);
         qDebug()<< "username is " << username ;
+    }
+        break;
+    case ReqId::ID_RESET_PWD:
+    {
+        int error = res["error"].toInt();
+        if(error != ErrorCodes::SUCCESS)
+        {
+            QString error_msg = res["error_msg"].toString();
+            showTip(ui->err_msg_2, error_msg, false);
+            showTip(ui->err_msg_3, error_msg, false);
+            showTip(ui->err_msg_4, error_msg, false);
+            return;
+        }
+
+        auto username = res["username"].toString();
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("密码修改成功，返回登录界面登录"), true);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("密码修改成功，返回登录界面登录"), true);
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("密码修改成功，返回登录界面登录"), true);
+        qDebug()<< "username is " << username ;
+    }
+        break;
+    default:
+        break;
+    }
+}
+
+void LoginGUI::loginModCallback(ReqId id, QJsonObject res, ErrorCodes err)
+{
+    ui->btn_login->setEnabled(true);
+    ui->btn_login->setText("登录");
+    ui->btn_email_login->setEnabled(true);
+    ui->btn_email_login->setText("登录");
+
+    if (err == ErrorCodes::ERR_NETWORK || err == ErrorCodes::ERR_JSON)
+    {
+        showTip(ui->err_msg_2, QString::fromLocal8Bit("网络连接失败"), false);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("网络连接失败"), false);
+        showTip(ui->err_msg_4, QString::fromLocal8Bit("网络连接失败"), false);
+        return;
+    }
+
+    switch (id)
+    {
+    case ReqId::ID_LOGIN_USER:
+    case ReqId::ID_LOGIN_EMAIL:
+    {
+        int error = res["error"].toInt();
+        if(error != ErrorCodes::SUCCESS)
+        {
+            QString error_msg = res["error_msg"].toString();
+            showTip(ui->err_msg, error_msg, false);
+            showTip(ui->err_msg_3, error_msg, false);
+            return;
+        }
+        auto username = res["username"].toString();
+        showTip(ui->err_msg, QString::fromLocal8Bit("登录成功"), true);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("登录成功"), true);
+        qDebug()<< "username is " << username;
+
+        QDialog::accept();
     }
         break;
     default:
@@ -496,8 +484,25 @@ void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)
         ui->frame_err_4->show();
 
         qDebug() << "tip: " << tip;
-        if (is_ok) label->setProperty("state", "normal");
-        else label->setProperty("state", "err");
+
+        QPixmap pix;
+        if (is_ok)
+        {
+            label->setProperty("state", "normal");
+
+            pix.load(":/res/pic/icon_success_tip.png");
+        }
+        else
+        {
+            label->setProperty("state", "err");
+
+            pix.load(":/res/pic/icon_error_tip.png");
+        }
+
+        ui->err_logo->setPixmap(pix);
+        ui->err_logo_2->setPixmap(pix);
+        ui->err_logo_3->setPixmap(pix);
+        ui->err_logo_4->setPixmap(pix);
 
         label->setText(tip);
         repolish(label);

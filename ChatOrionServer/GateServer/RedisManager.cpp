@@ -5,6 +5,7 @@
 #include "RedisManager.h"
 #include "Settings.h"
 #include "ConnectionPoolProxy.h"
+#include "const.h"
 
 #include <hiredis/hiredis.h>
 #include <cstring>
@@ -39,22 +40,23 @@ bool RedisManager::set(const std::string& key, const std::string& value)
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "SET %s %s", key.c_str(), value.c_str());
 
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     //如果返回NULL则说明执行失败
     if (NULL == reply)
     {
         std::cout << "Execut command [ SET " << key << "  "<< value << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
     //如果执行失败则释放连接
     if (!(reply->type == REDIS_REPLY_STATUS && (strcmp(reply->str, "OK") == 0 || strcmp(reply->str, "ok") == 0)))
     {
         std::cout << "Execut command [ SET " << key << "  " << value << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
-    //执行成功 释放redisCommand执行后返回的redisReply所占用的内存
-    freeReplyObject(reply);
+
     std::cout << "Execut command [ SET " << key << "  " << value << " ] success ! " << std::endl;
     return true;
 }
@@ -70,20 +72,21 @@ bool RedisManager::get(const std::string& key, std::string& value)
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "GET %s", key.c_str());
 
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (reply == NULL) {
         std::cout << "[ GET  " << key << " ] failed" << std::endl;
-        freeReplyObject(reply);
         return false;
     }
     if (reply->type != REDIS_REPLY_STRING)
     {
         std::cout << "[ GET  " << key << " ] failed" << std::endl;
-        freeReplyObject(reply);
         return false;
     }
 
     value = reply->str;
-    freeReplyObject(reply);
     std::cout << "Succeed to execute command [ GET " << key << "  ]" << std::endl;
     return true;
 }
@@ -98,21 +101,23 @@ bool RedisManager::rpush(const std::string& key, const std::string& value)
     });
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "RPUSH %s %s", key.c_str(), value.c_str());
+
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (NULL == reply)
     {
         std::cout << "Execut command [ RPUSH " << key << "  " << value << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
 
     if (reply->type != REDIS_REPLY_INTEGER || reply->integer <= 0)
     {
         std::cout << "Execut command [ RPUSH " << key << "  " << value << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
     std::cout << "Execut command [ RPUSH " << key << "  " << value << " ] success ! " << std::endl;
-    freeReplyObject(reply);
     return true;
 }
 
@@ -126,16 +131,19 @@ bool RedisManager::rpop(const std::string& key, std::string& value)
     });
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "RPOP %s ", key.c_str());
+
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (reply == nullptr || reply->type == REDIS_REPLY_NIL)
     {
         std::cout << "Execut command [ RPOP " << key << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
 
     value = reply->str;
     std::cout << "Execut command [ RPOP " << key << " ] success ! " << std::endl;
-    freeReplyObject(reply);
     return true;
 }
 
@@ -149,21 +157,23 @@ bool RedisManager::lpush(const std::string& key, const std::string& value)
     });
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "LPUSH %s %s", key.c_str(), value.c_str());
+
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (NULL == reply)
     {
         std::cout << "Execut command [ LPUSH " << key << "  " << value << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
     if (reply->type != REDIS_REPLY_INTEGER || reply->integer <= 0)
     {
         std::cout << "Execut command [ LPUSH " << key << "  " << value << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
 
     std::cout << "Execut command [ LPUSH " << key << "  " << value << " ] success ! " << std::endl;
-    freeReplyObject(reply);
     return true;
 }
 
@@ -177,16 +187,19 @@ bool RedisManager::lpop(const std::string& key, std::string& value)
     });
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "LPOP %s ", key.c_str());
+
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (reply == nullptr || reply->type == REDIS_REPLY_NIL)
     {
         std::cout << "Execut command [ LPOP " << key<<  " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
 
     value = reply->str;
     std::cout << "Execut command [ LPOP " << key <<  " ] success ! " << std::endl;
-    freeReplyObject(reply);
     return true;
 }
 
@@ -200,15 +213,18 @@ bool RedisManager::hset(const std::string& key, const std::string& hkey, const s
     });
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "HSET %s %s %s", key.c_str(), hkey.c_str(), value.c_str());
+
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER )
     {
         std::cout << "Execut command [ HSet " << key << "  " << hkey <<"  " << value << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
 
     std::cout << "Execut command [ HSet " << key << "  " << hkey << "  " << value << " ] success ! " << std::endl;
-    freeReplyObject(reply);
     return true;
 }
 
@@ -232,15 +248,18 @@ bool RedisManager::hset(const char* key, const char* hkey, const char* hvalue, s
     argv[3] = hvalue;
     argvlen[3] = hvaluelen;
     auto reply = (redisReply*)redisCommandArgv(proxy.get(), 4, argv, argvlen);
+
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER)
     {
         std::cout << "Execut command [ HSet " << key << "  " << hkey << "  " << hvalue << " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
 
     std::cout << "Execut command [ HSet " << key << "  " << hkey << "  " << hvalue << " ] success ! " << std::endl;
-    freeReplyObject(reply);
     return true;
 }
 
@@ -262,14 +281,17 @@ bool RedisManager::hget(const std::string& key, const std::string& hkey, std::st
     argv[2] = hkey.c_str();
     argvlen[2] = hkey.length();
     auto reply = (redisReply*)redisCommandArgv(proxy.get(), 3, argv, argvlen);
+
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (reply == nullptr || reply->type == REDIS_REPLY_NIL)
     {
-        freeReplyObject(reply);
         std::cout << "Execut command [ HGet " << key << " "<< hkey <<"  ] failure ! " << std::endl;
         return "";
     }
     value = reply->str;
-    freeReplyObject(reply);
     std::cout << "Execut command [ HGet " << key << " " << hkey << " ] success ! " << std::endl;
     return true;
 }
@@ -285,14 +307,16 @@ bool RedisManager::del(const std::string& key)
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "DEL %s", key.c_str());
 
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER)
     {
         std::cout << "Execut command [ Del " << key <<  " ] failure ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
     std::cout << "Execut command [ Del " << key << " ] success ! " << std::endl;
-    freeReplyObject(reply);
     return true;
 }
 
@@ -307,14 +331,16 @@ bool RedisManager::existsKey(const std::string& key)
 
     auto reply = (redisReply*)redisCommand(proxy.get(), "exists %s", key.c_str());
 
+    Defer defer([&reply] {
+        freeReplyObject(reply);
+    });
+
     if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER || reply->integer == 0)
     {
         std::cout << "Not Found [ Key " << key << " ]  ! " << std::endl;
-        freeReplyObject(reply);
         return false;
     }
     std::cout << " Found [ Key " << key << " ] exists ! " << std::endl;
-    freeReplyObject(reply);
     return true;
 }
 
