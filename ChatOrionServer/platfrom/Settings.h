@@ -96,6 +96,8 @@ namespace config
         //     return val.get().empty() ? ValueWrapper(std::to_string(default_value)) : val;
         // }
 
+        bool exists(const std::string& key);
+
         // 通用模板函数
         template<typename T>
         ValueWrapper value(const std::string& key, const T& default_value = T()) const {

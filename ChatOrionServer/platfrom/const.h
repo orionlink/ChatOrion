@@ -55,4 +55,7 @@ struct UserInfo {
     std::string email;
 };
 
+const std::string LOGIN_COUNT = "logincount";
+const std::string USERTOKENPREFIX = "utoken_";
+
 #endif // CONST_H

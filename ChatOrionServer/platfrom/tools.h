@@ -15,8 +15,11 @@ public:
 
     static std::string ReadFile(const std::string& file_path);
 
-    // 去除字符串前后的空白字符
+    // 去除字符串前后的空白字符（而不是中间的空白字符）
     static std::string Trim(const std::string& str);
+
+    // 去除字符串中的所有空白字符
+    static void RemoveWhitespace(std::string& str);
 private:
     Tools();
 };

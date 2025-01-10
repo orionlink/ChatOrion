@@ -115,6 +115,11 @@ namespace config
         }
     }
 
+    bool Settings::exists(const std::string &key)
+    {
+        return _config_map.find(key) != _config_map.end();
+    }
+
     void Settings::saveToFile() const
     {
         try {

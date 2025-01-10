@@ -1,5 +1,6 @@
 #include "tools.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -90,4 +91,17 @@ std::string Tools::Trim(const std::string &str)
     if (first == std::string::npos) return "";
     size_t last = str.find_last_not_of(" \t\n\r");
     return str.substr(first, last - first + 1);
+}
+
+void Tools::RemoveWhitespace(std::string &str)
+{
+    /**
+    *std::remove_if：遍历字符串，将所有空白字符移动到字符串的末尾。返回一个指向新逻辑结尾的迭代器。
+    *
+    *str.erase：删除从新逻辑结尾到字符串实际结尾之间的所有字符（即所有空白字符）。
+     */
+    str.erase(std::remove_if(str.begin(), str.end(), [](unsigned char c)
+    {
+        return std::isspace(c);
+    }), str.end());
 }
