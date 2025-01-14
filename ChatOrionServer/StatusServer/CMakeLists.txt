@@ -16,7 +16,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 # 执行构建proto文件脚本
 execute_process(
         COMMAND /bin/bash ${CMAKE_SOURCE_DIR}/../protocol/build_proto.sh
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/../GateServer/config.ini ${CMAKE_SOURCE_DIR}/../bin
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/../platfrom/config.ini ${CMAKE_SOURCE_DIR}/../bin
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../protocol/
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output

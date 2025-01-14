@@ -17,6 +17,10 @@ class AsioIOServicePool : public Singleton<AsioIOServicePool>
 {
     friend class Singleton<AsioIOServicePool>;
 public:
+    /**
+     * 该IO_CONTEXT如果没有绑定监听任何的读写事件和接受连接事件，run 起来则立马退出
+     * Work 保证事件循环
+     */
     using IOService = boost::asio::io_context;
     using Work = boost::asio::executor_work_guard<boost::asio::io_context::executor_type>;
     using WorkPtr = std::unique_ptr<Work>;

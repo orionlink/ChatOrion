@@ -34,8 +34,6 @@ enum ErrorCodes {
     UserNotExist = 1010    // 用户不存在
 };
 
-const std::string CODE_PREFIX = "code_";
-
 class Defer
 {
 public:
@@ -54,6 +52,18 @@ struct UserInfo {
     int uid;
     std::string email;
 };
+
+const int MAX_LENGTH = 1024*2;
+//头部总长度
+const int HEAD_TOTAL_LEN = 4;
+//头部id长度
+const int HEAD_ID_LEN = 2;
+//头部数据长度
+const int HEAD_DATA_LEN = 2;
+const int MAX_RECVQUE = 10000;
+const int MAX_SENDQUE = 1000;
+
+const std::string CODE_PREFIX = "code_";
 
 const std::string LOGIN_COUNT = "logincount";
 const std::string USERTOKENPREFIX = "utoken_";

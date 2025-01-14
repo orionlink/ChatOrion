@@ -3,6 +3,7 @@
 #include "global.h"
 #include "tools.h"
 #include "network/http_mgr.h"
+#include "tcp_mgr.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -60,6 +61,15 @@ LoginGUI::LoginGUI(QDialog*parent) :
 
     HttpMgr::GetInstance()->registerModulesHandlers(Modules::LOGIN_MOD, std::bind(&LoginGUI::loginModCallback, this, std::placeholders::_1,
                                                                                      std::placeholders::_2, std::placeholders::_3));
+
+    //连接tcp连接请求的信号和槽函数
+    connect(this, &LoginGUI::sig_connect_tcp, TcpMgr::GetInstance().get(), &TcpMgr::slot_tcp_connect);
+    //连接tcp管理者发出的连接成功信号
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_con_success, this, &LoginGUI::slot_tcp_con_finish);
+
+    TcpMgr::GetInstance()->registerMessageCallback(ReqId::ID_CHAT_LOGIN_RSP, std::bind(&LoginGUI::onChatLoginRsp, this, std::placeholders::_1,
+                                                                                           std::placeholders::_2));
+
     QPushButton* btn_login = ui->btn_login;
 
     // 创建阴影效果并设置给按钮
@@ -255,7 +265,31 @@ void LoginGUI::forgetPassword()
     json_obj["code"] = code.c_str();
 
     HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/reset_pwd"),
-                 json_obj, Modules::REGISTER_MOD, ReqId::ID_RESET_PWD);
+                                        json_obj, Modules::REGISTER_MOD, ReqId::ID_RESET_PWD);
+}
+
+void LoginGUI::slot_tcp_con_finish(bool bsuccess)
+{
+    if(bsuccess)
+    {
+      showTip(ui->err_msg, QString::fromLocal8Bit("聊天服务连接成功，正在登录..."), true);
+      showTip(ui->err_msg_3, QString::fromLocal8Bit("聊天服务连接成功，正在登录..."), true);
+      QJsonObject jsonObj;
+      jsonObj["uid"] = _uid;
+      jsonObj["token"] = _token;
+
+      QJsonDocument doc(jsonObj);
+      QByteArray jsonData = doc.toJson(QJsonDocument::Indented);
+
+      //发送tcp请求给chat server
+      emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_CHAT_LOGIN, jsonData);
+
+    }
+    else
+    {
+        showTip(ui->err_msg, QString::fromLocal8Bit("网络异常"), true);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("网络异常"), true);
+    }
 }
 
 void LoginGUI::loginPage()
@@ -421,9 +455,15 @@ void LoginGUI::loginModCallback(ReqId id, QJsonObject res, ErrorCodes err)
             return;
         }
         auto username = res["username"].toString();
+        _uid = res["uid"].toInt();
+        _token = res["token"].toString();
+        auto host = res["host"].toString();
+        auto port = res["port"].toString();
         showTip(ui->err_msg, QString::fromLocal8Bit("登录成功"), true);
         showTip(ui->err_msg_3, QString::fromLocal8Bit("登录成功"), true);
         qDebug()<< "username is " << username;
+
+        emit sig_connect_tcp(host, port.toInt());
 
         QDialog::accept();
     }
@@ -472,6 +512,61 @@ void LoginGUI::paintEvent(QPaintEvent *)
     opt.init(this);
     QPainter painter(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
+}
+
+void LoginGUI::onChatLoginRsp(int len, QByteArray data)
+{
+     // 将QByteArray转换为QJsonDocument
+     QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+     // 检查转换是否成功
+     if(jsonDoc.isNull()){
+        qDebug() << "Failed to create QJsonDocument.";
+        return;
+     }
+
+    QJsonObject jsonObj = jsonDoc.object();
+    qDebug()<< "data jsonobj is " << jsonObj ;
+
+    if(!jsonObj.contains("error"))
+    {
+        int err = ErrorCodes::ERR_JSON;
+        qDebug() << "Login Failed, err is Json Parse Err" << err ;
+        return;
+    }
+
+    int err = jsonObj["error"].toInt();
+
+    QString result = QString("登录失败, err is %1")
+                               .arg(err);
+
+    if(err != ErrorCodes::SUCCESS)
+    {
+        showTip(ui->err_msg, result, false);
+        showTip(ui->err_msg_3, result, false);
+        qDebug() << "Login Failed, err is " << err ;
+        return;
+    }
+
+//    auto uid = jsonObj["uid"].toInt();
+//    auto name = jsonObj["name"].toString();
+//    auto nick = jsonObj["nick"].toString();
+//    auto icon = jsonObj["icon"].toString();
+//    auto sex = jsonObj["sex"].toInt();
+//    auto user_info = std::make_shared<UserInfo>(uid, name, nick, icon, sex);
+
+//    UserMgr::GetInstance()->SetUserInfo(user_info);
+//    UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
+//    if(jsonObj.contains("apply_list")){
+//        UserMgr::GetInstance()->AppendApplyList(jsonObj["apply_list"].toArray());
+//    }
+
+//   //添加好友列表
+//    if (jsonObj.contains("friend_list")) {
+//        UserMgr::GetInstance()->AppendFriendList(jsonObj["friend_list"].toArray());
+//    }
+
+//    emit sig_swich_chatdlg();
 }
 
 void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)

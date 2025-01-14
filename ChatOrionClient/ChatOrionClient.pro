@@ -16,6 +16,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     network/http_mgr.cpp \
+    network/tcp_mgr.cpp \
     tools.cpp
 
 HEADERS += \
@@ -25,6 +26,7 @@ HEADERS += \
     login_gui.h \
     mainwindow.h \
     network/http_mgr.h \
+    network/tcp_mgr.h \
     singleton.h \
     tools.h
 

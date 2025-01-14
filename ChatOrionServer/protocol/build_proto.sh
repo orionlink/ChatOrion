@@ -18,6 +18,7 @@ files_to_copy=$(find "$current_dir" -maxdepth 1 \( -name "*.h" -or -name "*.cpp"
 for file in $files_to_copy; do
     cp -f "$file" "$current_dir/../GateServer"
     cp -f "$file" "$current_dir/../StatusServer"
+    cp -f "$file" "$current_dir/../ChatServer"
     echo "Copied: $file"
 done
 

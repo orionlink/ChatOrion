@@ -44,7 +44,8 @@ public:
     void mouseMoveEvent(QMouseEvent* ev)override;
     void mousePressEvent(QMouseEvent* ev)override;
     void mouseReleaseEvent(QMouseEvent* ev)override;
-
+signals:
+    void sig_connect_tcp(const QString& host, uint16_t port);
 public slots:
     void set_style();
 
@@ -93,6 +94,8 @@ public slots:
      */
     void forgetPassword();
 
+    void slot_tcp_con_finish(bool bsuccess);
+
     void updateButton(); // 新增的用于更新按钮状态的槽
 
     void regModCallback(ReqId id, QJsonObject res, ErrorCodes err);
@@ -103,6 +106,8 @@ public slots:
 protected:
     void paintEvent(QPaintEvent*) override;
 private:
+    void onChatLoginRsp(int len, QByteArray data);
+
     void showTip(QLabel* label, const QString& tip, bool is_ok);
     void initModulesHandlers();
 
@@ -119,6 +124,9 @@ private:
     QMap<TipErr, QString> _tip_errs;
     QTimer* _countdown_timer; // 新增的计时器
     int _remaining_time;      // 倒计时剩余时间
+
+    int _uid;
+    QString _token;
 };
 
 #endif // LOGIN_GUI_H

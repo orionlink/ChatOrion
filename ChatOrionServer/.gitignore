@@ -82,6 +82,9 @@ platfrom/cmake-build*/*
 GateServer/.idea/*
 GateServer/cmake-build*/*
 
+ChatServer/.idea/*
+ChatServer/cmake-build*/*
+
 bin/
 VarifyServer/.idea/*
 VarifyServer/node_modules/*

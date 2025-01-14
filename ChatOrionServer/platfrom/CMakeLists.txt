@@ -13,6 +13,23 @@ file(MAKE_DIRECTORY ${OUTPUT_DIR})
 # 设置可执行文件输出路径
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 
+# 执行构建proto文件脚本
+execute_process(
+        COMMAND /bin/bash ${CMAKE_SOURCE_DIR}/../protocol/build_proto.sh
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/config.ini ${CMAKE_SOURCE_DIR}/../bin
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../protocol/
+        RESULT_VARIABLE result
+        OUTPUT_VARIABLE output
+        ERROR_VARIABLE error_output
+)
+if(result EQUAL 0)
+    message(STATUS "Script executed successfully!")
+    message(STATUS "Output: ${output}")
+else()
+    message(WARNING "Script execution failed with error code ${result}")
+    message(WARNING "Error Output: ${error_output}")
+endif()
+
 # 设置third party根目录
 set(THIRD_PARTY_ROOT ${CMAKE_SOURCE_DIR}/../../third)
 
