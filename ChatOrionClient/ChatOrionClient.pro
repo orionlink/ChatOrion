@@ -9,6 +9,8 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    chat_dialog.cpp \
+    custom_ui/clicked_btn.cpp \
     custom_ui/clicked_label.cpp \
     custom_ui/timer_btn.cpp \
     global.cpp \
@@ -22,6 +24,8 @@ SOURCES += \
     user_mgr.cpp
 
 HEADERS += \
+    chat_dialog.h \
+    custom_ui/clicked_btn.h \
     custom_ui/clicked_label.h \
     custom_ui/timer_btn.h \
     global.h \
@@ -35,6 +39,7 @@ HEADERS += \
     user_mgr.h
 
 FORMS += \
+    chat_dialog.ui \
     login_gui.ui \
     mainwindow.ui
 

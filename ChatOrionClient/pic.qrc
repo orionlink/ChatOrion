@@ -78,5 +78,6 @@
         <file>res/pic/voice_chat_press.png</file>
         <file>res/pic/windowBkg.png</file>
         <file>res/pic/icon_success_tip.png</file>
+        <file>res/qss/chatWin.qss</file>
     </qresource>
 </RCC>

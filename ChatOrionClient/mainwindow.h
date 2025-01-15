@@ -18,15 +18,20 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+class ChatDialog;
+class LoginGUI;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(LoginGUI* login_gui, QWidget *parent = nullptr);
     ~MainWindow();
 
 private:
     Ui::MainWindow *ui;
+    ChatDialog * _chat_dlg;
+    LoginGUI* _login_gui;
 };
 #endif // MAINWINDOW_H
