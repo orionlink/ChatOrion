@@ -19,6 +19,7 @@ for file in $files_to_copy; do
     cp -f "$file" "$current_dir/../GateServer"
     cp -f "$file" "$current_dir/../StatusServer"
     cp -f "$file" "$current_dir/../ChatServer"
+    cp -f "$file" "$current_dir/../platfrom"
     echo "Copied: $file"
 done
 

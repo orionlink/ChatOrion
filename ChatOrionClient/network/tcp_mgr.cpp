@@ -107,13 +107,6 @@ TcpMgr::~TcpMgr()
 
 void TcpMgr::registerMessageCallback(ReqId id, message_handle_t handle)
 {
-    auto iter = _handlers.find(id);
-    if (iter == _handlers.end())
-    {
-        qDebug() << "register Message failed";
-        return;
-    }
-
     _handlers[id] = handle;
 }
 

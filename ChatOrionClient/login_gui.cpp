@@ -4,6 +4,8 @@
 #include "tools.h"
 #include "network/http_mgr.h"
 #include "tcp_mgr.h"
+#include "user_data.h"
+#include "user_mgr.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -283,7 +285,6 @@ void LoginGUI::slot_tcp_con_finish(bool bsuccess)
 
       //发送tcp请求给chat server
       emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_CHAT_LOGIN, jsonData);
-
     }
     else
     {
@@ -458,14 +459,12 @@ void LoginGUI::loginModCallback(ReqId id, QJsonObject res, ErrorCodes err)
         _uid = res["uid"].toInt();
         _token = res["token"].toString();
         auto host = res["host"].toString();
-        auto port = res["port"].toString();
-        showTip(ui->err_msg, QString::fromLocal8Bit("登录成功"), true);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("登录成功"), true);
+        auto port = res["port"].toInt();
+        showTip(ui->err_msg, QString::fromLocal8Bit("正在连接聊天服务器"), true);
+        showTip(ui->err_msg_3, QString::fromLocal8Bit("正在连接聊天服务器"), true);
         qDebug()<< "username is " << username;
 
-        emit sig_connect_tcp(host, port.toInt());
-
-        QDialog::accept();
+        emit sig_connect_tcp(host, port);
     }
         break;
     default:
@@ -548,15 +547,16 @@ void LoginGUI::onChatLoginRsp(int len, QByteArray data)
         return;
     }
 
-//    auto uid = jsonObj["uid"].toInt();
-//    auto name = jsonObj["name"].toString();
-//    auto nick = jsonObj["nick"].toString();
-//    auto icon = jsonObj["icon"].toString();
-//    auto sex = jsonObj["sex"].toInt();
-//    auto user_info = std::make_shared<UserInfo>(uid, name, nick, icon, sex);
+    auto uid = jsonObj["uid"].toInt();
+    auto name = jsonObj["name"].toString();
+    auto nick = jsonObj["nick"].toString();
+    auto icon = jsonObj["icon"].toString();
+    auto sex = jsonObj["sex"].toInt();
+    auto user_info = std::make_shared<UserInfo>(uid, name, nick, icon, sex);
 
-//    UserMgr::GetInstance()->SetUserInfo(user_info);
-//    UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
+    UserMgr::GetInstance()->SetUserInfo(user_info);
+    UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
+
 //    if(jsonObj.contains("apply_list")){
 //        UserMgr::GetInstance()->AppendApplyList(jsonObj["apply_list"].toArray());
 //    }
@@ -567,6 +567,8 @@ void LoginGUI::onChatLoginRsp(int len, QByteArray data)
 //    }
 
 //    emit sig_swich_chatdlg();
+
+     QDialog::accept();
 }
 
 void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)

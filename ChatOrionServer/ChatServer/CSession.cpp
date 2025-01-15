@@ -31,7 +31,6 @@ void CSession::asyncReadHead(int total_len)
                 std::cout << "handle read failed, error is " << ec.what() << std::endl;
 
                 close();
-                _server->clearSession(_session_id);
                 return;
             }
 
@@ -41,7 +40,6 @@ void CSession::asyncReadHead(int total_len)
                     << HEAD_TOTAL_LEN << "]" << std::endl;
 
                 close();
-                _server->clearSession(_session_id);
                 return;
             }
 
@@ -57,7 +55,7 @@ void CSession::asyncReadHead(int total_len)
             //id非法
             if (msg_id > MAX_LENGTH) {
                 std::cout << "invalid msg_id is " << msg_id << std::endl;
-                _server->clearSession(_session_id);
+                close();
                 return;
             }
             short msg_len = 0;
@@ -69,7 +67,7 @@ void CSession::asyncReadHead(int total_len)
             //id非法
             if (msg_len > MAX_LENGTH) {
                 std::cout << "invalid data length is " << msg_len << std::endl;
-                _server->clearSession(_session_id);
+                close();
                 return;
             }
 
@@ -95,7 +93,6 @@ void CSession::asyncReadBody(int length)
                 std::cout << "handle read failed, error is " << ec.what() << std::endl;
 
                 close();
-                _server->clearSession(_session_id);
                 return;
             }
 
@@ -105,7 +102,6 @@ void CSession::asyncReadBody(int length)
                     << HEAD_TOTAL_LEN << "]" << std::endl;
 
                 close();
-                _server->clearSession(_session_id);
                 return;
             }
 
@@ -126,10 +122,62 @@ void CSession::asyncReadBody(int length)
     });
 }
 
+void CSession::send(const char *msg, short msg_length, short msg_id)
+{
+    std::lock_guard<std::mutex> lock(_send_mutex);
+    int queue_size = _send_queue.size();
+    if (queue_size > MAX_SENDQUE)
+    {
+        std::cout << "session: " << _session_id << " send que fulled, size is " << MAX_SENDQUE << std::endl;
+        return;
+    }
+
+    _send_queue.push(std::make_shared<SendNode>(msg, msg_length, msg_id));
+
+    // 原本队列里面有元素，但是还没发送出去(handleWrite没有触发，没有pop出来), 就被其他线程push进来了
+    // 不需要调用下面的发送，只需要在handleWrite按照队列发送即可
+    if (queue_size > 0)
+    {
+        return;
+    }
+
+    auto& msgnode = _send_queue.front();
+    boost::asio::async_write(_socket, boost::asio::buffer(msgnode->_data, msgnode->_total_len),
+        std::bind(&CSession::handleWrite, this, std::placeholders::_1, sharedSelf()));
+}
+
+void CSession::send(const std::string &msg, short msg_id)
+{
+    std::lock_guard<std::mutex> lock(_send_mutex);
+    int queue_size = _send_queue.size();
+    if (queue_size > MAX_SENDQUE)
+    {
+        std::cout << "session: " << _session_id << " send que fulled, size is " << MAX_SENDQUE << std::endl;
+        return;
+    }
+
+    _send_queue.push(std::make_shared<SendNode>(msg.c_str(), msg.length(), msg_id));
+
+    if (queue_size > 0)
+    {
+        return;
+    }
+
+    auto& msgnode = _send_queue.front();
+    boost::asio::async_write(_socket, boost::asio::buffer(msgnode->_data, msgnode->_total_len),
+        std::bind(&CSession::handleWrite, this, std::placeholders::_1, sharedSelf()));
+}
+
 void CSession::close()
 {
     _socket.close();
+    _server->clearSession(_session_id);
     _b_close = true;
+}
+
+std::shared_ptr<CSession> CSession::sharedSelf()
+{
+    return shared_from_this();
 }
 
 void CSession::asyncReadFull(std::size_t maxLength,
@@ -163,6 +211,33 @@ void CSession::asyncReadLen(std::size_t read_len, std::size_t total_len,
         // 没有错误，且长度不足则继续读取
         self->asyncReadLen(read_len + bytesTransfered, total_len, handler);
     });
+}
+
+void CSession::handleWrite(const boost::system::error_code &error, std::shared_ptr<CSession> shared_self)
+{
+    //增加异常处理
+    try {
+        if (!error)
+        {
+            std::lock_guard<std::mutex> lock(_send_mutex);
+            //cout << "send data " << _send_que.front()->_data+HEAD_LENGTH << endl;
+            _send_queue.pop();
+            if (!_send_queue.empty()) {
+                auto& msgnode = _send_queue.front();
+                boost::asio::async_write(_socket, boost::asio::buffer(msgnode->_data, msgnode->_total_len),
+                    std::bind(&CSession::handleWrite, this, std::placeholders::_1, shared_self));
+            }
+        }
+        else
+        {
+            std::cout << "handle write failed, error is " << error.what() << std::endl;
+            close();
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception code : " << e.what() << std::endl;
+    }
 }
 
 LogicNode::LogicNode(std::shared_ptr<CSession> session, std::shared_ptr<RecvNode> recv_node)

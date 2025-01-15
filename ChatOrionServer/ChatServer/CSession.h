@@ -26,11 +26,18 @@ public:
     void asyncReadHead(int total_len);
     void asyncReadBody(int length);
 
+    void send(const char* msg, short msg_length, short msg_id);
+    void send(const std::string& msg, short msg_id);
+
     void close();
 
-    boost::asio::ip::tcp::socket& get_socket() { return _socket; }
+    std::shared_ptr<CSession> sharedSelf();
 
+    boost::asio::ip::tcp::socket& get_socket() { return _socket; }
     std::string get_uuid() { return _session_id; }
+
+    void set_user_id(int user_id) { _user_uid = user_id; }
+    int get_user_id() { return _user_uid; }
 private:
     /**
      * 读取完整长度
@@ -47,6 +54,13 @@ private:
      */
     void asyncReadLen(std::size_t read_len, std::size_t total_len,
                       std::function<void(const boost::system::error_code&, std::size_t)> handler);
+
+    /**
+     * 异步写回调
+     * @param error 错误码
+     * @param shared_self 共享自身，防止被清理
+     */
+    void handleWrite(const boost::system::error_code& error, std::shared_ptr<CSession> shared_self);
 private:
     tcp::socket _socket;
     std::string _session_id;
@@ -56,12 +70,18 @@ private:
 
     bool _b_close;
 
+    // 异步发送，队列保证异步发送的有序性
+    std::queue<std::shared_ptr<SendNode> > _send_queue;
+    std::mutex _send_mutex;
+
     //收到的消息结构
     std::shared_ptr<RecvNode> _recv_msg_node;
     bool _b_head_parse;
 
     //收到的头部结构
     std::shared_ptr<MsgNode> _recv_head_node;
+
+    int _user_uid;
 };
 
 class LogicNode {

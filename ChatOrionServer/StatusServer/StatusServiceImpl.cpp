@@ -25,7 +25,7 @@ std::string generate_unique_string()
 
 StatusServiceImpl::StatusServiceImpl()
 {
-    auto settings = config::Settings::GetInstance();
+    auto& settings = config::Settings::GetInstance();
     std::string servers = settings.value("ChatServers/name").toString();
     Tools::RemoveWhitespace(servers);
 
@@ -58,6 +58,32 @@ Status StatusServiceImpl::GetChatServer(ServerContext* context, const GetChatSer
     reply->set_port(std::atoi(server.port.c_str()));
     reply->set_error(ErrorCodes::Success);
     reply->set_token(generate_unique_string());
+
+    insertToken(request->uid(), reply->token());
+    return Status::OK;
+}
+
+Status StatusServiceImpl::Login(ServerContext *context, const LoginReq *request, LoginRsp *reply)
+{
+    auto uid = request->uid();
+    auto token = request->token();
+
+    std::string uid_str = std::to_string(uid);
+    std::string token_key = USERTOKENPREFIX + uid_str;
+    std::string token_value = "";
+    bool success = RedisManager::GetInstance()->get(token_key, token_value);
+    if (success) {
+        reply->set_error(ErrorCodes::UidInvalid);
+        return Status::OK;
+    }
+
+    if (token_value != token) {
+        reply->set_error(ErrorCodes::TokenInvalid);
+        return Status::OK;
+    }
+    reply->set_error(ErrorCodes::Success);
+    reply->set_uid(uid);
+    reply->set_token(token);
     return Status::OK;
 }
 

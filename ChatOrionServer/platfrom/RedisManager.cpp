@@ -13,7 +13,7 @@
 
 RedisManager::RedisManager()
 {
-    auto settings = config::Settings::GetInstance();
+    auto& settings = config::Settings::GetInstance();
     std::string host =  settings.value("redis/host").toString();
     int port =  settings.value("redis/port").toInt();
     std::string password =  settings.value("redis/password").toString();

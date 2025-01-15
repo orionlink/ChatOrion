@@ -17,7 +17,9 @@ SOURCES += \
     mainwindow.cpp \
     network/http_mgr.cpp \
     network/tcp_mgr.cpp \
-    tools.cpp
+    tools.cpp \
+    user_data.cpp \
+    user_mgr.cpp
 
 HEADERS += \
     custom_ui/clicked_label.h \
@@ -28,7 +30,9 @@ HEADERS += \
     network/http_mgr.h \
     network/tcp_mgr.h \
     singleton.h \
-    tools.h
+    tools.h \
+    user_data.h \
+    user_mgr.h
 
 FORMS += \
     login_gui.ui \

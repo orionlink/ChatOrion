@@ -51,7 +51,7 @@ void RunServer(const std::string& host, const std::string& port)
 
 int main()
 {
-    auto settings = config::Settings::GetInstance();
+    auto& settings = config::Settings::GetInstance();
     settings.setFileName("config.ini");
     settings.load();
 

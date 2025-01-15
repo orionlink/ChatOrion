@@ -16,6 +16,8 @@ using grpc::ServerContext;
 using grpc::Status;
 using message::GetChatServerReq;
 using message::GetChatServerRes;
+using message::LoginReq;
+using message::LoginRsp;
 using message::StatusService;
 
 class ChatServer
@@ -51,6 +53,9 @@ public:
 
     Status GetChatServer(ServerContext* context, const GetChatServerReq* request,
         GetChatServerRes* reply) override;
+
+    Status Login(ServerContext* context, const LoginReq* request,
+    LoginRsp* reply) override;
 private:
     void insertToken(int uid, const std::string token);
     ChatServer getChatServer();
