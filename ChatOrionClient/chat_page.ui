@@ -61,25 +61,57 @@
           <height>60</height>
          </size>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QWidget" name="widget_2" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>燃烧的胸毛</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>燃烧的胸毛</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="ClickedBtn" name="chat_msg_btn">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>24</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>24</width>
+             <height>24</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="chat_data_list" native="true"/>
+       <widget class="ChatView" name="chat_data_list" native="true"/>
       </item>
       <item>
        <widget class="QWidget" name="tool_wid" native="true">
@@ -103,13 +135,13 @@
           <number>2</number>
          </property>
          <property name="topMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
           <number>2</number>
          </property>
          <property name="bottomMargin">
-          <number>2</number>
+          <number>0</number>
          </property>
          <item>
           <spacer name="horizontalSpacer_2">
@@ -198,7 +230,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="chatEdit">
+       <widget class="MessageTextEdit" name="chatEdit">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -344,6 +376,17 @@
    <class>ClickedBtn</class>
    <extends>QPushButton</extends>
    <header location="global">clicked_btn.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ChatView</class>
+   <extends>QWidget</extends>
+   <header>chat_view.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MessageTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>message_text_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,6 +1,6 @@
 #include "chat_dialog.h"
 #include "ui_chat_dialog.h"
-#include "chatuser_item.h"
+#include "chat_user_item.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -71,6 +71,10 @@ ChatDialog::ChatDialog(QWidget *parent) :
     ui->side_chat_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
     ui->side_contact_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
     ui->side_setting_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
+
+    ui->side_chat_lb->setToolTip(QStringLiteral("聊天"));
+    ui->side_contact_lb->setToolTip(QStringLiteral("联系人"));
+    ui->side_setting_lb->setToolTip(QStringLiteral("设置及其他"));
 
     // 显示搜索图标
     QAction* searchAction = new QAction(ui->search_edit);

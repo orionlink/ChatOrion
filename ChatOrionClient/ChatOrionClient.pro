@@ -11,12 +11,18 @@ CONFIG += c++17
 SOURCES += \
     chat_dialog.cpp \
     chat_page.cpp \
-    custom_ui/chatuser_item.cpp \
-    custom_ui/chatuser_list.cpp \
+    chat_view.cpp \
+    custom_ui/bubble_frame.cpp \
+    custom_ui/chat_item_base.cpp \
+    custom_ui/chat_user_item.cpp \
+    custom_ui/chat_user_list.cpp \
     custom_ui/clicked_btn.cpp \
     custom_ui/clicked_label.cpp \
     custom_ui/customize_edit.cpp \
     custom_ui/list_item_base.cpp \
+    custom_ui/message_texte_dit.cpp \
+    custom_ui/picture_bubble.cpp \
+    custom_ui/text_bubble.cpp \
     custom_ui/timer_btn.cpp \
     global.cpp \
     login_gui.cpp \
@@ -30,12 +36,18 @@ SOURCES += \
 HEADERS += \
     chat_dialog.h \
     chat_page.h \
-    custom_ui/chatuser_item.h \
-    custom_ui/chatuser_list.h \
+    chat_view.h \
+    custom_ui/bubble_frame.h \
+    custom_ui/chat_item_base.h \
+    custom_ui/chat_user_item.h \
+    custom_ui/chat_user_list.h \
     custom_ui/clicked_btn.h \
     custom_ui/clicked_label.h \
     custom_ui/customize_edit.h \
     custom_ui/list_item_base.h \
+    custom_ui/message_text_edit.h \
+    custom_ui/picture_bubble.h \
+    custom_ui/text_bubble.h \
     custom_ui/timer_btn.h \
     global.h \
     login_gui.h \
@@ -49,7 +61,7 @@ HEADERS += \
 FORMS += \
     chat_dialog.ui \
     chat_page.ui \
-    custom_ui/chatuser_item.ui \
+    custom_ui/chat_user_item.ui \
     login_gui.ui
 
 DESTDIR = $$PWD/bin

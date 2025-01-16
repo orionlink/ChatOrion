@@ -22,6 +22,7 @@
 
 #search_wid{
      background-color:rgb(247,247,247);
+     border-bottom: 0.5px solid #ececec; /* 设置下边框颜色和宽度 */
 }
 
 #chat_user_list {
@@ -80,7 +81,7 @@ QScrollBar:vertical {
 QScrollBar::handle:vertical {
     background: rgb(173,170,169); /* 滑块颜色 */
     min-height: 10px; /* 滑块最小高度，根据需要调整 */
-    max-height: 10px; /* 滑块最小高度，根据需要调整 */
+    max-height: 10px; /* 滑块最大高度，根据需要调整 */
     border-radius: 4px; /* 滑块边缘圆角，调整以形成椭圆形状 */
 }
 
@@ -186,9 +187,14 @@ LoadingDlg{
    border-radius: 20px; /* 设置圆角 */
 }
 
+#chat_msg_btn
+{
+    border-image: url(:/res/pic/chat_msg_icon.png);
+}
+
 #tool_wid{
     background: #ffffff;
-    border-bottom: 0.5px solid #ececec; /* 设置下边框颜色和宽度 */
+    /*border-bottom: 0.5px solid #ececec;  设置下边框颜色和宽度 */
 }
 
 #emo_lb[state='normal']{
@@ -220,7 +226,10 @@ LoadingDlg{
 }
 
 #title_wid{
-     background: #f0f0f0;
+    /*background: #ffffff;*/
+    background-color:rgb(247,247,247);
+    border-left: 0.5px solid #ececec; /* 设置上边框颜色和宽度 */
+    border-bottom: 0.5px solid #ececec; /* 设置下边框颜色和宽度 */
 }
 
 #chat_bg{

@@ -82,5 +82,6 @@
         <file>res/pic/setting_icon_press.png</file>
         <file>res/pic/setting_icon_hover.png</file>
         <file>res/pic/setting_icon.png</file>
+        <file>res/pic/chat_msg_icon.png</file>
     </qresource>
 </RCC>

@@ -381,7 +381,7 @@
   <customwidget>
    <class>ChatUserList</class>
    <extends>QListWidget</extends>
-   <header>chatuser_list.h</header>
+   <header>chat_user_list.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
