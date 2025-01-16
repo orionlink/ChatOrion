@@ -10,13 +10,17 @@ CONFIG += c++17
 
 SOURCES += \
     chat_dialog.cpp \
+    chat_page.cpp \
+    custom_ui/chatuser_item.cpp \
+    custom_ui/chatuser_list.cpp \
     custom_ui/clicked_btn.cpp \
     custom_ui/clicked_label.cpp \
+    custom_ui/customize_edit.cpp \
+    custom_ui/list_item_base.cpp \
     custom_ui/timer_btn.cpp \
     global.cpp \
     login_gui.cpp \
     main.cpp \
-    mainwindow.cpp \
     network/http_mgr.cpp \
     network/tcp_mgr.cpp \
     tools.cpp \
@@ -25,12 +29,16 @@ SOURCES += \
 
 HEADERS += \
     chat_dialog.h \
+    chat_page.h \
+    custom_ui/chatuser_item.h \
+    custom_ui/chatuser_list.h \
     custom_ui/clicked_btn.h \
     custom_ui/clicked_label.h \
+    custom_ui/customize_edit.h \
+    custom_ui/list_item_base.h \
     custom_ui/timer_btn.h \
     global.h \
     login_gui.h \
-    mainwindow.h \
     network/http_mgr.h \
     network/tcp_mgr.h \
     singleton.h \
@@ -40,13 +48,16 @@ HEADERS += \
 
 FORMS += \
     chat_dialog.ui \
-    login_gui.ui \
-    mainwindow.ui
+    chat_page.ui \
+    custom_ui/chatuser_item.ui \
+    login_gui.ui
 
 DESTDIR = $$PWD/bin
 
 INCLUDEPATH += $$PWD/custom_ui
 INCLUDEPATH += $$PWD/network
+
+include($$PWD/FrameWgt/FrameWgt.pri)
 
 DISTFILES += \
     config.ini

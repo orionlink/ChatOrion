@@ -1,14 +1,20 @@
 #include "clicked_btn.h"
+#include <QVariant>
 #include "global.h"
+#include <QKeyEvent>
 
 ClickedBtn::ClickedBtn(QWidget *parent):QPushButton (parent)
 {
-      setCursor(Qt::PointingHandCursor); // 设置光标为小手
+    setCursor(Qt::PointingHandCursor); // 设置光标为小手
+    setFocusPolicy(Qt::NoFocus);
+
+    this->setStyleSheet("border-radius: 5px;");
 }
 
 ClickedBtn::~ClickedBtn(){
 
 }
+
 
 void ClickedBtn::SetState(QString normal, QString hover, QString press)
 {
@@ -26,6 +32,14 @@ void ClickedBtn::enterEvent(QEvent *event)
     repolish(this);
     update();
     QPushButton::enterEvent(event);
+}
+
+void ClickedBtn::leaveEvent(QEvent *event)
+{
+    setProperty("state",_normal);
+    repolish(this);
+    update();
+    QPushButton::leaveEvent(event);
 }
 
 void ClickedBtn::mousePressEvent(QMouseEvent *event)

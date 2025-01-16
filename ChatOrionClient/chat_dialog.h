@@ -7,6 +7,8 @@ namespace Ui {
 class ChatDialog;
 }
 
+#include "FrameWgt/framewgt.h"
+
 class ChatDialog : public QDialog
 {
     Q_OBJECT
@@ -16,6 +18,9 @@ public:
     ~ChatDialog();
 private:
     void load_style();
+
+    // 测试函数
+    void addChatUserList();
 private:
     Ui::ChatDialog *ui;
 };

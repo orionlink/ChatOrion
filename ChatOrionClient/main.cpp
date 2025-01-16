@@ -1,13 +1,16 @@
-#include "mainwindow.h"
+#include "chat_dialog.h"
 #include "login_gui.h"
 #include "global.h"
+#include "FrameWgt/framewgt.h"
 
 #include <QApplication>
 #include <QFile>
 #include <QTextStream>
 #include <QDir>
 #include <QSettings>
+#include <QIcon>
 #include <QDebug>
+#include <QScreen>
 
 int main(int argc, char *argv[])
 {
@@ -46,7 +49,34 @@ int main(int argc, char *argv[])
 //        return -1;
 //    }
 
-    MainWindow w(&login_gui);
+
+    ChatDialog* dlg = new ChatDialog();
+
+    FrameWgt w(dlg);
+
+    // 获取鼠标的全局位置
+    QPoint mousePos = QCursor::pos();
+
+    // 获取鼠标所在的屏幕
+    QScreen *mouseScreen = QGuiApplication::screenAt(mousePos);
+    if (!mouseScreen) {
+        qWarning() << "No screen found at mouse position!";
+        return -1;
+    }
+
+    // 获取鼠标所在屏幕的几何信息
+    QRect screenGeometry = mouseScreen->geometry();
+    int screenWidth = screenGeometry.width();
+    int screenHeight = screenGeometry.height();
+
+    // 将窗口移动到鼠标所在屏幕的中心
+    int x = screenGeometry.x() + (screenWidth - 800) / 2;
+    int y = screenGeometry.y() + (screenHeight - 600) / 2;
+
+    w.setBlurRadius(5);
+    w.resize(800, 600);
+    w.move(x, y);
     w.show();
+
     return a.exec();
 }

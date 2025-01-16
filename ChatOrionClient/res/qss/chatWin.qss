@@ -1,3 +1,8 @@
+#ChatDialog
+{
+    background-color: white;
+}
+
 #side_bar{
   background-color:rgb(46,46,46);
 }
@@ -62,7 +67,7 @@
 
 #time_wid #time_lb{
    color:rgb(140,140,140);
-   font-size: 12px;
+   font-size: 9px;
    font-family: "Microsoft YaHei";
 }
 
@@ -75,6 +80,7 @@ QScrollBar:vertical {
 QScrollBar::handle:vertical {
     background: rgb(173,170,169); /* 滑块颜色 */
     min-height: 10px; /* 滑块最小高度，根据需要调整 */
+    max-height: 10px; /* 滑块最小高度，根据需要调整 */
     border-radius: 4px; /* 滑块边缘圆角，调整以形成椭圆形状 */
 }
 
@@ -172,6 +178,14 @@ LoadingDlg{
    border-radius: 20px; /* 设置圆角 */
 }
 
+#send_btn[state='activa']{
+   background: green;
+   color: white;
+   font-size: 16px; /* 设置字体大小 */
+   font-family: "Microsoft YaHei"; /* 设置字体 */
+   border-radius: 20px; /* 设置圆角 */
+}
+
 #tool_wid{
     background: #ffffff;
     border-bottom: 0.5px solid #ececec; /* 设置下边框颜色和宽度 */
@@ -202,6 +216,10 @@ LoadingDlg{
 }
 
 #chat_data_list{
+     background: #f0f0f0;
+}
+
+#title_wid{
      background: #f0f0f0;
 }
 
@@ -267,9 +285,36 @@ LoadingDlg{
     border-image: url(:/res/pic/contact_list_press.png);
 }
 
+#side_setting_lb[state='normal']{
+    border-image: url(:/res/pic/setting_icon.png);
+}
+
+#side_setting_lb[state='hover']{
+    border-image: url(:/res/pic/setting_icon_hover.png);
+}
+
+#side_setting_lb[state='pressed']{
+    border-image: url(:/res/pic/setting_icon_press.png);
+}
+
+#side_setting_lb[state='selected_normal']{
+    border-image: url(:/res/pic/setting_icon_press.png);
+}
+
+#side_setting_lb[state='selected_hover']{
+    border-image: url(:/res/pic/setting_icon_press.png);
+}
+
+#side_setting_lb[state='selected_pressed']{
+    border-image: url(:/res/pic/setting_icon_press.png);
+}
 
 #search_edit {
     border: 2px solid #f1f1f1;
+}
+
+#search_edit:hover {
+    border: 2px solid green;
 }
 
 /* 搜索框列表*/
