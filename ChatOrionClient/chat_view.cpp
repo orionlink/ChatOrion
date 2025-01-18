@@ -1,4 +1,5 @@
 #include "chat_view.h"
+#include "chat_item_base.h"
 
 #include <QScrollBar>
 #include <QVBoxLayout>
@@ -9,7 +10,7 @@
 #include <QStyleOption>
 #include <QPainter>
 
-ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false)
+ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false), m_selectionMode(false)
 {
     QVBoxLayout *pMainLayout = new QVBoxLayout();
     this->setLayout(pMainLayout);
@@ -23,6 +24,8 @@ ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false)
     w->setObjectName("chat_bg");
     w->setAutoFillBackground(true);
     QVBoxLayout *pVLayout_1 = new QVBoxLayout();
+    pVLayout_1->setMargin(0);
+    pVLayout_1->setSpacing(0);
     // 默认往里面加一个widget(item)，每条消息(item)就会被顶到顶部，如果没有拉伸因子
     // 会导致一条消息占满整个界面, 消息是一个widget
     pVLayout_1->addWidget(new QWidget(), 100000);
@@ -45,10 +48,19 @@ ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false)
 
 void ChatView::appendChatItem(QWidget *item)
 {
-   QVBoxLayout *vl = qobject_cast<QVBoxLayout *>(m_pScrollArea->widget()->layout());
-   qDebug() << "vl->count() is " << vl->count();
-   vl->insertWidget(vl->count() - 1, item);
-   m_isAppended = true;
+    if (ChatItemBase* chatItem = qobject_cast<ChatItemBase*>(item)) {
+        connect(chatItem, &ChatItemBase::deleteRequested,
+                this, &ChatView::onItemDeleteRequested);
+        connect(chatItem, &ChatItemBase::multiSelectRequested,
+                this, &ChatView::onItemMultiSelectRequested);
+        connect(chatItem, &ChatItemBase::selectionChanged,
+                this, &ChatView::onItemSelectionChanged);
+    }
+
+    QVBoxLayout *vl = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
+    item->setParent(this);
+    vl->insertWidget(vl->count() - 1, item);
+    m_isAppended = true;
 }
 
 void ChatView::prependChatItem(QWidget *item)
@@ -143,4 +155,78 @@ void ChatView::paintEvent(QPaintEvent *event)
     opt.init(this);
     QPainter p(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+void ChatView::setSelectionMode(bool enabled)
+{
+    m_selectionMode = enabled;
+    if (!enabled) {
+        clearSelection();
+    }
+}
+
+void ChatView::clearSelection()
+{
+    for (ChatItemBase* item : m_selectedItems) {
+        item->setSelected(false);
+    }
+    m_selectedItems.clear();
+    m_selectionMode = false;
+}
+
+void ChatView::onItemSelectionChanged(ChatItemBase* item, bool selected)
+{
+    if (selected) {
+        m_selectedItems.insert(item);
+    } else {
+        m_selectedItems.remove(item);
+    }
+
+    if (m_selectedItems.isEmpty())
+    {
+        m_selectionMode = false;
+    }
+    else
+    {
+        m_selectionMode = true;
+    }
+}
+
+void ChatView::onItemDeleteRequested(ChatItemBase* item)
+{
+    if (m_selectionMode)
+    {
+        deleteSelectedItems();
+    }
+    else
+    {
+        // 单个删除
+        QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
+        if (layout)
+        {
+            layout->removeWidget(item);
+            item->deleteLater();
+        }
+    }
+}
+
+void ChatView::onItemMultiSelectRequested(ChatItemBase* item)
+{
+    m_selectionMode = true;
+    m_selectedItems.clear();  // 清除之前的选择
+    m_selectedItems.insert(item);
+}
+
+
+void ChatView::deleteSelectedItems()
+{
+    QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
+    if (!layout) return;
+
+    for (ChatItemBase* item : m_selectedItems) {
+        layout->removeWidget(item);
+        item->deleteLater();
+    }
+    m_selectedItems.clear();
+    m_selectionMode = false;
 }

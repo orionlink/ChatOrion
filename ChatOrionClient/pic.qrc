@@ -244,5 +244,7 @@
         <file>res/emoji/爱心.png</file>
         <file>res/emoji/666.png</file>
         <file>res/pic/normal_logo.png</file>
+        <file>res/pic/selected.png</file>
+        <file>res/pic/unselected.png</file>
     </qresource>
 </RCC>

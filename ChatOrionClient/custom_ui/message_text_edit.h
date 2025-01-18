@@ -43,7 +43,6 @@ protected:
 private:
     void insertImages(const QString &url);
     void insertTextFile(const QString &url);
-    void createMimeData(const QTextCursor &cursor, QMimeData *mimeData);
     void copy();
     void cut();
     void createMimeDataFromSelection(const QTextCursor &cursor, QMimeData *mimeData);

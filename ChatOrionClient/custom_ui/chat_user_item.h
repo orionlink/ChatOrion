@@ -8,7 +8,7 @@ class ChatUserItem;
 }
 
 /**
- * @brief 聊天信息列表项
+ * @brief 聊天用户信息列表项
  */
 class ChatUserItem : public ListItemBase
 {

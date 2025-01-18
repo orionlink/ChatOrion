@@ -39,12 +39,17 @@ public:
     {
         return m_messages;
     }
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
+    bool eventFilter(QObject *o, QEvent *e) override;
+
+    bool textIsSelected() const;
 private:
     void insertEmotion(QTextCursor &cursor, const QString &emotionPath);
     void adjustTextHeight();
-    bool eventFilter(QObject *o, QEvent *e);
     void calculateMaxWidth(const QVector<MsgInfo>& messages);
+
     ContentLabel* m_contentLabel;
     QMap<QString, QMovie*> m_emotionMovies;
     QVector<MsgInfo> m_messages; // 存储当前气泡的所有消息
@@ -103,50 +108,21 @@ public:
 
     EmotionInterface* emotionInterface() const { return m_emotionInterface; }
 
+    QAction* createCopyAction();
 protected:
-    void focusInEvent(QFocusEvent *e) override
-    {
-        QTextEdit::focusInEvent(e);
-        setCursorWidth(0); // 确保光标始终不可见
-    }
+    void focusInEvent(QFocusEvent *e) override;
 
-    void mousePressEvent(QMouseEvent *e) override
-    {
-        QTextEdit::mousePressEvent(e);
-        setCursorWidth(0); // 确保在鼠标点击时光标也不可见
-    }
+    void mousePressEvent(QMouseEvent *e) override;
 
-    void mouseDoubleClickEvent(QMouseEvent *e) override
-    {
-        QTextEdit::mouseDoubleClickEvent(e);
-        setCursorWidth(0);
-    }
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
 
-    void contextMenuEvent(QContextMenuEvent *event) override
-    {
-        QMenu *menu = new QMenu(this);
-
-        // 只添加复制选项
-        QAction* copyAction = createCopyAction();
-        copyAction->setEnabled(textCursor().hasSelection());
-        menu->addAction(copyAction);
-
-        menu->exec(event->globalPos());
-        delete menu;
-    }
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     void keyPressEvent(QKeyEvent *e) override;
 private slots:
     void copySelectedContent();
 
 private:
-    QAction* createCopyAction()
-    {
-        QAction* copyAction = new QAction(tr("复制"), this);
-        copyAction->setShortcut(QKeySequence::Copy);
-        connect(copyAction, &QAction::triggered, this, &ContentLabel::copySelectedContent);
-        return copyAction;
-    }
 
     EmotionInterface* m_emotionInterface;
 };

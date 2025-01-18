@@ -7,7 +7,7 @@
 #include <QScrollBar>
 
 /**
- * @brief 聊天信息列表
+ * @brief 聊天用户信息列表
  */
 class ChatUserList : public QListWidget
 {

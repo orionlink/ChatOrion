@@ -1,5 +1,5 @@
 #include "chat_user_item.h"
-#include "ui_chatuser_item.h"
+#include "ui_chat_user_item.h"
 
 ChatUserItem::ChatUserItem(QWidget *parent) :
     ListItemBase(parent),

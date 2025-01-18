@@ -114,16 +114,26 @@ void MessageTextEdit::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    if (e->modifiers() & Qt::ControlModifier) {
-        switch (e->key()) {
+    if (e->modifiers() & Qt::ControlModifier)
+    {
+        switch (e->key())
+        {
             case Qt::Key_C:
-                if (textCursor().hasSelection()) {
+                if (textCursor().hasSelection())
+                {
                     copy();
                 }
                 return;
+        case Qt::Key_X:
+            if (textCursor().hasSelection())
+            {
+                cut();
+            }
+            return;
 
             case Qt::Key_V:
-                if (const QMimeData *md = QGuiApplication::clipboard()->mimeData()) {
+                if (const QMimeData *md = QGuiApplication::clipboard()->mimeData())
+                {
                     insertFromMimeData(md);
                 }
                 return;
@@ -211,94 +221,8 @@ void MessageTextEdit::insertTextFile(const QString &url)
     insertMsgList(mMsgList,"file",url,pix);
 }
 
-void MessageTextEdit::createMimeData(const QTextCursor &cursor, QMimeData *mimeData)
-{
-    // 获取选中的文本片段
-    QString plainText;
-    QString html = "<html><body>";
-    QVector<MsgInfo> messages;
-
-    QTextDocument *doc = document();
-    int start = cursor.selectionStart();
-    int end = cursor.selectionEnd();
-
-    QTextBlock block = doc->findBlock(start);
-    QTextBlock endBlock = doc->findBlock(end);
-
-    while (block.isValid() && block.blockNumber() <= endBlock.blockNumber()) {
-        QTextBlock::iterator it;
-        for (it = block.begin(); !(it.atEnd()); ++it) {
-            QTextFragment fragment = it.fragment();
-            if (!fragment.isValid())
-                continue;
-
-            int fragStart = fragment.position();
-            int fragEnd = fragStart + fragment.length();
-
-            if (fragEnd <= start || fragStart >= end)
-                continue;
-
-            QTextCharFormat format = fragment.charFormat();
-            if (format.objectType() == QTextFormat::NoObject) {
-                // 普通文本
-                QString text = fragment.text();
-                plainText += text;
-                html += text.toHtmlEscaped();
-
-                MsgInfo msgInfo;
-                msgInfo.msgFlag = "text";
-                msgInfo.content = text;
-                messages.append(msgInfo);
-            }
-            else if (format.isImageFormat()) {
-                QTextImageFormat imgFormat = format.toImageFormat();
-                QString imgSource = imgFormat.name();
-
-                bool isEmoticon = false;
-                for (const MsgInfo &msg : mMsgList) {
-                    if (msg.msgFlag == "emotion" && msg.content == imgSource) {
-                        isEmoticon = true;
-                        break;
-                    }
-                }
-
-                if (isEmoticon) {
-                    html += QString("<img class='emotion' src='%1' width='32' height='32'/>").arg(imgSource);
-
-                    MsgInfo msgInfo;
-                    msgInfo.msgFlag = "emotion";
-                    msgInfo.content = imgSource;
-                    messages.append(msgInfo);
-                }
-            }
-        }
-        block = block.next();
-    }
-
-    html += "</body></html>";
-
-    // 设置 MIME 数据
-    mimeData->setText(plainText);
-    mimeData->setHtml(html);
-
-    // 添加自定义消息格式
-    QByteArray messageData;
-    QDataStream stream(&messageData, QIODevice::WriteOnly);
-    stream << messages;
-    mimeData->setData("application/x-chat-messages", messageData);
-}
-
 void MessageTextEdit::copy()
 {
-//    QTextCursor cursor = textCursor();
-//    if (!cursor.hasSelection())
-//        return;
-
-//    QMimeData *mimeData = new QMimeData;
-//    createMimeData(cursor, mimeData);
-//    QClipboard *clipboard = QGuiApplication::clipboard();
-//    clipboard->setMimeData(mimeData);
-
     QTextCursor cursor = textCursor();
     if (!cursor.hasSelection()) return;
 
@@ -315,11 +239,91 @@ void MessageTextEdit::cut()
         return;
 
     QMimeData *mimeData = new QMimeData;
-    createMimeData(cursor, mimeData);
+    createMimeDataFromSelection(cursor, mimeData);
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setMimeData(mimeData);
 
     cursor.removeSelectedText();
+
+#if 0
+    QTextCursor cursor = textCursor();
+    if (!cursor.hasSelection()) return;
+
+    // 先复制选中内容
+    QMimeData *mimeData = new QMimeData;
+    createMimeDataFromSelection(cursor, mimeData);
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->setMimeData(mimeData);
+
+    // 计算选中范围
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
+
+    // 更新消息列表
+    QVector<MsgInfo> newMsgList;
+    int currentPos = 0;
+    int textLength = 0;
+
+    for (int i = 0; i < mMsgList.size(); ++i) {
+        const MsgInfo& msg = mMsgList[i];
+        if (msg.msgFlag == "text") {
+            textLength = msg.content.length();
+
+            // 如果这段文本在选中范围之前
+            if (currentPos + textLength <= start) {
+                newMsgList.append(msg);
+            }
+            // 如果这段文本在选中范围之后
+            else if (currentPos >= end) {
+                newMsgList.append(msg);
+            }
+            // 如果这段文本与选中范围有部分重叠
+            else {
+                QString leftPart;
+                QString rightPart;
+
+                // 处理左边部分
+                if (currentPos < start) {
+                    leftPart = msg.content.left(start - currentPos);
+                    MsgInfo leftMsg;
+                    leftMsg.msgFlag = "text";
+                    leftMsg.content = leftPart;
+                    newMsgList.append(leftMsg);
+                }
+
+                // 处理右边部分
+                if (currentPos + textLength > end) {
+                    rightPart = msg.content.right(currentPos + textLength - end);
+                    MsgInfo rightMsg;
+                    rightMsg.msgFlag = "text";
+                    rightMsg.content = rightPart;
+                    newMsgList.append(rightMsg);
+                }
+            }
+            currentPos += textLength;
+        }
+        else if (msg.msgFlag == "emotion") {
+            // 表情视为占据一个位置
+            if (currentPos < start || currentPos >= end) {
+                newMsgList.append(msg);
+            }
+            currentPos += 1;
+        }
+    }
+
+    // 更新消息列表
+    mMsgList = newMsgList;
+
+    // 删除选中内容
+    cursor.removeSelectedText();
+
+    // 更新显示
+    QTextDocument* doc = document();
+    if (doc) {
+        doc->setHtml(toHtml());
+    }
+#endif
+
 }
 
 void MessageTextEdit::createMimeDataFromSelection(const QTextCursor &cursor, QMimeData *mimeData)
@@ -338,7 +342,7 @@ void MessageTextEdit::createMimeDataFromSelection(const QTextCursor &cursor, QMi
     QTextBlock endBlock = doc->findBlock(end);
 
     while (block.isValid() && block.blockNumber() <= endBlock.blockNumber()) {
-        int blockStart = block.position();
+//        int blockStart = block.position();
 
         for (QTextBlock::iterator it = block.begin(); !it.atEnd(); ++it) {
             QTextFragment fragment = it.fragment();

@@ -1,4 +1,5 @@
 #include "content_bubble.h"
+#include "chat_view.h"
 
 #include <QDebug>
 
@@ -9,7 +10,6 @@ ContentBubbleFrame::ContentBubbleFrame(ChatRole role, QWidget *parent)
     m_contentLabel->setStyleSheet("QTextEdit { background: transparent; }");
     setWidget(m_contentLabel);
     m_contentLabel->installEventFilter(this);
-    installEventFilter(m_contentLabel);
 }
 
 bool ContentBubbleFrame::setContent(const QVector<MsgInfo> &messages)
@@ -42,6 +42,36 @@ bool ContentBubbleFrame::setContent(const QVector<MsgInfo> &messages)
     updateGeometry();
 
     return !cursor.document()->toPlainText().isEmpty();
+}
+
+void ContentBubbleFrame::contextMenuEvent(QContextMenuEvent *event)
+{
+    // 如果父部件正在处理选择，则发送右键菜单请求
+//    ChatView* chatView = qobject_cast<ChatView*>(window()->findChild<ChatView*>());
+//    if (chatView && !textIsSelected()) {
+//        emit contextMenuRequested(event->globalPos(), this);
+//        event->accept();
+//        return;
+//    }
+
+    // 如果有文本被选中，则显示复制菜单
+    if (textIsSelected()) {
+        QMenu menu(this);
+        QAction* copyAction = m_contentLabel->createCopyAction();
+        copyAction->setEnabled(true);
+        menu.addAction(copyAction);
+        menu.exec(event->globalPos());
+        event->accept();
+        return;
+    }
+
+    // 其他情况传递给基类处理
+    BubbleFrame::contextMenuEvent(event);
+}
+
+bool ContentBubbleFrame::textIsSelected() const
+{
+     return m_contentLabel && m_contentLabel->textCursor().hasSelection();
 }
 
 void ContentBubbleFrame::insertEmotion(QTextCursor &cursor, const QString &emotionPath)
@@ -155,6 +185,58 @@ ContentLabel::ContentLabel(QWidget *parent) : QTextEdit(parent)
 
     // 添加复制功能的快捷键
     addAction(createCopyAction());
+
+    // 移除默认的快捷键动作
+    QList<QAction*> actions = this->actions();
+    for (QAction* action : actions) {
+        if (action->shortcuts().contains(QKeySequence::Copy) ||
+            action->shortcuts().contains(QKeySequence::Cut) ||
+            action->shortcuts().contains(QKeySequence::Paste))
+        {
+            this->removeAction(action);
+        }
+    }
+}
+
+void ContentLabel::focusInEvent(QFocusEvent *e)
+{
+    QTextEdit::focusInEvent(e);
+    setCursorWidth(0); // 确保光标始终不可见
+}
+
+void ContentLabel::mousePressEvent(QMouseEvent *e)
+{
+    // 先检查是否在多选模式
+    ChatView* chatView = qobject_cast<ChatView*>(window()->findChild<ChatView*>());
+    if (chatView && chatView->isInSelectionMode()) {
+        e->ignore();  // 忽略事件，让它继续传递
+        return;
+    }
+
+    // 不是多选模式时正常处理
+    QTextEdit::mousePressEvent(e);
+    setCursorWidth(0);
+}
+
+void ContentLabel::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    QTextEdit::mouseDoubleClickEvent(e);
+    setCursorWidth(0);
+}
+
+void ContentLabel::contextMenuEvent(QContextMenuEvent *event)
+{
+//    QMenu *menu = new QMenu(this);
+
+//    // 只添加复制选项
+//    QAction* copyAction = createCopyAction();
+//    copyAction->setEnabled(textCursor().hasSelection());
+//    menu->addAction(copyAction);
+
+//    menu->exec(event->globalPos());
+//    delete menu;
+
+    event->ignore();  // 让事件继续传播
 }
 
 void ContentLabel::keyPressEvent(QKeyEvent *e)
@@ -246,5 +328,13 @@ void ContentLabel::copySelectedContent()
 
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setMimeData(mimeData);
+}
+
+QAction *ContentLabel::createCopyAction()
+{
+    QAction* copyAction = new QAction(tr("复制"), this);
+    copyAction->setShortcut(QKeySequence::Copy);
+    connect(copyAction, &QAction::triggered, this, &ContentLabel::copySelectedContent);
+    return copyAction;
 }
 

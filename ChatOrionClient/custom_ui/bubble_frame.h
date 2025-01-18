@@ -17,7 +17,11 @@ public:
     //inline int margin(){return margin;}
     void setWidget(QWidget *w);
 protected:
-    void paintEvent(QPaintEvent *e);
+    void paintEvent(QPaintEvent *e) override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+signals:
+    void bubbleContextMenuRequested(const QPoint& pos);  // 新增信号
 private:
     QHBoxLayout *m_pHLayout;
     ChatRole m_role;

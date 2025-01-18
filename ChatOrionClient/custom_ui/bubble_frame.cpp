@@ -1,5 +1,8 @@
 #include "bubble_frame.h"
+#include "chat_view.h"
+
 #include <QPainter>
+#include <QMouseEvent>
 #include <QDebug>
 
 const int WIDTH_SANJIAO  = 8;  //三角宽
@@ -71,4 +74,22 @@ void BubbleFrame::paintEvent(QPaintEvent *e)
     }
 
     return QFrame::paintEvent(e);
+}
+
+void BubbleFrame::mousePressEvent(QMouseEvent *e)
+{
+    // 先检查是否在多选模式
+    ChatView* chatView = qobject_cast<ChatView*>(window()->findChild<ChatView*>());
+    if (chatView && chatView->isInSelectionMode()) {
+        e->ignore();  // 忽略事件，让它继续传递
+        return;
+    }
+
+    QFrame::mousePressEvent(e);
+}
+
+void BubbleFrame::contextMenuEvent(QContextMenuEvent *event)
+{
+    event->accept();
+    emit bubbleContextMenuRequested(event->globalPos());
 }
