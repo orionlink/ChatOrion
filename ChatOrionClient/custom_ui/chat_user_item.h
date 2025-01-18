@@ -7,6 +7,9 @@ namespace Ui {
 class ChatUserItem;
 }
 
+/**
+ * @brief 聊天信息列表项
+ */
 class ChatUserItem : public ListItemBase
 {
     Q_OBJECT

@@ -5,6 +5,9 @@
 #include <QHBoxLayout>
 #include <QPixmap>
 
+/**
+ * @brief 图片气泡
+ */
 class PictureBubble : public BubbleFrame
 {
     Q_OBJECT

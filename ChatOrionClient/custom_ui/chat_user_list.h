@@ -6,6 +6,9 @@
 #include <QEvent>
 #include <QScrollBar>
 
+/**
+ * @brief 聊天信息列表
+ */
 class ChatUserList : public QListWidget
 {
     Q_OBJECT

@@ -13,6 +13,9 @@ PictureBubble::PictureBubble(const QPixmap &picture, ChatRole role, QWidget *par
     lb->setPixmap(pix);
     this->setWidget(lb);
 
+    this->layout()->setContentsMargins(0, 0, 0, 0);
+    this->layout()->setSpacing(0);
+
     int left_margin = this->layout()->contentsMargins().left();
     int right_margin = this->layout()->contentsMargins().right();
     int v_margin = this->layout()->contentsMargins().bottom();

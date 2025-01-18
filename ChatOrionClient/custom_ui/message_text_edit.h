@@ -28,34 +28,40 @@ public:
     QVector<MsgInfo> getMsgList();
 
     void insertFileFromUrl(const QStringList &urls);
+
+    void addEmotionUrl(const QString &url);
 signals:
     void send();
 
 protected:
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
-    void keyPressEvent(QKeyEvent *e);
-
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+    void keyPressEvent(QKeyEvent *e) override;
+    bool canInsertFromMimeData(const QMimeData *source) const override;
+    void insertFromMimeData(const QMimeData *source) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 private:
     void insertImages(const QString &url);
     void insertTextFile(const QString &url);
-    bool canInsertFromMimeData(const QMimeData *source) const;
-    void insertFromMimeData(const QMimeData *source);
-
+    void createMimeData(const QTextCursor &cursor, QMimeData *mimeData);
+    void copy();
+    void cut();
+    void createMimeDataFromSelection(const QTextCursor &cursor, QMimeData *mimeData);
 private:
     bool isImage(QString url);//判断文件是否为图片
     void insertMsgList(QVector<MsgInfo> &list,QString flag, QString text, QPixmap pix);
 
-    QStringList getUrl(QString text);
+    QStringList getUrl(QString text) const;
     QPixmap getFileIconPixmap(const QString &url);//获取文件图标及大小信息，并转化成图片
     QString getFileSize(qint64 size);//获取文件大小
 
 private slots:
     void textEditChanged();
-
+    void onEmotionImageFrameChange(int frame);
 private:
     QVector<MsgInfo> mMsgList;
     QVector<MsgInfo> mGetMsgList;
+    QMap<QMovie*, QString> m_emotionMap;
 };
 
 #endif // MESSAGETEXTEDIT_H

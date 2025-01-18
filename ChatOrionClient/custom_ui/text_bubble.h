@@ -7,7 +7,7 @@
 #include "bubble_frame.h"
 
 /**
- * @brief 文本气泡
+ * @brief 文本气泡 (已弃用，请使用复合气泡 'ContentBubbleFrame' )
  */
 class TextBubble : public BubbleFrame
 {

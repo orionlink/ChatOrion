@@ -1,6 +1,7 @@
 #include "chat_dialog.h"
 #include "ui_chat_dialog.h"
 #include "chat_user_item.h"
+#include "common_utils.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -51,6 +52,7 @@ void ChatDialog::addChatUserList()
         ui->chat_user_list->setItemWidget(item, chat_user_wid);
     }
 }
+
 /************************测试使用 结束**************************/
 
 ChatDialog::ChatDialog(QWidget *parent) :
@@ -59,12 +61,6 @@ ChatDialog::ChatDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle(QStringLiteral("微信"));
-
-
-    addChatUserList();
-    QPixmap pixmap(":/res/pic/head_5.jpg");
-    ui->side_head_lb->setPixmap(pixmap.scaled(ui->side_head_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    ui->side_head_lb->setScaledContents(true);
 
     ui->add_btn->SetState("normal","hover","press");
     ui->side_chat_lb->setProperty("state","normal");
@@ -102,13 +98,27 @@ ChatDialog::ChatDialog(QWidget *parent) :
         ui->search_edit->clear();
         clearAction->setIcon(QIcon(":/res/pic/close_transparent.png")); // 清除文本后，切换回透明图标
         ui->search_edit->clearFocus();
-        //清除按钮被按下则不显示搜索框
-//        ShowSearch(false);
     });
 
-    ui->user_stacked->setCurrentIndex(2);
+    addLBGroup(ui->side_chat_lb);
+    addLBGroup(ui->side_contact_lb);
 
-    load_style();
+    connect(ui->side_chat_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_chat);
+    connect(ui->side_contact_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_contact);
+
+    //链接搜索框输入变化
+    connect(ui->search_edit, &QLineEdit::textChanged, this, &ChatDialog::slot_search_edit_text_changed);
+
+    ui->user_stacked->setCurrentWidget(ui->chat_user_list_page);
+    ui->stackedWidget->setCurrentWidget(ui->normal_page);
+
+    CommonUtils::loadStyleSheet(this, "chatWin");
+
+    /// 测试使用
+    addChatUserList();
+    QPixmap pixmap(":/res/pic/head_5.jpg");
+    ui->side_head_lb->setPixmap(pixmap.scaled(ui->side_head_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    ui->side_head_lb->setScaledContents(true);
 }
 
 ChatDialog::~ChatDialog()
@@ -116,18 +126,50 @@ ChatDialog::~ChatDialog()
     delete ui;
 }
 
-void ChatDialog::load_style()
+void ChatDialog::addLBGroup(StateWidget *lb)
 {
-    QString filePath = ":/res/qss/chatWin.qss";
+    _side_lb_list.push_back(lb);
+}
 
-    /*皮肤设置*/
-    QFile file(filePath);/*QSS文件所在的路径*/
-    file.open(QFile::ReadOnly);
-    QTextStream filetext(&file);
-    QString stylesheet = filetext.readAll();
-    this->setStyleSheet("");
-    this->update();
-    this->setStyleSheet(stylesheet);
-    this->update();
-    file.close();
+void ChatDialog::clearLabelState(StateWidget *lb)
+{
+    for(auto & ele: _side_lb_list){
+        if(ele == lb){
+            continue;
+        }
+
+        ele->ClearState();
+    }
+}
+
+void ChatDialog::slot_side_chat()
+{
+    clearLabelState(ui->side_chat_lb);
+    ui->stackedWidget->setCurrentWidget(ui->chat_page);
+    ui->user_stacked->setCurrentWidget(ui->chat_user_list_page);
+}
+
+void ChatDialog::slot_side_contact()
+{
+    clearLabelState(ui->side_contact_lb);
+    ui->stackedWidget->setCurrentWidget(ui->normal_page);
+    ui->user_stacked->setCurrentWidget(ui->con_user_list_page);
+}
+
+void ChatDialog::slot_search_edit_text_changed()
+{
+    // 搜索页面索引为0， 消息页面为1，联系人为2
+
+    static int last_index = 0;
+    if (!ui->search_edit->text().isEmpty())
+    {
+        if (last_index == 0) last_index = ui->user_stacked->currentIndex();
+
+        ui->user_stacked->setCurrentWidget(ui->search_list_page);
+    }
+    else
+    {
+        ui->user_stacked->setCurrentIndex(last_index);
+        last_index = 0;
+    }
 }

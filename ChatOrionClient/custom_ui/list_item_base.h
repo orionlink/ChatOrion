@@ -5,6 +5,9 @@
 
 #include "global.h"
 
+/**
+ * @brief 列表项基类
+ */
 class ListItemBase : public QWidget
 {
     Q_OBJECT

@@ -243,5 +243,6 @@
         <file>res/emoji/暗中观察.png</file>
         <file>res/emoji/爱心.png</file>
         <file>res/emoji/666.png</file>
+        <file>res/pic/normal_logo.png</file>
     </qresource>
 </RCC>

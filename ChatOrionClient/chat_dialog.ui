@@ -103,7 +103,7 @@
           </widget>
          </item>
          <item>
-          <widget class="ClickedLabel" name="side_chat_lb">
+          <widget class="StateWidget" name="side_chat_lb" native="true">
            <property name="minimumSize">
             <size>
              <width>30</width>
@@ -115,14 +115,11 @@
              <width>30</width>
              <height>30</height>
             </size>
-           </property>
-           <property name="text">
-            <string/>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="ClickedLabel" name="side_contact_lb">
+          <widget class="StateWidget" name="side_contact_lb" native="true">
            <property name="minimumSize">
             <size>
              <width>30</width>
@@ -134,9 +131,6 @@
              <width>30</width>
              <height>30</height>
             </size>
-           </property>
-           <property name="text">
-            <string/>
            </property>
           </widget>
          </item>
@@ -278,7 +272,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QListWidget" name="search_list"/>
+           <widget class="SearchList" name="search_list"/>
           </item>
          </layout>
         </widget>
@@ -352,6 +346,8 @@
        </property>
       </layout>
      </widget>
+     <widget class="QWidget" name="friend_apply_page"/>
+     <widget class="NormalPage" name="normal_page"/>
     </widget>
    </item>
   </layout>
@@ -382,6 +378,23 @@
    <class>ChatUserList</class>
    <extends>QListWidget</extends>
    <header>chat_user_list.h</header>
+  </customwidget>
+  <customwidget>
+   <class>StateWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">state_widget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SearchList</class>
+   <extends>QListWidget</extends>
+   <header>search_list.h</header>
+  </customwidget>
+  <customwidget>
+   <class>NormalPage</class>
+   <extends>QWidget</extends>
+   <header>normal_page.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

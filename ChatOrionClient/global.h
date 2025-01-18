@@ -37,6 +37,7 @@ enum Modules{
 };
 
 extern QString gate_url_prefix;
+extern QString global_emoji_name;
 
 //自定义QListWidgetItem的几种类型
 enum ListItemType
@@ -59,9 +60,20 @@ enum class ChatRole
 
 struct MsgInfo
 {
-    QString msgFlag;//"text,image,file"
+    QString msgFlag;//"text,image,file, emotion"
     QString content;//表示文件和图像的url,文本信息
     QPixmap pixmap;//文件和图片的缩略图
+    QVector<QString> mixedContent;  // 混合内容（文本和表情）
+
+    friend QDataStream &operator<<(QDataStream &out, const MsgInfo &info) {
+        out << info.msgFlag << info.content;
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, MsgInfo &info) {
+        in >> info.msgFlag >> info.content;
+        return in;
+    }
 };
 
 Q_DECLARE_METATYPE(ChatRole)

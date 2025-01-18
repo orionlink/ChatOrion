@@ -3,6 +3,9 @@
 
 #include <QLineEdit>
 
+/**
+ * @brief 自定义 LineEdit
+ */
 class CustomizeEdit : public QLineEdit
 {
     Q_OBJECT

@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
     gate_url_prefix = "http://"+gate_host+":"+ gate_port;
     qDebug() << "gate_url_prefix: " << gate_url_prefix;
 
+    global_emoji_name = settings.value("EmojiName/name").toString();
+
     QFile file(":/res/qss/style-2.qss");
     file.open(QFile::ReadOnly);
     QTextStream filetext(&file);

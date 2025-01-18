@@ -105,6 +105,11 @@ LoadingDlg{
     font-weight: normal;
 }
 
+#normal_label
+{
+    border-image: url(:/res/pic/normal_logo.png);
+}
+
 #chatEdit{
     background: #ffffff;
     border: none; /* 隐藏边框 */
