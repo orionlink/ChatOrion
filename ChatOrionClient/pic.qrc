@@ -246,5 +246,17 @@
         <file>res/pic/normal_logo.png</file>
         <file>res/pic/selected.png</file>
         <file>res/pic/unselected.png</file>
+        <file>res/pic/collect_hover.png</file>
+        <file>res/pic/collect_normal.png</file>
+        <file>res/pic/delete_hover.png</file>
+        <file>res/pic/delete_normal.png</file>
+        <file>res/pic/item_forward_hover.png</file>
+        <file>res/pic/item_forward_normal.png</file>
+        <file>res/pic/merge_forward_hover.png</file>
+        <file>res/pic/merge_forward_normal.png</file>
+        <file>res/pic/save_hover.png</file>
+        <file>res/pic/save_normal.png</file>
+        <file>res/pic/close_hover.png</file>
+        <file>res/pic/close_normal.png</file>
     </qresource>
 </RCC>

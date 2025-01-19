@@ -40,7 +40,8 @@ SOURCES += \
     normal_page.cpp \
     tools.cpp \
     user_data.cpp \
-    user_mgr.cpp
+    user_mgr.cpp \
+    utils/message_bus.cpp
 
 HEADERS += \
     chat_dialog.h \
@@ -74,7 +75,9 @@ HEADERS += \
     singleton.h \
     tools.h \
     user_data.h \
-    user_mgr.h
+    user_mgr.h \
+    utils/message_bus.h \
+    utils/message_commands.h
 
 FORMS += \
     chat_dialog.ui \
@@ -89,6 +92,7 @@ DESTDIR = $$PWD/bin
 
 INCLUDEPATH += $$PWD/custom_ui
 INCLUDEPATH += $$PWD/network
+INCLUDEPATH += $$PWD/utils
 
 include($$PWD/FrameWgt/FrameWgt.pri)
 

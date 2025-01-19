@@ -1,5 +1,6 @@
 #include "chat_view.h"
 #include "chat_item_base.h"
+#include "message_bus.h"
 
 #include <QScrollBar>
 #include <QVBoxLayout>
@@ -9,6 +10,7 @@
 #include <QTimer>
 #include <QStyleOption>
 #include <QPainter>
+#include <QApplication>
 
 ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false), m_selectionMode(false)
 {
@@ -44,82 +46,97 @@ ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false), m_se
 
     m_pScrollArea->setWidgetResizable(true);
     m_pScrollArea->installEventFilter(this);
+
+    MessageBus::instance()->registerHandler(MessageCommand::DELETE_MULTI_SELECT_REQ, this, [this](const QVariant& data)
+    {
+        deleteSelectedItems();
+    });
+
+    MessageBus::instance()->registerHandler(MessageCommand::MULTI_SELECT_REQ, this, [this](const QVariant& data)
+    {
+        bool selected = data.toBool();
+        if (!selected)
+        {
+            clearSelection();
+        }
+    });
 }
 
-void ChatView::appendChatItem(QWidget *item)
+void ChatView::appendChatItem(std::shared_ptr<ChatItemBase> item)
 {
-    if (ChatItemBase* chatItem = qobject_cast<ChatItemBase*>(item)) {
-        connect(chatItem, &ChatItemBase::deleteRequested,
-                this, &ChatView::onItemDeleteRequested);
-        connect(chatItem, &ChatItemBase::multiSelectRequested,
-                this, &ChatView::onItemMultiSelectRequested);
-        connect(chatItem, &ChatItemBase::selectionChanged,
-                this, &ChatView::onItemSelectionChanged);
-    }
+    if (!item) return;
+
+    m_chatItems.insert(item->getUuid(), item);
+
+    connect(item.get(), &ChatItemBase::deleteRequested,
+            this, &ChatView::onItemDeleteRequested);
+    connect(item.get(), &ChatItemBase::multiSelectRequested,
+            this, &ChatView::onItemMultiSelectRequested);
+    connect(item.get(), &ChatItemBase::selectionChanged,
+            this, &ChatView::onItemSelectionChanged);
 
     QVBoxLayout *vl = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
-    item->setParent(this);
-    vl->insertWidget(vl->count() - 1, item);
-    m_isAppended = true;
+    if (!vl) return;
+
+    vl->insertWidget(vl->count() - 1, item.get());
+    m_isAppended = true;;
 }
 
-void ChatView::prependChatItem(QWidget *item)
+void ChatView::prependChatItem(std::shared_ptr<ChatItemBase> item)
 {
+    if (!item) return;
+
+    m_chatItems.insert(item->getUuid(), item);
+
+    connect(item.get(), &ChatItemBase::deleteRequested,
+            this, &ChatView::onItemDeleteRequested);
+    connect(item.get(), &ChatItemBase::multiSelectRequested,
+            this, &ChatView::onItemMultiSelectRequested);
+    connect(item.get(), &ChatItemBase::selectionChanged,
+            this, &ChatView::onItemSelectionChanged);
+
     QVBoxLayout *vl = qobject_cast<QVBoxLayout *>(m_pScrollArea->widget()->layout());
-    if (!vl)
-    {
+    if (!vl) {
         qWarning() << "Failed to get layout from QScrollArea's widget!";
         return;
     }
-    vl->insertWidget(0, item);
+
+    vl->insertWidget(0, item.get());
     m_isAppended = true;
 }
 
-void ChatView::insertChatItem(QWidget *before, QWidget *item)
+void ChatView::insertChatItem(std::shared_ptr<ChatItemBase> before, std::shared_ptr<ChatItemBase> item)
 {
-    // 获取 QScrollArea 内容控件的布局管理器
+    if (!item || !before) return;
+
+    m_chatItems.insert(item->getUuid(), item);
+
+    connect(item.get(), &ChatItemBase::deleteRequested,
+            this, &ChatView::onItemDeleteRequested);
+    connect(item.get(), &ChatItemBase::multiSelectRequested,
+            this, &ChatView::onItemMultiSelectRequested);
+    connect(item.get(), &ChatItemBase::selectionChanged,
+            this, &ChatView::onItemSelectionChanged);
+
     QVBoxLayout *vl = qobject_cast<QVBoxLayout *>(m_pScrollArea->widget()->layout());
-    if (!vl)
-    {
+    if (!vl) {
         qWarning() << "Failed to get layout from QScrollArea's widget!";
         return;
     }
 
-    // 查找 before 控件在布局中的索引
-    int index = vl->indexOf(before);
-    if (index == -1)
-    {
+    int index = vl->indexOf(before.get());
+    if (index == -1) {
         qWarning() << "The 'before' widget is not found in the layout!";
         return;
     }
 
-    // 在 before 控件之前插入新的聊天项
-    vl->insertWidget(index, item);
-
-    // 标记已添加聊天项
+    vl->insertWidget(index, item.get());
     m_isAppended = true;
 }
 
 void ChatView::removeAllItem()
 {
-    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(m_pScrollArea->widget()->layout());
-
-   int count = layout->count();
-
-    for (int i = 0; i < count - 1; ++i)
-    {
-        QLayoutItem *item = layout->takeAt(0); // 始终从第一个控件开始删除
-        if (item)
-        {
-            QWidget *widget = item->widget();
-            if (widget)
-            {
-                delete widget;
-            }
-            delete item;
-        }
-    }
-
+    m_chatItems.clear();
 }
 
 bool ChatView::eventFilter(QObject *obj, QEvent *event)
@@ -167,19 +184,27 @@ void ChatView::setSelectionMode(bool enabled)
 
 void ChatView::clearSelection()
 {
-    for (ChatItemBase* item : m_selectedItems) {
-        item->setSelected(false);
+    if (m_chatItems.isEmpty() || m_selectedItems.isEmpty()) return;
+
+    QSet<QString> itemsToDeselect = m_selectedItems;
+    for (const auto& key : itemsToDeselect)
+    {
+        auto it = m_chatItems.find(key);
+        if (it != m_chatItems.end() && it.value())
+        {
+            it.value()->setSelected(false);
+        }
     }
     m_selectedItems.clear();
     m_selectionMode = false;
 }
 
-void ChatView::onItemSelectionChanged(ChatItemBase* item, bool selected)
+void ChatView::onItemSelectionChanged(const QString& uuid, bool selected)
 {
     if (selected) {
-        m_selectedItems.insert(item);
+        m_selectedItems.insert(uuid);
     } else {
-        m_selectedItems.remove(item);
+        m_selectedItems.remove(uuid);
     }
 
     if (m_selectedItems.isEmpty())
@@ -192,29 +217,29 @@ void ChatView::onItemSelectionChanged(ChatItemBase* item, bool selected)
     }
 }
 
-void ChatView::onItemDeleteRequested(ChatItemBase* item)
+void ChatView::onItemDeleteRequested(const QString& uuid)
 {
-    if (m_selectionMode)
+    QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
+    if (!layout) return;
+
+    auto it = m_chatItems.find(uuid);
+    if (it != m_chatItems.end())
     {
-        deleteSelectedItems();
-    }
-    else
-    {
-        // 单个删除
-        QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
-        if (layout)
-        {
-            layout->removeWidget(item);
-            item->deleteLater();
-        }
+        ChatItemBase* item = it.value().get();
+        disconnect(item, nullptr, this, nullptr); // 断开所有信号槽连接
+        layout->removeWidget(item); // 从布局中移除
+        item->hide(); // 隐藏控件
+        item->setParent(nullptr); // 移除父对象
+//        item->deleteLater();
+//        m_chatItems.remove(uuid);
     }
 }
 
-void ChatView::onItemMultiSelectRequested(ChatItemBase* item)
+void ChatView::onItemMultiSelectRequested(const QString& uuid)
 {
     m_selectionMode = true;
     m_selectedItems.clear();  // 清除之前的选择
-    m_selectedItems.insert(item);
+    m_selectedItems.insert(uuid);
 }
 
 
@@ -223,10 +248,24 @@ void ChatView::deleteSelectedItems()
     QVBoxLayout* layout = qobject_cast<QVBoxLayout*>(m_pScrollArea->widget()->layout());
     if (!layout) return;
 
-    for (ChatItemBase* item : m_selectedItems) {
-        layout->removeWidget(item);
-        item->deleteLater();
+    // 从布局和存储中移除选中的项目
+    for (const auto& uuid : m_selectedItems)
+    {
+        std::shared_ptr<ChatItemBase> item;
+        auto it = m_chatItems.find(uuid);
+        if (it != m_chatItems.end())
+        {
+            item = it.value();
+        }
+
+        // 断开所有信号与槽连接
+        disconnect(item.get(), nullptr, this, nullptr);
+        layout->removeWidget(item.get());
+        item->hide();
+        item->setParent(nullptr);
+        m_chatItems.remove(uuid);  // 从存储中移除
     }
+
     m_selectedItems.clear();
     m_selectionMode = false;
 }

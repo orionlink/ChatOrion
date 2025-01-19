@@ -10,7 +10,7 @@ const int WIDTH_SANJIAO  = 8;  //三角宽
 BubbleFrame::BubbleFrame(ChatRole role, QWidget *parent)
     :QFrame(parent)
     ,m_role(role)
-    ,m_margin(3)
+    ,m_margin(5)
 {
     m_pHLayout = new QHBoxLayout();
     if(m_role == ChatRole::Self)

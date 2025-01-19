@@ -34,6 +34,10 @@ private slots:
      * @param emoji_path 表情资源文件路径
      */
     void onEmotionItemClicked(const QString& emoji_path);
+
+    void onDeleteLabelClicked();
+
+    void onCloseLabelClicked();
 private:
     void handleGroupedMessages(const QVector<MsgInfo>& msgList, ChatRole role,
                                          const QString& userName, const QString& userIcon);

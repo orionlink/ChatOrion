@@ -226,6 +226,55 @@ LoadingDlg{
     border-image: url(:/res/pic/filedir_press.png);
 }
 
+#item_forward_lb[state='normal']{
+    border-image: url(:/res/pic/item_forward_normal.png);
+}
+
+#item_forward_lb[state='hover']{
+    border-image: url(:/res/pic/item_forward_hover.png);
+}
+
+#merge_forward_lb[state='normal']{
+    border-image: url(:/res/pic/merge_forward_normal.png);
+}
+
+#merge_forward_lb[state='hover']{
+    border-image: url(:/res/pic/merge_forward_hover.png);
+}
+
+#collect_lb[state='normal']{
+    border-image: url(:/res/pic/collect_normal.png);
+}
+
+#collect_lb[state='hover']{
+    border-image: url(:/res/pic/collect_hover.png);
+}
+
+#save_lb[state='normal']{
+    border-image: url(:/res/pic/save_normal.png);
+}
+
+#save_lb[state='hover']{
+    border-image: url(:/res/pic/save_hover.png);
+}
+
+#delete_lb[state='normal']{
+    border-image: url(:/res/pic/delete_normal.png);
+}
+
+#delete_lb[state='hover']{
+    border-image: url(:/res/pic/delete_hover.png);
+}
+
+#action_close_lb[state='normal']{
+    border-image: url(:/res/pic/close_normal.png);
+}
+
+#action_close_lb[state='hover']{
+    border-image: url(:/res/pic/close_hover.png);
+}
+
+
 #chat_data_list{
      background: #f0f0f0;
 }

@@ -165,6 +165,10 @@ void ContentBubbleFrame::calculateMaxWidth(const QVector<MsgInfo> &messages)
 
 ContentLabel::ContentLabel(QWidget *parent) : QTextEdit(parent)
 {
+    QFont font("Microsoft YaHei");
+    font.setPointSize(12);
+    this->setFont(font);
+
     setReadOnly(true);
     setFrameStyle(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

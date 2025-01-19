@@ -31,6 +31,8 @@ private:
      */
     void clearLabelState(StateWidget *lb);
 
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
     // 测试函数
     void addChatUserList();
 private slots:

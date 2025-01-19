@@ -5,9 +5,11 @@
 #include "picture_bubble.h"
 #include "emotion_bubble.h"
 #include "content_bubble.h"
+#include "message_bus.h"
 
 #include <QStyleOption>
 #include <QPainter>
+#include <QDebug>
 
 ChatPage::ChatPage(QWidget *parent) :
     QWidget(parent),
@@ -25,11 +27,30 @@ ChatPage::ChatPage(QWidget *parent) :
     ui->emo_lb->SetState("normal","hover","press","normal","hover","press");
     ui->file_lb->SetState("normal","hover","press","normal","hover","press");
 
+    ui->item_forward_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->merge_forward_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->save_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->delete_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->collect_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->action_close_lb->SetState("normal","hover","press","normal","hover","press");
+
     ui->chat_msg_btn->setToolTip(QStringLiteral("聊天信息"));
     ui->emo_lb->setToolTip(QStringLiteral("表情"));
     ui->file_lb->setToolTip(QStringLiteral("发送文件"));
 
+    ui->stackedWidget->setCurrentWidget(ui->input_page);
+    MessageBus::instance()->registerHandler(MessageCommand::MULTI_SELECT_REQ, this, [this](const QVariant& data)
+    {
+        bool selected = data.toBool();
+        if (selected)
+            ui->stackedWidget->setCurrentWidget(ui->action_page);
+        else
+            ui->stackedWidget->setCurrentWidget(ui->input_page);
+    });
+
     QObject::connect(ui->emo_lb, &ClickedLabel::clicked, this, &ChatPage::onEmoLabelClicked);
+    QObject::connect(ui->delete_lb, &ClickedLabel::clicked, this, &ChatPage::onDeleteLabelClicked);
+    QObject::connect(ui->action_close_lb, &ClickedLabel::clicked, this, &ChatPage::onCloseLabelClicked);
     QObject::connect(_emotion_wid, &EmotionWindow::signalEmotionItemClicked, this, &ChatPage::onEmotionItemClicked);
 }
 
@@ -49,44 +70,6 @@ void ChatPage::paintEvent(QPaintEvent *event)
 
 void ChatPage::on_send_btn_clicked()
 {
-//    auto pTextEdit = ui->chatEdit;
-//    ChatRole role = ChatRole::Self;
-//    QString userName = QStringLiteral("test");
-//    QString userIcon = ":/res/pic/head_1.jpg";
-
-//    const QVector<MsgInfo>& msgList = pTextEdit->getMsgList();
-//    QWidget *pBubble = nullptr;
-//    ChatItemBase *pChatItem = new ChatItemBase(role);
-//    pChatItem->setUserName(userName);
-//    pChatItem->setUserIcon(QPixmap(userIcon));
-
-//    ContentBubbleFrame* bubble = new ContentBubbleFrame(ChatRole::Self);
-
-//    bool success = bubble->setContent(msgList);
-//    if (success)
-//    {
-//         pChatItem->setWidget(bubble);
-//         ui->chat_data_list->appendChatItem(pChatItem);
-//    }
-
-
-//    for (auto iter = msgList.begin(); iter != msgList.end(); iter++)
-//    {
-//        if (iter->msgFlag != "image") continue;
-
-//        ChatItemBase *pChatItem1 = new ChatItemBase(role);
-//        pChatItem1->setUserName(userName);
-//        pChatItem1->setUserIcon(QPixmap(userIcon));
-
-//        pBubble = new PictureBubble(QPixmap(iter->content), ChatRole::Self);
-
-//        if(pBubble)
-//        {
-//            ui->chat_data_list->appendChatItem(pChatItem1);
-//            pChatItem1->setWidget(pBubble);
-//        }
-//    }
-
     auto pTextEdit = ui->chatEdit;
     ChatRole role = ChatRole::Self;
     QString userName = QStringLiteral("test");
@@ -114,7 +97,7 @@ void ChatPage::handleGroupedMessages(const QVector<MsgInfo>& msgList, ChatRole r
     auto createAndAppendChatItem = [this, role, userName, userIcon](const QVector<MsgInfo>& group, bool isPicture = false) {
         if (group.isEmpty()) return;
 
-        ChatItemBase *pChatItem = new ChatItemBase(role);
+        auto pChatItem = std::make_unique<ChatItemBase>(role);
         pChatItem->setUserName(userName);
         pChatItem->setUserIcon(QPixmap(userIcon));
 
@@ -131,7 +114,7 @@ void ChatPage::handleGroupedMessages(const QVector<MsgInfo>& msgList, ChatRole r
         }
 
         pChatItem->setWidget(pBubble);
-        ui->chat_data_list->appendChatItem(pChatItem);
+        ui->chat_data_list->appendChatItem(std::move(pChatItem));
     };
 
     // 遍历消息列表
@@ -177,4 +160,14 @@ void ChatPage::onEmotionItemClicked(const QString &emoji_path)
 {
     ui->chatEdit->setFocus();
     ui->chatEdit->addEmotionUrl(emoji_path);
+}
+
+void ChatPage::onDeleteLabelClicked()
+{
+    MessageBus::sendMessage(MessageCommand::DELETE_MULTI_SELECT_REQ, false);
+}
+
+void ChatPage::onCloseLabelClicked()
+{
+    MessageBus::sendMessage(MessageCommand::MULTI_SELECT_REQ, false);
 }

@@ -114,6 +114,8 @@ ChatDialog::ChatDialog(QWidget *parent) :
 
     CommonUtils::loadStyleSheet(this, "chatWin");
 
+    installEventFilter(this);
+
     /// 测试使用
     addChatUserList();
     QPixmap pixmap(":/res/pic/head_5.jpg");
@@ -142,6 +144,29 @@ void ChatDialog::clearLabelState(StateWidget *lb)
     }
 }
 
+bool ChatDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress)
+    {
+        QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
+        if (mouse_event)
+        {
+            if (ui->user_stacked->currentWidget() == ui->search_list_page)
+            {
+                // 将鼠标点击位置转换为搜索列表坐标系中的位置
+                QPoint posInSearchList = ui->search_list->mapFromGlobal(mouse_event->globalPos());
+                // 判断点击位置是否在聊天列表的范围内
+                if (!ui->search_list->rect().contains(posInSearchList))
+                {
+                    ui->search_edit->clear(); // 只需清空即可，会触发slot_search_edit_text_changed函数实现切换逻辑
+                }
+            }
+        }
+    }
+
+    return QDialog::eventFilter(obj, event);
+}
+
 void ChatDialog::slot_side_chat()
 {
     clearLabelState(ui->side_chat_lb);
@@ -159,17 +184,16 @@ void ChatDialog::slot_side_contact()
 void ChatDialog::slot_search_edit_text_changed()
 {
     // 搜索页面索引为0， 消息页面为1，联系人为2
-
-    static int last_index = 0;
+    static int user_stacked_last_index = 0;
     if (!ui->search_edit->text().isEmpty())
     {
-        if (last_index == 0) last_index = ui->user_stacked->currentIndex();
+        if (user_stacked_last_index == 0) user_stacked_last_index = ui->user_stacked->currentIndex();
 
         ui->user_stacked->setCurrentWidget(ui->search_list_page);
     }
     else
     {
-        ui->user_stacked->setCurrentIndex(last_index);
-        last_index = 0;
+        ui->user_stacked->setCurrentIndex(user_stacked_last_index);
+        user_stacked_last_index = 0;
     }
 }
