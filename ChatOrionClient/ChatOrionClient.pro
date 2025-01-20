@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    apply_friend_dialog.cpp \
     chat_dialog.cpp \
     chat_page.cpp \
     chat_view.cpp \
@@ -19,10 +20,12 @@ SOURCES += \
     custom_ui/chat_user_list.cpp \
     custom_ui/clicked_btn.cpp \
     custom_ui/clicked_label.cpp \
+    custom_ui/clicked_once_label.cpp \
     custom_ui/content_bubble.cpp \
     custom_ui/customize_edit.cpp \
     custom_ui/emotion_bubble.cpp \
     custom_ui/emotion_label_item.cpp \
+    custom_ui/friend_label.cpp \
     custom_ui/list_item_base.cpp \
     custom_ui/message_text_edit.cpp \
     custom_ui/picture_bubble.cpp \
@@ -46,6 +49,7 @@ SOURCES += \
     utils/message_bus.cpp
 
 HEADERS += \
+    apply_friend_dialog.h \
     chat_dialog.h \
     chat_page.h \
     chat_view.h \
@@ -56,10 +60,12 @@ HEADERS += \
     custom_ui/chat_user_list.h \
     custom_ui/clicked_btn.h \
     custom_ui/clicked_label.h \
+    custom_ui/clicked_once_label.h \
     custom_ui/content_bubble.h \
     custom_ui/customize_edit.h \
     custom_ui/emotion_bubble.h \
     custom_ui/emotion_label_item.h \
+    custom_ui/friend_label.h \
     custom_ui/list_item_base.h \
     custom_ui/message_text_edit.h \
     custom_ui/picture_bubble.h \
@@ -84,9 +90,11 @@ HEADERS += \
     utils/message_commands.h
 
 FORMS += \
+    apply_friend_dialog.ui \
     chat_dialog.ui \
     chat_page.ui \
     custom_ui/chat_user_item.ui \
+    custom_ui/friend_label.ui \
     custom_ui/search_user_item.ui \
     emotion_window.ui \
     find_success_dialog.ui \
