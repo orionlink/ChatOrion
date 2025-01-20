@@ -32,6 +32,7 @@ SOURCES += \
     custom_ui/text_bubble.cpp \
     custom_ui/timer_btn.cpp \
     emotion_window.cpp \
+    find_success_dialog.cpp \
     global.cpp \
     login_gui.cpp \
     main.cpp \
@@ -41,6 +42,7 @@ SOURCES += \
     tools.cpp \
     user_data.cpp \
     user_mgr.cpp \
+    utils/cui_helper.cpp \
     utils/message_bus.cpp
 
 HEADERS += \
@@ -67,6 +69,7 @@ HEADERS += \
     custom_ui/text_bubble.h \
     custom_ui/timer_btn.h \
     emotion_window.h \
+    find_success_dialog.h \
     global.h \
     login_gui.h \
     network/http_mgr.h \
@@ -76,6 +79,7 @@ HEADERS += \
     tools.h \
     user_data.h \
     user_mgr.h \
+    utils/cui_helper.h \
     utils/message_bus.h \
     utils/message_commands.h
 
@@ -85,6 +89,7 @@ FORMS += \
     custom_ui/chat_user_item.ui \
     custom_ui/search_user_item.ui \
     emotion_window.ui \
+    find_success_dialog.ui \
     login_gui.ui \
     normal_page.ui
 

@@ -2,6 +2,7 @@
 #include "chat_view.h"
 #include "bubble_frame.h"
 #include "message_bus.h"
+#include "cui_helper.h"
 
 #include <QFont>
 #include <QVBoxLayout>
@@ -123,6 +124,14 @@ void ChatItemBase::mousePressEvent(QMouseEvent *event)
 void ChatItemBase::showContextMenu(const QPoint& pos)
 {
     QMenu menu(this);
+
+    CUIHelper::GetInstance()->setMenuRadius(&menu);
+
+
+    QAction* copyAction = menu.addAction(tr("复制"));
+    QAction* zoomAction = menu.addAction(tr("放大阅读"));
+    QAction* forwardAction = menu.addAction(tr("转发"));
+    QAction* collectAction = menu.addAction(tr("收藏"));
     QAction* multiSelectAction = menu.addAction(tr("多选"));
     QAction* deleteAction = menu.addAction(tr("删除"));
     QAction* result = menu.exec(pos);

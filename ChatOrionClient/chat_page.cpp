@@ -28,10 +28,20 @@ ChatPage::ChatPage(QWidget *parent) :
     ui->file_lb->SetState("normal","hover","press","normal","hover","press");
 
     ui->item_forward_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->item_forward_lb->setToolTip(QStringLiteral("逐条转发"));
+
     ui->merge_forward_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->merge_forward_lb->setToolTip(QStringLiteral("合并转发"));
+
     ui->save_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->save_lb->setToolTip(QStringLiteral("保存"));
+
     ui->delete_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->delete_lb->setToolTip(QStringLiteral("删除"));
+
     ui->collect_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->collect_lb->setToolTip(QStringLiteral("收藏"));
+
     ui->action_close_lb->SetState("normal","hover","press","normal","hover","press");
 
     ui->chat_msg_btn->setToolTip(QStringLiteral("聊天信息"));

@@ -3,6 +3,44 @@
     background-color: white;
 }
 
+
+QMenu {
+    color: black;
+    background-color: white; 
+    border-radius: 8px;
+    padding: 5px;
+    margin: 6px;
+    min-width: 80px; /* 设置菜单的最小宽度 */
+}
+
+QMenu::item { 
+    padding-left: 2px;
+    padding: 5px;
+    padding-right: 2px;
+    border-radius: 8px; /* 设置圆角 */
+    min-width: 70px;
+}
+
+QMenu::item:hover { 
+    color: white; /* 文字颜色 */
+    background-color: green; /* 鼠标悬停时的背景颜色 */
+    border-radius: 8px; /* 圆角 */
+}
+
+QMenu::item:selected { 
+    color: white;
+    background-color: green;
+    border-radius: 8px;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: #bbbbbb;
+    margin: 5px;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
 #side_bar{
   background-color:rgb(46,46,46);
 }
@@ -377,6 +415,10 @@ LoadingDlg{
 }
 
 #search_edit:hover {
+    border: 2px solid green;
+}
+
+#search_edit:focus {
     border: 2px solid green;
 }
 

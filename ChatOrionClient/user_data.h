@@ -3,7 +3,8 @@
 
 #include <QString>
 
-class SearchInfo {
+class SearchInfo
+{
 public:
     SearchInfo(int uid, QString name, QString nick, QString desc, int sex, QString icon);
     int _uid;

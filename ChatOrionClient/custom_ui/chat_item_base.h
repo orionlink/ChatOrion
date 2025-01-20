@@ -6,6 +6,9 @@
 #include <QLabel>
 #include "global.h"
 
+/**
+ * 聊天信息列表项
+ */
 class ChatItemBase : public QWidget
 {
     Q_OBJECT
