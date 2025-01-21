@@ -7,7 +7,7 @@ ConUserItem::ConUserItem(QWidget *parent) :
 {
     ui->setupUi(this);
     SetItemType(ListItemType::CONTACT_USER_ITEM);
-    ui->red_point->raise();
+//    ui->red_point->raise();
     ShowRedPoint(false);
 }
 
@@ -63,11 +63,11 @@ void ConUserItem::SetInfo(std::shared_ptr<AuthRsp> auth_rsp){
 
 void ConUserItem::ShowRedPoint(bool show)
 {
-    if(show){
-        ui->red_point->show();
-    }else{
-        ui->red_point->hide();
-    }
+//    if(show){
+//        ui->red_point->show();
+//    }else{
+//        ui->red_point->hide();
+//    }
 
 }
 
