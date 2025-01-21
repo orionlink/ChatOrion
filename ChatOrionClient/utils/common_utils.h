@@ -71,6 +71,7 @@ public:
 	CommonUtils();
 
 public:
+    static QObject* findTopLevelParent(QObject *obj);
 	static QPixmap getRoundImage(const QPixmap &src, QPixmap& mask, QSize masksize = QSize(0, 0));
 	static void loadStyleSheet(QWidget* widget, const QString &sheetName);
 	static QString CharacterEscaping(QString content);

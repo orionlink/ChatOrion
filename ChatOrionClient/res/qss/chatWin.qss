@@ -503,10 +503,12 @@ LoadingDlg{
     background: #f7f7f8;
 }
 
+/*
 #scrollArea{
     background: #f7f7f8;
     border: none;
 }
+*/
 
 #scrollcontent{
      background: #f7f7f8;
@@ -525,13 +527,46 @@ LoadingDlg{
     height: 25px;
 }
 
-#apply_wid #name_ed, #apply_wid #back_ed{
-    border: 1px solid #f7f7f8;
+#apply_wid, #name_ed, #back_ed{
+    border-radius: 10px;
+    border: 1px solid rgb(234, 234, 234);
     font-size: 14px;
     font-family: "Microsoft YaHei";
 }
 
-#apply_wid #lb_ed {
+
+/* 设置 QScrollArea 的样式 */
+#grid_wid{
+    border-radius: 10px;
+    border: 1px solid rgb(234, 234, 234);
+    background: #FFFFFF;
+}
+
+#gridScrollArea{
+   background: transparent;
+   border: none;
+}
+
+/* 设置视口（Viewport）的样式 */
+#gridScrollArea::viewport {
+    background: transparent; /* 设置视口背景为透明 */
+    border: none;           /* 移除视口边框 */
+}
+
+/* 确保内容控件不遮挡边框 */
+#gridScrollArea > QWidget > QWidget {
+    margin: 1px;  /* 边距与边框宽度一致 */
+}
+
+
+#lb_ed
+{
+    border: none;
+    font-size: 14px;
+    font-family: "Microsoft YaHei";
+}
+
+#apply_wid{
        border: none;
        font-size: 14px;
        font-family: "Microsoft YaHei";
@@ -584,6 +619,7 @@ LoadingDlg{
 }
 
 #input_tip_wid {
+    border-radius: 10px;
     background: #d3eaf8;
 }
 
@@ -598,10 +634,6 @@ LoadingDlg{
     color:rgb(153,153,153);
     font-size: 14px;
     font-family: "Microsoft YaHei";
-}
-
-#gridWidget {
-   background: #fdfdfd;
 }
 
 #close_lb[state='normal'] {
@@ -629,31 +661,31 @@ LoadingDlg{
 }
 
 #apply_sure_wid #sure_btn[state='normal']  {
-    background: #f0f0f0;
-    color: #2cb46e;
+    background: rgb(7, 193, 96);
+    color: white;
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
 }
 
 #apply_sure_wid #sure_btn[state='hover'] {
-    background: #d2d2d2;
-    color: #2cb46e;
+    background: rgb(7, 173, 76);
+    color: white;
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
 }
 
 #apply_sure_wid #sure_btn[state='press'] {
-    background: #c6c6c6;
-    color: #2cb46e;
+    background: rgb(7, 173, 76);
+    color: white;
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
 }
 
 #apply_sure_wid #cancel_btn[state='normal']  {
-    background: #f0f0f0;
+    background: rgb(234, 234, 234);
     color: #2e2f30;
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
@@ -661,7 +693,7 @@ LoadingDlg{
 }
 
 #apply_sure_wid #cancel_btn[state='hover'] {
-    background: #d2d2d2;
+    background: rgb(214, 214, 214);
     color: #2e2f30;
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */

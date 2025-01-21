@@ -21,12 +21,14 @@ public:
     SearchList(QWidget *parent = nullptr);
     void CloseFindDlg();
     void SetSearchEdit(QWidget* edit);
+    std::shared_ptr<QDialog> getFindDialog() { return _find_dlg; }
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 private:
     void waitPending(bool pending = true);
-    bool _send_pending;
     void addTipItem();
+
+    bool _send_pending;
     std::shared_ptr<QDialog> _find_dlg;
     QWidget* _search_edit;
 //    LoadingDlg * _loadingDialog;

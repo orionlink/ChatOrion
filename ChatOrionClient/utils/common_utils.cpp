@@ -100,6 +100,20 @@ CommonUtils::CommonUtils()
 
 }
 
+QObject *CommonUtils::findTopLevelParent(QObject *obj)
+{
+    if (!obj) {
+        return nullptr; // 如果对象为空，返回 nullptr
+    }
+
+    // 递归查找父对象
+    while (obj->parent()) {
+        obj = obj->parent();
+    }
+
+    return obj; // 返回最上层的父对象
+}
+
 QPixmap CommonUtils::getRoundImage(const QPixmap &src, QPixmap& mask, QSize masksize)
 {
 	if (masksize == QSize(0, 0))

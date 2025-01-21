@@ -354,25 +354,25 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ClickedLabel</class>
-   <extends>QLabel</extends>
-   <header>clicked_label.h</header>
-  </customwidget>
-  <customwidget>
    <class>ClickedBtn</class>
    <extends>QPushButton</extends>
    <header location="global">clicked_btn.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomizeEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">customize_edit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ClickedLabel</class>
+   <extends>QLabel</extends>
+   <header>clicked_label.h</header>
   </customwidget>
   <customwidget>
    <class>ChatPage</class>
    <extends>QWidget</extends>
    <header location="global">chat_page.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CustomizeEdit</class>
-   <extends>QLineEdit</extends>
-   <header>customize_edit.h</header>
   </customwidget>
   <customwidget>
    <class>ChatUserList</class>

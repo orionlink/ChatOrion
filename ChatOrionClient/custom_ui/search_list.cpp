@@ -4,6 +4,7 @@
 #include "user_mgr.h"
 #include "search_user_item.h"
 #include "find_success_dialog.h"
+#include "common_utils.h"
 
 #include<QScrollBar>
 
@@ -124,7 +125,6 @@ void SearchList::slot_item_clicked(QListWidgetItem *item)
         return;
     }
 
-    //清楚弹出框
     CloseFindDlg();
 }
 

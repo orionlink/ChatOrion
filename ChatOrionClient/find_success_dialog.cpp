@@ -1,11 +1,14 @@
 #include "find_success_dialog.h"
 #include "ui_find_success_dialog.h"
+#include "apply_friend_dialog.h"
 
 #include <QDir>
+#include <QMouseEvent>
 
 FindSuccessDialog::FindSuccessDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FindSuccessDialog)
+    ,_parent(parent)
 {
     ui->setupUi(this);
 
@@ -22,7 +25,6 @@ FindSuccessDialog::FindSuccessDialog(QWidget *parent) :
            Qt::KeepAspectRatio, Qt::SmoothTransformation);
     ui->head_lb->setPixmap(head_pix);
     ui->add_friend_btn->SetState("normal","hover","press");
-    this->setModal(true);
 }
 
 FindSuccessDialog::~FindSuccessDialog()
@@ -38,5 +40,9 @@ void FindSuccessDialog::SetSearchInfo(std::shared_ptr<SearchInfo> si)
 
 void FindSuccessDialog::on_add_friend_btn_clicked()
 {
-
+    this->hide();
+    //弹出加好友界面
+    auto applyFriend = new ApplyFriend(_parent);
+    applyFriend->SetSearchInfo(_si);
+    applyFriend->show();
 }

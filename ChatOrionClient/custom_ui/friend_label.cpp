@@ -31,7 +31,7 @@ void FriendLabel::SetText(QString text)
     qDebug()<< " ui->tip_lb.width() is " << ui->tip_lb->width();
     qDebug()<< " ui->close_lb->width() is " << ui->close_lb->width();
     qDebug()<< " textWidth is " << textWidth;
-    this->setFixedWidth(ui->tip_lb->width()+ui->close_lb->width()+5);
+    this->setFixedWidth(ui->tip_lb->width()+ui->close_lb->width()+ 8);
     this->setFixedHeight(textHeight+2);
      qDebug()<< "  this->setFixedHeight " << this->height();
     _width = this->width();

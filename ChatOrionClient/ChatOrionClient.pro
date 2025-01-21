@@ -13,7 +13,7 @@ SOURCES += \
     chat_dialog.cpp \
     chat_page.cpp \
     chat_view.cpp \
-    commonu_tils.cpp \
+    utils/common_utils.cpp \
     custom_ui/bubble_frame.cpp \
     custom_ui/chat_item_base.cpp \
     custom_ui/chat_user_item.cpp \
@@ -31,6 +31,7 @@ SOURCES += \
     custom_ui/picture_bubble.cpp \
     custom_ui/search_list.cpp \
     custom_ui/search_user_item.cpp \
+    custom_ui/slip_button.cpp \
     custom_ui/state_widget.cpp \
     custom_ui/text_bubble.cpp \
     custom_ui/timer_btn.cpp \
@@ -46,6 +47,7 @@ SOURCES += \
     user_data.cpp \
     user_mgr.cpp \
     utils/cui_helper.cpp \
+    utils/frameless_wid_drag_mgr.cpp \
     utils/message_bus.cpp
 
 HEADERS += \
@@ -53,7 +55,7 @@ HEADERS += \
     chat_dialog.h \
     chat_page.h \
     chat_view.h \
-    common_utils.h \
+    utils/common_utils.h \
     custom_ui/bubble_frame.h \
     custom_ui/chat_item_base.h \
     custom_ui/chat_user_item.h \
@@ -71,6 +73,7 @@ HEADERS += \
     custom_ui/picture_bubble.h \
     custom_ui/search_list.h \
     custom_ui/search_user_item.h \
+    custom_ui/slip_button.h \
     custom_ui/state_widget.h \
     custom_ui/text_bubble.h \
     custom_ui/timer_btn.h \
@@ -86,6 +89,7 @@ HEADERS += \
     user_data.h \
     user_mgr.h \
     utils/cui_helper.h \
+    utils/frameless_wid_drag_mgr.h \
     utils/message_bus.h \
     utils/message_commands.h
 

@@ -161,6 +161,18 @@ bool ChatDialog::eventFilter(QObject *obj, QEvent *event)
                     ui->search_edit->clear(); // 只需清空即可，会触发slot_search_edit_text_changed函数实现切换逻辑
                 }
             }
+
+            QPoint posInDialog = mouse_event->globalPos();
+
+            // 判断点击位置是否在 QDialog 的范围内
+            auto find_dlg = ui->search_list->getFindDialog();
+            if (find_dlg)
+            {
+                if (!find_dlg->geometry().contains(posInDialog)) {
+                    ui->search_list->CloseFindDlg();
+                    qDebug() << "Dialog closed because click was outside.";
+                }
+            }
         }
     }
 

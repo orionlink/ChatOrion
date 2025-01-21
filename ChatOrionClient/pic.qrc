@@ -258,5 +258,9 @@
         <file>res/pic/close_hover.png</file>
         <file>res/pic/close_normal.png</file>
         <file>res/qss/chatWin.qss</file>
+        <file>res/pic/眼睛.png</file>
+        <file>res/pic/权限.png</file>
+        <file>res/pic/朋友圈.png</file>
+        <file>res/pic/打钩.png</file>
     </qresource>
 </RCC>
