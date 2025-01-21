@@ -783,24 +783,24 @@ ApplyFriendItem #user_chat_lb{
 }
 
 ApplyFriendItem #addBtn[state='normal'] {
-    background-color: #d3d7d4;
-    color: #2cb46e;
+    background: rgb(7, 193, 96);
+    color: white;
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
 }
 
 ApplyFriendItem #addBtn[state='hover'] {
-    background-color: #D3D3D3;
-    color: #2cb46e;
+    background: rgb(7, 173, 76);
+    color: white;
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */
 }
 
 ApplyFriendItem #addBtn[state='press'] {
-    background-color: #BEBEBE;
-    color: #2cb46e;
+    background: rgb(7, 173, 76);
+    color: white;
     font-size: 16px; /* 设置字体大小 */
     font-family: "Microsoft YaHei"; /* 设置字体 */
     border-radius: 20px; /* 设置圆角 */

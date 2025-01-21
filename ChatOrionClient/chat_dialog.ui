@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>853</width>
-    <height>517</height>
+    <width>947</width>
+    <height>532</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -294,7 +294,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QListWidget" name="con_user_list"/>
+           <widget class="ContactUserList" name="con_user_list"/>
           </item>
          </layout>
         </widget>
@@ -346,6 +346,7 @@
        </property>
       </layout>
      </widget>
+     <widget class="ApplyFriendPage" name="apply_friend_page"/>
      <widget class="QWidget" name="friend_apply_page"/>
      <widget class="NormalPage" name="normal_page"/>
     </widget>
@@ -394,6 +395,17 @@
    <class>NormalPage</class>
    <extends>QWidget</extends>
    <header>normal_page.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ContactUserList</class>
+   <extends>QListWidget</extends>
+   <header>contact_user_list.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ApplyFriendPage</class>
+   <extends>QWidget</extends>
+   <header>apply_friend_page.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

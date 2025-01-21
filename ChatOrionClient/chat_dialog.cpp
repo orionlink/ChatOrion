@@ -43,7 +43,11 @@ void ChatDialog::addChatUserList()
         int head_i = randomValue % heads.size();
         int name_i = randomValue % names.size();
 
+        int msg_count = QRandomGenerator::global()->bounded(110);
+
+        bool is_show = QRandomGenerator::global()->bounded(2);
         auto *chat_user_wid = new ChatUserItem();
+        chat_user_wid->SetRedDot(is_show, msg_count);
         chat_user_wid->SetInfo(names[name_i], heads[head_i], test_strs[str_i]);
         QListWidgetItem *item = new QListWidgetItem();
         //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
@@ -108,6 +112,10 @@ ChatDialog::ChatDialog(QWidget *parent) :
 
     //链接搜索框输入变化
     connect(ui->search_edit, &QLineEdit::textChanged, this, &ChatDialog::slot_search_edit_text_changed);
+
+    //连接联系人页面点击好友申请条目的信号
+    connect(ui->con_user_list, &ContactUserList::sig_switch_apply_friend_page,
+            this,&ChatDialog::slot_switch_apply_friend_page);
 
     ui->user_stacked->setCurrentWidget(ui->chat_user_list_page);
     ui->stackedWidget->setCurrentWidget(ui->normal_page);
@@ -208,4 +216,9 @@ void ChatDialog::slot_search_edit_text_changed()
         ui->user_stacked->setCurrentIndex(user_stacked_last_index);
         user_stacked_last_index = 0;
     }
+}
+
+void ChatDialog::slot_switch_apply_friend_page()
+{
+    ui->stackedWidget->setCurrentIndex(1);
 }

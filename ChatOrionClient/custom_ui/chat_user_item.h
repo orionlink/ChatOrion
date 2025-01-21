@@ -7,8 +7,10 @@ namespace Ui {
 class ChatUserItem;
 }
 
+class RedDotLabel;
+
 /**
- * @brief 聊天用户信息列表项
+ * @brief 聊天用户列表项
  */
 class ChatUserItem : public ListItemBase
 {
@@ -23,12 +25,21 @@ public:
     }
 
     void SetInfo(QString name, QString head, QString msg);
+
+    void SetRedDot(bool show = false, int count = 0);
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
+    void updateRedDotPosition();
+
     Ui::ChatUserItem *ui;
 
     QString _name;
     QString _head;
     QString _msg;
+
+    RedDotLabel* redDotLabel;
 };
 
 #endif // CHATUSER_ITEM_H

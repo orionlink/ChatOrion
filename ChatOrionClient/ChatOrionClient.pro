@@ -10,9 +10,16 @@ CONFIG += c++17
 
 SOURCES += \
     apply_friend_dialog.cpp \
+    apply_friend_page.cpp \
     chat_dialog.cpp \
     chat_page.cpp \
     chat_view.cpp \
+    custom_ui/apply_friend_item.cpp \
+    custom_ui/apply_friend_list.cpp \
+    custom_ui/con_user_item.cpp \
+    custom_ui/contact_user_list.cpp \
+    custom_ui/group_tip_item.cpp \
+    custom_ui/red_dot_label.cpp \
     utils/common_utils.cpp \
     custom_ui/bubble_frame.cpp \
     custom_ui/chat_item_base.cpp \
@@ -52,9 +59,16 @@ SOURCES += \
 
 HEADERS += \
     apply_friend_dialog.h \
+    apply_friend_page.h \
     chat_dialog.h \
     chat_page.h \
     chat_view.h \
+    custom_ui/apply_friend_item.h \
+    custom_ui/apply_friend_list.h \
+    custom_ui/con_user_item.h \
+    custom_ui/contact_user_list.h \
+    custom_ui/group_tip_item.h \
+    custom_ui/red_dot_label.h \
     utils/common_utils.h \
     custom_ui/bubble_frame.h \
     custom_ui/chat_item_base.h \
@@ -95,10 +109,14 @@ HEADERS += \
 
 FORMS += \
     apply_friend_dialog.ui \
+    apply_friend_page.ui \
     chat_dialog.ui \
     chat_page.ui \
+    custom_ui/apply_friend_item.ui \
     custom_ui/chat_user_item.ui \
+    custom_ui/con_user_item.ui \
     custom_ui/friend_label.ui \
+    custom_ui/group_tip_item.ui \
     custom_ui/search_user_item.ui \
     emotion_window.ui \
     find_success_dialog.ui \

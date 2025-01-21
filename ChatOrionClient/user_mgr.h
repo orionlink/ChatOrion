@@ -24,10 +24,13 @@ public:
     QString GetIcon();
 
     std::shared_ptr<UserInfo> GetUserInfo();
+
+    std::vector<std::shared_ptr<ApplyInfo>> GetApplyList();
 private:
     explicit UserMgr();
 
     std::shared_ptr<UserInfo> _user_info;
+    std::vector<std::shared_ptr<ApplyInfo>> _apply_list;
     QString _token;
 };
 

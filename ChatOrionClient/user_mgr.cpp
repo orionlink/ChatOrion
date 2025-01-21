@@ -39,3 +39,8 @@ std::shared_ptr<UserInfo> UserMgr::GetUserInfo()
 {
     return _user_info;
 }
+
+std::vector<std::shared_ptr<ApplyInfo> > UserMgr::GetApplyList()
+{
+    return _apply_list;
+}

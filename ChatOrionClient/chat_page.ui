@@ -602,14 +602,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ClickedLabel</class>
-   <extends>QLabel</extends>
-   <header>clicked_label.h</header>
-  </customwidget>
-  <customwidget>
    <class>ClickedBtn</class>
    <extends>QPushButton</extends>
    <header location="global">clicked_btn.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ClickedLabel</class>
+   <extends>QLabel</extends>
+   <header>clicked_label.h</header>
   </customwidget>
   <customwidget>
    <class>ChatView</class>

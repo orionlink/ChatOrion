@@ -50,6 +50,11 @@ private slots:
      * @brief 搜索框文本修改槽函数
      */
     void slot_search_edit_text_changed();
+
+    /**
+     * @brief 跳转到好友申请界面
+     */
+    void slot_switch_apply_friend_page();
 private:
     Ui::ChatDialog *ui;
     QList<StateWidget*> _side_lb_list;
