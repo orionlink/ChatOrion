@@ -17,6 +17,7 @@ ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false), m_se
     QVBoxLayout *pMainLayout = new QVBoxLayout();
     this->setLayout(pMainLayout);
     pMainLayout->setMargin(0);
+    pMainLayout->setContentsMargins(10, 0, 10, 0);
 
     m_pScrollArea = new QScrollArea();
     m_pScrollArea->setObjectName("chat_area");

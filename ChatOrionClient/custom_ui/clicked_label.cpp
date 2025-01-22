@@ -4,6 +4,8 @@
 ClickedLabel::ClickedLabel(QWidget* parent):QLabel (parent),_curstate(ClickLbState::Normal)
 {
     setCursor(Qt::PointingHandCursor);
+
+    SetState("normal","hover","press","normal","hover","press");
 }
 
 // 处理鼠标点击事件

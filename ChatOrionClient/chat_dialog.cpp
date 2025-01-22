@@ -2,7 +2,9 @@
 #include "ui_chat_dialog.h"
 #include "chat_user_item.h"
 #include "common_utils.h"
+#include "cui_helper.h"
 
+#include <QMenu>
 #include <QFile>
 #include <QTextStream>
 #include <QAction>
@@ -66,14 +68,16 @@ ChatDialog::ChatDialog(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowTitle(QStringLiteral("微信"));
 
-    ui->add_btn->SetState("normal","hover","press");
     ui->side_chat_lb->setProperty("state","normal");
-    ui->side_chat_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
-    ui->side_contact_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
-    ui->side_setting_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
 
+    ui->side_setting_lb->SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
     ui->side_chat_lb->setToolTip(QStringLiteral("聊天"));
     ui->side_contact_lb->setToolTip(QStringLiteral("联系人"));
+    ui->side_collect_lb->setToolTip(QStringLiteral("收藏"));
+    ui->side_circle_lb->setToolTip(QStringLiteral("朋友圈"));
+    ui->side_watch_lb->setToolTip(QStringLiteral("看一看"));
+    ui->side_search_lb->setToolTip(QStringLiteral("搜一搜"));
+    ui->side_applet_lb->setToolTip(QStringLiteral("小程序面板"));
     ui->side_setting_lb->setToolTip(QStringLiteral("设置及其他"));
 
     // 显示搜索图标
@@ -106,9 +110,12 @@ ChatDialog::ChatDialog(QWidget *parent) :
 
     addLBGroup(ui->side_chat_lb);
     addLBGroup(ui->side_contact_lb);
+    addLBGroup(ui->side_collect_lb);
 
     connect(ui->side_chat_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_chat);
     connect(ui->side_contact_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_contact);
+    connect(ui->side_collect_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_collect);
+    connect(ui->side_setting_lb, &ClickedLabel::clicked, this, &ChatDialog::slot_setting_label);
 
     //链接搜索框输入变化
     connect(ui->search_edit, &QLineEdit::textChanged, this, &ChatDialog::slot_search_edit_text_changed);
@@ -199,6 +206,40 @@ void ChatDialog::slot_side_contact()
     clearLabelState(ui->side_contact_lb);
     ui->stackedWidget->setCurrentWidget(ui->normal_page);
     ui->user_stacked->setCurrentWidget(ui->con_user_list_page);
+}
+
+void ChatDialog::slot_side_collect()
+{
+    clearLabelState(ui->side_collect_lb);
+    ui->stackedWidget->setCurrentWidget(ui->normal_page);
+    ui->user_stacked->setCurrentWidget(ui->collect_list_page);
+}
+
+void ChatDialog::slot_setting_label()
+{
+    QMenu * menu = new QMenu(this);
+    CUIHelper::GetInstance()->setMenuRadius(menu);
+
+    QAction* setupAction = new QAction(menu);
+    setupAction->setText(QStringLiteral("设置"));
+    menu->addAction(setupAction);
+
+    QAction* feedbackAction = new QAction(menu);
+    feedbackAction->setText(QStringLiteral("意见反馈"));
+    menu->addAction(feedbackAction);
+
+    QAction* lockAction = new QAction(menu);
+    lockAction->setText(QStringLiteral("锁定"));
+    menu->addAction(lockAction);
+
+    // 获取控件的全局位置
+    QPoint globalPos = ui->side_setting_lb->mapToGlobal(QPoint(0, 0));
+
+    // 调整菜单的位置，使其显示在控件的右侧
+    globalPos.setX(globalPos.x() + ui->side_setting_lb->width());
+    globalPos.setY(globalPos.y());
+
+    menu->exec(globalPos);
 }
 
 void ChatDialog::slot_search_edit_text_changed()

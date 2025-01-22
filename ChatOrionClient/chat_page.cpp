@@ -26,6 +26,14 @@ ChatPage::ChatPage(QWidget *parent) :
     //设置图标样式
     ui->emo_lb->SetState("normal","hover","press","normal","hover","press");
     ui->file_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->telphone_lb->SetState("normal","hover","press","normal","hover","press");
+    ui->video_lb->SetState("normal","hover","press","normal","hover","press");
+
+    ui->chat_msg_btn->setToolTip(QStringLiteral("聊天信息"));
+    ui->emo_lb->setToolTip(QStringLiteral("表情"));
+    ui->file_lb->setToolTip(QStringLiteral("发送文件"));
+    ui->telphone_lb->setToolTip(QStringLiteral("语音聊天"));
+    ui->video_lb->setToolTip(QStringLiteral("视频聊天"));
 
     ui->item_forward_lb->SetState("normal","hover","press","normal","hover","press");
     ui->item_forward_lb->setToolTip(QStringLiteral("逐条转发"));
@@ -43,10 +51,6 @@ ChatPage::ChatPage(QWidget *parent) :
     ui->collect_lb->setToolTip(QStringLiteral("收藏"));
 
     ui->action_close_lb->SetState("normal","hover","press","normal","hover","press");
-
-    ui->chat_msg_btn->setToolTip(QStringLiteral("聊天信息"));
-    ui->emo_lb->setToolTip(QStringLiteral("表情"));
-    ui->file_lb->setToolTip(QStringLiteral("发送文件"));
 
     ui->stackedWidget->setCurrentWidget(ui->input_page);
     MessageBus::instance()->registerHandler(MessageCommand::MULTI_SELECT_REQ, this, [this](const QVariant& data)

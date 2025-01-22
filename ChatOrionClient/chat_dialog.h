@@ -46,6 +46,10 @@ private slots:
      */
     void slot_side_contact();
 
+    void slot_side_collect();
+
+    void slot_setting_label();
+
     /**
      * @brief 搜索框文本修改槽函数
      */

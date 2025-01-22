@@ -9,6 +9,8 @@ ClickedBtn::ClickedBtn(QWidget *parent):QPushButton (parent)
     setFocusPolicy(Qt::NoFocus);
 
     this->setStyleSheet("border-radius: 5px;");
+
+    SetState("normal","hover","press");
 }
 
 ClickedBtn::~ClickedBtn(){

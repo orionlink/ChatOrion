@@ -63,7 +63,7 @@ struct MsgInfo
     QString msgFlag;//"text,image,file, emotion"
     QString content;//表示文件和图像的url,文本信息
     QPixmap pixmap;//文件和图片的缩略图
-    QVector<QString> mixedContent;  // 混合内容（文本和表情）
+//    QVector<QString> mixedContent;  // 混合内容（文本和表情）
 
     friend QDataStream &operator<<(QDataStream &out, const MsgInfo &info) {
         out << info.msgFlag << info.content;

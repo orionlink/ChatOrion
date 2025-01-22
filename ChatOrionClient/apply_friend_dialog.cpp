@@ -28,8 +28,6 @@ ApplyFriend::ApplyFriend(QWidget *parent) :
     ui->lb_ed->setPlaceholderText("搜索、添加标签...");
     ui->back_ed->setPlaceholderText("备注");
 
-    ui->sure_btn->SetState("normal","hover","press");
-    ui->cancel_btn->SetState("normal","hover","press");
     ui->selected_multiple_lb->setPixmap(QPixmap(":/res/pic/打钩.png"));
 
     ui->lb_ed->SetMaxLength(21);

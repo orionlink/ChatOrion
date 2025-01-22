@@ -44,6 +44,9 @@ QMenu::separator {
 #side_bar{
   background-color:rgb(46,46,46);
 }
+#side_bar_wid{
+  background-color:rgb(46,46,46);
+}
 
 #add_btn[state='normal']{
     border-image: url(:/res/pic/add_friend_normal.png);
@@ -252,6 +255,30 @@ LoadingDlg{
     border-image: url(:/res/pic/smile_press.png);
 }
 
+#telphone_lb[state='normal']{
+    border-image: url(:/res/pic/telphone.png);
+}
+
+#telphone_lb[state='hover']{
+    border-image: url(:/res/pic/telphone2.png);
+}
+
+#telphone_lb[state='press']{
+    border-image: url(:/res/pic/telphone2.png);
+}
+
+#video_lb[state='normal']{
+    border-image: url(:/res/pic/video.png);
+}
+
+#video_lb[state='hover']{
+    border-image: url(:/res/pic/video2.png);
+}
+
+#video_lb[state='press']{
+    border-image: url(:/res/pic/video2.png);
+}
+
 #file_lb[state='normal']{
     border-image: url(:/res/pic/filedir.png);
 }
@@ -339,51 +366,141 @@ LoadingDlg{
 }
 
 #side_chat_lb[state='normal']{
-    border-image: url(:/res/pic/chat_icon.png);
+    border-image: url(:/res/pic/chat.svg);
 }
 
 #side_chat_lb[state='hover']{
-    border-image: url(:/res/pic/chat_icon_hover.png);
+    border-image: url(:/res/pic/chat.svg);
 }
 
 #side_chat_lb[state='pressed']{
-    border-image: url(:/res/pic/chat_icon_press.png);
+    border-image: url(:/res/pic/chat2.svg);
 }
 
 #side_chat_lb[state='selected_normal']{
-    border-image: url(:/res/pic/chat_icon_press.png);
+    border-image: url(:/res/pic/chat2.svg);
 }
 
 #side_chat_lb[state='selected_hover']{
-    border-image: url(:/res/pic/chat_icon_press.png);
+    border-image: url(:/res/pic/chat2.svg);
 }
 
 #side_chat_lb[state='selected_pressed']{
-    border-image: url(:/res/pic/chat_icon_press.png);
+    border-image: url(:/res/pic/chat2.svg);
 }
 
 #side_contact_lb[state='normal']{
-    border-image: url(:/res/pic/contact_list.png);
+    border-image: url(:/res/pic/contact.svg);
 }
 
 #side_contact_lb[state='hover']{
-    border-image: url(:/res/pic/contact_list_hover.png);
+    border-image: url(:/res/pic/contact.svg);
 }
 
 #side_contact_lb[state='pressed']{
-    border-image: url(:/res/pic/contact_list_press.png);
+    border-image: url(:/res/pic/contact2.svg);
 }
 
 #side_contact_lb[state='selected_normal']{
-    border-image: url(:/res/pic/contact_list_press.png);
+    border-image: url(:/res/pic/contact2.svg);
 }
 
 #side_contact_lb[state='selected_hover']{
-    border-image: url(:/res/pic/contact_list_press.png);
+    border-image: url(:/res/pic/contact2.svg);
 }
 
 #side_contact_lb[state='selected_pressed']{
-    border-image: url(:/res/pic/contact_list_press.png);
+    border-image: url(:/res/pic/contact2.svg);
+}
+
+#side_collect_lb[state='normal']{
+    border-image: url(:/res/pic/collect.svg);
+}
+
+#side_collect_lb[state='hover']{
+    border-image: url(:/res/pic/collect.svg);
+}
+
+#side_collect_lb[state='pressed']{
+    border-image: url(:/res/pic/collect2.svg);
+}
+
+#side_collect_lb[state='selected_normal'],
+#side_collect_lb[state='selected_hover'],
+#side_collect_lb[state='selected_pressed'] {
+    border-image: url(:/res/pic/collect2.svg);
+}
+
+#side_circle_lb[state='normal']{
+    border-image: url(:/res/pic/circle.svg);
+}
+
+#side_circle_lb[state='hover']{
+    border-image: url(:/res/pic/circle.svg);
+}
+
+#side_circle_lb[state='pressed']{
+    border-image: url(:/res/pic/circle.svg);
+}
+
+#side_circle_lb[state='selected_normal'],
+#side_circle_lb[state='selected_hover'],
+#side_circle_lb[state='selected_pressed'] {
+    border-image: url(:/res/pic/circle.svg);
+}
+
+#side_watch_lb[state='normal']{
+    border-image: url(:/res/pic/watch.svg);
+}
+
+#side_watch_lb[state='hover']{
+    border-image: url(:/res/pic/watch.svg);
+}
+
+#side_watch_lb[state='pressed']{
+    border-image: url(:/res/pic/watch.svg);
+}
+
+#side_watch_lb[state='selected_normal'],
+#side_watch_lb[state='selected_hover'],
+#side_watch_lb[state='selected_pressed'] {
+    border-image: url(:/res/pic/watch.svg);
+}
+
+#side_search_lb[state='normal']{
+    border-image: url(:/res/pic/search.svg);
+}
+
+#side_search_lb[state='hover']{
+    border-image: url(:/res/pic/search.svg);
+}
+
+#side_search_lb[state='pressed']{
+    border-image: url(:/res/pic/search.svg);
+}
+
+#side_search_lb[state='selected_normal'],
+#side_search_lb[state='selected_hover'],
+#side_search_lb[state='selected_pressed'] {
+    border-image: url(:/res/pic/search.svg);
+}
+
+#side_applet_lb[state='normal']{
+    border-image: url(:/res/pic/applet.svg);
+}
+
+#side_applet_lb[state='hover']{
+    border-image: url(:/res/pic/applet.svg);
+}
+
+#side_applet_lb[state='pressed']{
+    border-image: url(:/res/pic/applet.svg);
+}
+
+#side_applet_lb[state='selected_normal'],
+#side_applet_lb[state='selected_hover'],
+#side_applet_lb[state='selected_pressed'] {
+    border-image: url(:/res/pic/applet.svg);
 }
 
 #side_setting_lb[state='normal']{

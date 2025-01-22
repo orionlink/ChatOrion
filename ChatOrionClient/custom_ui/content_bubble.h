@@ -40,6 +40,10 @@ public:
         return m_messages;
     }
 protected:
+    /**
+     * @brief 创建菜单项
+     * @param event
+     */
     void contextMenuEvent(QContextMenuEvent *event) override;
 
     bool eventFilter(QObject *o, QEvent *e) override;

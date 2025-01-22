@@ -13,7 +13,6 @@ ChatUserItem::ChatUserItem(QWidget *parent) :
 
     // 创建红点标签
     redDotLabel = new RedDotLabel(this);
-    redDotLabel->setFixedSize(24, 24);  // 设置固定大小
     redDotLabel->hide();  // 默认隐藏
     // 将红点移到最上层
     redDotLabel->raise();

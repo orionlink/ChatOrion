@@ -11,6 +11,7 @@ StateWidget::StateWidget(QWidget *parent): QWidget(parent),_curstate(ClickLbStat
     setCursor(Qt::PointingHandCursor);
     //添加红点
     AddRedPoint();
+    SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
 }
 
 void StateWidget::SetState(QString normal, QString hover, QString press, QString select, QString select_hover, QString select_press)

@@ -31,7 +31,6 @@
         <file>res/pic/add_friend_hover.png</file>
         <file>res/pic/add_friend_normal.png</file>
         <file>res/pic/addtip.png</file>
-        <file>res/pic/arowdown.png</file>
         <file>res/pic/chat_icon.png</file>
         <file>res/pic/chat_icon_hover.png</file>
         <file>res/pic/chat_icon_press.png</file>
@@ -78,9 +77,6 @@
         <file>res/pic/voice_chat_press.png</file>
         <file>res/pic/windowBkg.png</file>
         <file>res/pic/icon_success_tip.png</file>
-        <file>res/pic/setting_icon_press.png</file>
-        <file>res/pic/setting_icon_hover.png</file>
-        <file>res/pic/setting_icon.png</file>
         <file>res/pic/chat_msg_icon.png</file>
         <file>res/emoji/OK.png</file>
         <file>res/emoji/NO.png</file>
@@ -262,5 +258,22 @@
         <file>res/pic/权限.png</file>
         <file>res/pic/朋友圈.png</file>
         <file>res/pic/打钩.png</file>
+        <file>res/pic/watch.svg</file>
+        <file>res/pic/search.svg</file>
+        <file>res/pic/collect2.svg</file>
+        <file>res/pic/collect.svg</file>
+        <file>res/pic/circle.svg</file>
+        <file>res/pic/applet.svg</file>
+        <file>res/pic/setting_icon_press.png</file>
+        <file>res/pic/setting_icon_hover.png</file>
+        <file>res/pic/setting_icon.png</file>
+        <file>res/pic/contact2.svg</file>
+        <file>res/pic/contact.svg</file>
+        <file>res/pic/chat2.svg</file>
+        <file>res/pic/chat.svg</file>
+        <file>res/pic/video2.png</file>
+        <file>res/pic/video.png</file>
+        <file>res/pic/telphone2.png</file>
+        <file>res/pic/telphone.png</file>
     </qresource>
 </RCC>

@@ -1,5 +1,6 @@
 #include "content_bubble.h"
 #include "chat_view.h"
+#include "cui_helper.h"
 
 #include <QDebug>
 
@@ -46,17 +47,11 @@ bool ContentBubbleFrame::setContent(const QVector<MsgInfo> &messages)
 
 void ContentBubbleFrame::contextMenuEvent(QContextMenuEvent *event)
 {
-    // 如果父部件正在处理选择，则发送右键菜单请求
-//    ChatView* chatView = qobject_cast<ChatView*>(window()->findChild<ChatView*>());
-//    if (chatView && !textIsSelected()) {
-//        emit contextMenuRequested(event->globalPos(), this);
-//        event->accept();
-//        return;
-//    }
-
     // 如果有文本被选中，则显示复制菜单
-    if (textIsSelected()) {
+    if (textIsSelected())
+    {
         QMenu menu(this);
+        CUIHelper::GetInstance()->setMenuRadius(&menu);
         QAction* copyAction = m_contentLabel->createCopyAction();
         copyAction->setEnabled(true);
         menu.addAction(copyAction);
