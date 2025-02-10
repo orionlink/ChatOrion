@@ -39,6 +39,11 @@ int main(int argc, char* argv[])
         server_name += server_name_id;
         std::cout << "server_name: " << server_name << std::endl;
 
+        // 保存自己的服务信息到内存中
+        setting.setValue("SelfServer/name", server_name);
+        setting.setValue("SelfServer/host", "0.0.0.0");
+        setting.setValue("SelfServer/port", std::to_string(port));
+
         // 将登录数设置为0
         RedisManager::GetInstance()->hset(LOGIN_COUNT, server_name, "0");
 

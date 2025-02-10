@@ -3,6 +3,10 @@
 //
 
 #include "LogicSystem.h"
+#include "Settings.h"
+#include "RedisManager.h"
+#include "UserMgr.h"
+#include "const.h"
 
 #include <RedisManager.h>
 
@@ -84,4 +88,27 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const std::str
     }
 
     rtvalue["error"] = ErrorCodes::Success;
+
+    // 将登录该服务器的数量增加
+    auto &setting = config::Settings::GetInstance();
+    std::string self_server_name = setting.value("SelfServer/name").toString();
+
+    std::string rd_res;
+    bool ret = RedisManager::GetInstance()->hget(LOGIN_COUNT, self_server_name, rd_res);
+    int count = 0;
+    if (!rd_res.empty() && ret) {
+        count = std::stoi(rd_res);
+    }
+    count++;
+    auto count_str = std::to_string(count);
+    RedisManager::GetInstance()->hset(LOGIN_COUNT, self_server_name, count_str);
+
+    //session绑定用户uid
+    session->set_user_id(uid);
+    //为用户设置登录ip server的名字, 该用户和某个服务绑定
+    std::string ipkey = USERIPPREFIX + uid_str;
+    RedisManager::GetInstance()->set(ipkey, self_server_name);
+    //uid和session绑定管理,方便以后踢人操作
+    UserMgr::GetInstance()->SetUserSession(uid, session);
+
 }

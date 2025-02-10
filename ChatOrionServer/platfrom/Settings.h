@@ -122,7 +122,13 @@ namespace config
         double valueDouble(const std::string& key, double default_value = 0.0) const;
         bool valueBool(const std::string& key, bool default_value = false) const;
 
-        void setValue(const std::string& key, const std::string& value);
+        /**
+         *
+         * @param key Section/key
+         * @param value
+         * @param is_save 是否保存到文件中，默认为false
+         */
+        void setValue(const std::string& key, const std::string& value, bool is_save = false);
 
         SectionInfo operator[](const std::string& section) const {
             auto it = _config_map.find(section);

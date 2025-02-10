@@ -122,6 +122,13 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
         MsgNode.h
         LogicSystem.cpp
         LogicSystem.h
+        ChatGrpcClient.cpp
+        ChatGrpcClient.h
+        UserMgr.cpp
+        UserMgr.h
+        ChatServiceImpl.cpp
+        ChatServiceImpl.h
+        data.h
 )
 
 # 链接库

@@ -42,7 +42,7 @@ namespace config
         return value(key).toBool(default_value);
     }
 
-    void Settings::setValue(const std::string& key, const std::string& value)
+    void Settings::setValue(const std::string& key, const std::string& value, bool is_save)
     {
         size_t separator_pos = key.find('/');
         if (separator_pos != std::string::npos)
@@ -50,7 +50,7 @@ namespace config
             std::string section = key.substr(0, separator_pos);
             std::string key_in_section = key.substr(separator_pos + 1);
             _config_map[section]._section_datas[key_in_section] = ValueWrapper(value);
-            saveToFile();
+            if (is_save) saveToFile();
         }
     }
 

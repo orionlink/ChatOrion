@@ -84,7 +84,7 @@ const int MAX_SENDQUE = 1000;
 const int MAX_TASKQUE = 1000;
 
 const std::string CODE_PREFIX = "code_";
-
+const std::string USERIPPREFIX = "uip_";
 const std::string LOGIN_COUNT = "logincount";
 const std::string USERTOKENPREFIX = "utoken_";
 
