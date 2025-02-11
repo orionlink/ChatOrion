@@ -8,6 +8,7 @@
 #include "singleton.hpp"
 #include "CSession.h"
 #include "const.h"
+#include "data.h"
 #include "BS_thread_pool.hpp"
 
 class LogicSystem : public Singleton<LogicSystem>
@@ -26,6 +27,14 @@ private:
     LogicSystem();
 
     void LoginHandler(std::shared_ptr<CSession> session, const std::string &msg_data);
+
+    /**
+     * 获取用户信息
+     * @param uid [in]
+     * @param userinfo [out]
+     * @return
+     */
+    bool GetBaseInfo(int uid, std::shared_ptr<UserInfo>& userinfo);
 private:
     BS::thread_pool<BS::tp::pause> _pool;  // 线程池
     bool _b_stop;

@@ -65,13 +65,6 @@ private:
     std::function<void()> _func;
 };
 
-struct UserInfo {
-    std::string name;
-    std::string pwd;
-    int uid;
-    std::string email;
-};
-
 const int MAX_LENGTH = 1024*2;
 //头部总长度
 const int HEAD_TOTAL_LEN = 4;
@@ -87,5 +80,8 @@ const std::string CODE_PREFIX = "code_";
 const std::string USERIPPREFIX = "uip_";
 const std::string LOGIN_COUNT = "logincount";
 const std::string USERTOKENPREFIX = "utoken_";
+const std::string IPCOUNTPREFIX = "ipcount_";
+const std::string USER_BASE_INFO = "ubaseinfo_";
+const std::string NAME_INFO = "nameinfo_";
 
 #endif // CONST_H

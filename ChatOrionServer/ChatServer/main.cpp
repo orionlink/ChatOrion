@@ -11,15 +11,13 @@
 
 static void use(char* argv[])
 {
-    std::cout << argv[0] << " arg1: 服务器标识, argc2: 端口号" << std::endl;
-    std::cout << "示例: " <<  argv[0] << " 1 8080"<< std::endl;
+    std::cout << argv[0] << " arg1: 服务器标识" << std::endl;
+    std::cout << "示例: " <<  argv[0] << " 1"<< std::endl;
 }
 
 // ./ChatServer 1 8080, 1 为服务器id标识, 拼接字符串以后就是 ChatServer1
 int main(int argc, char* argv[])
 {
-    use(argv);
-
     try
     {
         auto &setting = config::Settings::GetInstance();
@@ -27,17 +25,22 @@ int main(int argc, char* argv[])
         setting.load();
 
         unsigned short port;
-        port = setting.value("ChatServer1/port").toInt();
 
         std::string server_name = "ChatServer";
         std::string server_name_id = "";
-        if (argc == 3)
+        if (argc == 2)
         {
             server_name_id = argv[1];
-            port = std::atoi(argv[2]);
+        }
+        else
+        {
+            use(argv);
+            return -2;
         }
         server_name += server_name_id;
         std::cout << "server_name: " << server_name << std::endl;
+
+        port = setting.value(server_name + "/port").toInt();
 
         // 保存自己的服务信息到内存中
         setting.setValue("SelfServer/name", server_name);

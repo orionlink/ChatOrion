@@ -34,7 +34,7 @@ public:
     std::shared_ptr<CSession> sharedSelf();
 
     boost::asio::ip::tcp::socket& get_socket() { return _socket; }
-    std::string get_uuid() { return _session_id; }
+    std::string get_session_id() { return _session_id; }
 
     void set_user_id(int user_id) { _user_uid = user_id; }
     int get_user_id() { return _user_uid; }

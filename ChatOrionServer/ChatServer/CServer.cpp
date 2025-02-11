@@ -2,12 +2,14 @@
 // Created by hwk on 2025/1/14.
 //
 
-#include "CServer.h"
+
 
 #include <grpcpp/server.h>
 
 #include "CSession.h"
 #include "AsioIOServicePool.h"
+#include "UserMgr.h"
+#include "CServer.h"
 
 CServer::CServer(boost::asio::io_context &context, unsigned short port)
     :_context(context), _port(port),_acceptor(context, tcp::endpoint(tcp::v4(), port))
@@ -30,7 +32,7 @@ void CServer::handleAccept(std::shared_ptr<CSession> new_session, boost::system:
     {
         new_session->start();
         std::lock_guard<std::mutex> lock(_mutex);
-        _sessions.insert(std::make_pair(new_session->get_uuid(), new_session));
+        _sessions.insert(std::make_pair(new_session->get_session_id(), new_session));
     }
     else
     {
@@ -40,16 +42,16 @@ void CServer::handleAccept(std::shared_ptr<CSession> new_session, boost::system:
     startAccept();
 }
 
-void CServer::clearSession(const std::string& uuid)
+void CServer::clearSession(const std::string& session_id)
 {
-    if (_sessions.find(uuid) != _sessions.end())
+    if (_sessions.find(session_id) != _sessions.end())
     {
         //移除用户和session的关联
-        // UserMgr::GetInstance()->RmvUserSession(_sessions[uuid]->GetUserId());
+        UserMgr::GetInstance()->RemoveUserSession(_sessions[session_id]->get_user_id());
     }
 
     {
         std::lock_guard<std::mutex> lock(_mutex);
-        _sessions.erase(uuid);
+        _sessions.erase(session_id);
     }
 }

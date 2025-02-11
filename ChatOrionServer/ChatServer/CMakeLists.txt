@@ -129,6 +129,10 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
         ChatServiceImpl.cpp
         ChatServiceImpl.h
         data.h
+        MySQLManager.h
+        MySQLManager.cpp
+        MySQLDao.h
+        MySQLDao.cpp
 )
 
 # 链接库

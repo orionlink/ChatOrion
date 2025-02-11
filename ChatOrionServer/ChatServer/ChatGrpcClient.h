@@ -8,9 +8,9 @@
 #include "const.h"
 #include "message.grpc.pb.h"
 #include "message.pb.h"
-#include "const.h"
 #include "singleton.hpp"
 #include "Settings.h"
+#include "data.h"
 
 #include <queue>
 #include <grpcpp/grpcpp.h>

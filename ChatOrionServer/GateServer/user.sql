@@ -1,70 +1,73 @@
--- 创建 user 表
-CREATE TABLE IF NOT EXISTS user (
-                                    id INT AUTO_INCREMENT PRIMARY KEY,
-                                    uid INT UNIQUE NOT NULL,
-                                    username VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    CONSTRAINT uid_unique UNIQUE (uid)
-    );
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
--- 创建 user_id 表
-CREATE TABLE IF NOT EXISTS user_id (
-                                       id INT PRIMARY KEY
-);
+-- ----------------------------
+-- Table structure for friend
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `friend`  (
+                           `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+                           `self_id` int NOT NULL,
+                           `friend_id` int NOT NULL,
+                           `back` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '',
+                           PRIMARY KEY (`id`) USING BTREE,
+                           UNIQUE INDEX `self_friend`(`self_id` ASC, `friend_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 89 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
--- -- 更改分隔符
--- DELIMITER $$
---
--- -- 创建存储过程 reg_user
--- CREATE PROCEDURE `reg_user`(
---     IN `new_name` VARCHAR(255),
---     IN `new_email` VARCHAR(255),
---     IN `new_pwd` VARCHAR(255),
---     OUT `result` INT)
--- BEGIN
---     -- 如果在执行过程中遇到任何错误，则回滚事务
---     DECLARE EXIT HANDLER FOR SQLEXCEPTION
--- BEGIN
---         -- 回滚事务
--- ROLLBACK;
--- -- 设置返回值为 -1，表示错误
--- SET result = -1;
--- END;
---
---     -- 开始事务
--- START TRANSACTION;
---
--- -- 检查用户名是否已存在
--- IF EXISTS (SELECT 1 FROM `user` WHERE `username` = new_name) THEN
---         SET result = 0; -- 用户名已存在
--- COMMIT;
--- ELSE
---         -- 用户名不存在，检查 email 是否已存在
---         IF EXISTS (SELECT 1 FROM `user` WHERE `email` = new_email) THEN
---             SET result = 0; -- email 已存在
--- COMMIT;
--- ELSE
---             -- 初始化 user_id 表（如果为空）
---             IF NOT EXISTS (SELECT 1 FROM `user_id`) THEN
---                 INSERT INTO `user_id` (`id`) VALUES (10000);
--- END IF;
---
---             -- 更新 user_id 表，递增 id
--- UPDATE `user_id` SET `id` = `id` + 1;
---
--- -- 获取更新后的 id
--- SELECT `id` INTO @new_id FROM `user_id`;
---
--- -- 在 user 表中插入新记录
--- INSERT INTO `user` (`uid`, `username`, `email`, `password`) VALUES (@new_id, new_name, new_email, new_pwd);
---
--- -- 设置 result 为新插入的 uid
--- SET result = @new_id; -- 插入成功，返回新的 uid
--- COMMIT;
--- END IF;
--- END IF;
--- END$$
---
--- -- 恢复默认分隔符
--- DELIMITER ;
+-- ----------------------------
+-- Records of friend
+-- ----------------------------
+-- INSERT INTO `friend` VALUES (55, 1055, 1054, 'sqy');
+-- INSERT INTO `friend` VALUES (56, 1054, 1055, '');
+-- INSERT INTO `friend` VALUES (61, 1012, 1056, 'test28');
+-- INSERT INTO `friend` VALUES (62, 1056, 1012, '');
+-- INSERT INTO `friend` VALUES (63, 1012, 1050, 'test23');
+-- INSERT INTO `friend` VALUES (64, 1050, 1012, '');
+-- INSERT INTO `friend` VALUES (81, 1002, 1019, 'zack');
+-- INSERT INTO `friend` VALUES (82, 1019, 1002, '');
+
+-- ----------------------------
+-- Table structure for friend_apply
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `friend_apply`  (
+                                 `id` bigint NOT NULL AUTO_INCREMENT,
+                                 `from_uid` int NOT NULL,
+                                 `to_uid` int NOT NULL,
+                                 `status` smallint NOT NULL DEFAULT 0,
+                                 PRIMARY KEY (`id`) USING BTREE,
+                                 UNIQUE INDEX `from_to_uid`(`from_uid` ASC, `to_uid` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 68 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of friend_apply
+-- ----------------------------
+-- INSERT INTO `friend_apply` VALUES (6, 1023, 1002, 0);
+-- INSERT INTO `friend_apply` VALUES (49, 1054, 1055, 1);
+-- INSERT INTO `friend_apply` VALUES (52, 1056, 1012, 0);
+-- INSERT INTO `friend_apply` VALUES (63, 1019, 1002, 1);
+-- INSERT INTO `friend_apply` VALUES (64, 1032, 1035, 0);
+
+-- ----------------------------
+-- Table structure for user
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `user`  (
+                         `id` int NOT NULL AUTO_INCREMENT,
+                         `uid` int NOT NULL DEFAULT 0,
+                         `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+                         `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+                         `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+                         `nick` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+                         `desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+                         `sex` int NOT NULL DEFAULT 0,
+                         `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+                         PRIMARY KEY (`id`) USING BTREE,
+                         UNIQUE INDEX `uid`(`uid` ASC) USING BTREE,
+                         UNIQUE INDEX `email`(`email` ASC) USING BTREE,
+                         INDEX `username`(`username` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for user_id
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `user_id` (
+                        id INT PRIMARY KEY
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;

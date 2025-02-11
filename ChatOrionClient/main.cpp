@@ -46,10 +46,10 @@ int main(int argc, char *argv[])
     a.setWindowIcon(QIcon(":/res/icon/ChatOrion.ico"));
 
     LoginGUI login_gui;
-//    if (login_gui.exec() == QDialog::Rejected)
-//    {
-//        return -1;
-//    }
+    if (login_gui.exec() == QDialog::Rejected)
+    {
+        return -1;
+    }
 
 
     ChatDialog* dlg = new ChatDialog();

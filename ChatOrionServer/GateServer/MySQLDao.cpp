@@ -66,7 +66,7 @@ int MySQLDao::registerUser(const std::string &name, const std::string &email, co
         });
 
         // 准备调用存储过程
-        std::unique_ptr <sql::PreparedStatement> stmt(conn->_connection->prepareStatement("CALL reg_user(?,?,?,@result)"));
+        std::unique_ptr <sql::PreparedStatement> stmt(conn->_connection->prepareStatement("CALL reg_user(?,?,?,@result,@error_info)"));
 
         // 设置参数
         stmt->setString(1, name);
@@ -78,11 +78,13 @@ int MySQLDao::registerUser(const std::string &name, const std::string &email, co
         stmt->execute();
 
         std::unique_ptr <sql::Statement> stmtResult(conn->_connection->createStatement());
-        std::unique_ptr<sql::ResultSet> res(stmtResult->executeQuery("SELECT @result AS result"));
+        std::unique_ptr<sql::ResultSet> res(stmtResult->executeQuery("SELECT @result AS result, @error_info AS error_info"));
         if (res->next())
         {
             int result = res->getInt("result");
+            std::string error_info = res->getString("error_info");
             std::cout << "Result: " << result << std::endl;
+            if (result == -1) std::cout << "error_info: " << error_info << std::endl;
             return result;
         }
 
@@ -95,11 +97,6 @@ int MySQLDao::registerUser(const std::string &name, const std::string &email, co
         std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
         return -1;
     }
-}
-
-int MySQLDao::registerTransaction(const std::string &name, const std::string &email, const std::string &pwd,
-    const std::string &icon)
-{
 }
 
 bool MySQLDao::checkUsernameEmailMatch(const std::string &name, const std::string &email)
@@ -265,9 +262,6 @@ bool MySQLDao::checkEmailLoginWithCode(const std::string &email, UserInfo &userI
         std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
         return false;
     }
-}
-
-bool MySQLDao::testProcedure(const std::string &email, int &uid, std::string &name) {
 }
 
 std::vector<std::string> MySQLDao::splitSQLScript(const std::string& sql_content)
