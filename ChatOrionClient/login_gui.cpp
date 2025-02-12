@@ -541,9 +541,10 @@ void LoginGUI::onChatLoginRsp(int len, QByteArray data)
 
     if(err != ErrorCodes::SUCCESS)
     {
+        QString error_msg = jsonObj["error_msg"].toString();
         showTip(ui->err_msg, result, false);
         showTip(ui->err_msg_3, result, false);
-        qDebug() << "Login Failed, err is " << err ;
+        qDebug() << "Login Failed, err is " << error_msg ;
         return;
     }
 

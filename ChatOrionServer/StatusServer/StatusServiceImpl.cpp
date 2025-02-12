@@ -3,6 +3,8 @@
 //
 
 #include "StatusServiceImpl.h"
+
+#include "log.h"
 #include "Settings.h"
 #include "const.h"
 #include "tools.h"
@@ -25,6 +27,7 @@ std::string generate_unique_string()
 
 StatusServiceImpl::StatusServiceImpl()
 {
+#if 0
     auto& settings = config::Settings::GetInstance();
     std::string servers = settings.value("ChatServers/name").toString();
     Tools::RemoveWhitespace(servers);
@@ -47,10 +50,27 @@ StatusServiceImpl::StatusServiceImpl()
         chat_server.name = settings.value(server_name + "/" + "name").toString();
         _servers[server_name] = chat_server;
     }
+#endif
+
+    // 启动心跳检测线程
+    _heartbeat_checker = std::thread([this] {
+        while (_running) {
+            std::this_thread::sleep_for(std::chrono::seconds(10)); // 每10秒检测一次
+            checkHeartbeat();
+        }
+    });
+}
+
+StatusServiceImpl::~StatusServiceImpl()
+{
+    _running = false;
+    if (_heartbeat_checker.joinable()) {
+        _heartbeat_checker.join();
+    }
 }
 
 Status StatusServiceImpl::GetChatServer(ServerContext* context, const GetChatServerReq* request,
-    GetChatServerRes* reply)
+                                        GetChatServerRes* reply)
 {
     std::string prefix("status server has received :  ");
     const auto &server = getChatServer();
@@ -87,6 +107,38 @@ Status StatusServiceImpl::Login(ServerContext *context, const LoginReq *request,
     return Status::OK;
 }
 
+Status StatusServiceImpl::RegisterChatServer(ServerContext *context, const RegisterChatServerReq *request,
+    MessageRes *reply)
+{
+    std::lock_guard<std::mutex> lock(_servers_mutex);
+
+    // 检查参数是否合法
+    if (request->port().empty() || request->name().empty()) {
+        reply->set_error(message::InvalidArgument);
+        return Status::OK;
+    }
+
+    std::string peer_host = request->host();
+    if (peer_host.empty())
+    {
+        peer_host = context->peer();
+    }
+
+    // 添加或更新服务器信息
+    ChatServer server;
+    server.host = peer_host;
+    server.port = request->port();
+    server.name = request->name();
+    server.last_heartbeat = getCurrentTimestamp();
+
+    _servers[server.name] = server;
+
+    reply->set_error(message::Success);
+
+    LOG_INFO << "服务：" << server.name << " 注册成功，初始心跳时间：" << server.last_heartbeat << " ip-port: " << server.host << ":" << server.port;
+    return Status::OK;
+}
+
 void StatusServiceImpl::insertToken(int uid, const std::string token)
 {
     std::string uid_str = std::to_string(uid);
@@ -120,4 +172,50 @@ ChatServer StatusServiceImpl::getChatServer()
     }
 
     return *minServer;
+}
+
+void StatusServiceImpl::checkHeartbeat()
+{
+    std::lock_guard<std::mutex> lock(_servers_mutex);
+    auto now = getCurrentTimestamp();
+
+    for (auto it = _servers.begin(); it != _servers.end();)
+    {
+        int64_t time_diff = now - it->second.last_heartbeat;
+
+        LOG_INFO << "服务：" << it->first
+                << " 最后心跳时间：" << it->second.last_heartbeat
+                << " 当前时间：" << now
+                << " 时间差：" << time_diff << "秒";
+
+        if (time_diff > 30)  // 30秒超时
+        {
+            LOG_WARNING << "服务：" << it->first << " 已经离线，时间差：" << time_diff << "秒";
+            it = _servers.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+Status StatusServiceImpl::Heartbeat(ServerContext *context, const HeartbeatReq *request, MessageRes *reply)
+{
+    std::lock_guard<std::mutex> lock(_servers_mutex);
+
+    auto it = _servers.find(request->name());
+    if (it == _servers.end()) {
+        reply->set_error(message::ServerNotFound);
+        return Status::OK;
+    }
+
+    auto now = getCurrentTimestamp();
+    LOG_INFO << "服务：" << request->name()
+             << " 更新心跳, 旧时间：" << it->second.last_heartbeat
+             << " 新时间：" << now;
+
+    it->second.last_heartbeat = now;
+    reply->set_error(message::Success);
+    return Status::OK;
 }

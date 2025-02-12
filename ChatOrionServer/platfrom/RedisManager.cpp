@@ -320,6 +320,32 @@ bool RedisManager::del(const std::string& key)
     return true;
 }
 
+bool RedisManager::hdel(const std::string &key, const std::string &field)
+{
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) {
+        return false;
+    }
+
+    Defer defer([&connect, this]() {
+        _pool->returnConnection(connect);
+    });
+
+    redisReply* reply = (redisReply*)redisCommand(connect, "HDEL %s %s", key.c_str(), field.c_str());
+    if (reply == nullptr) {
+        std::cerr << "HDEL command failed" << std::endl;
+        return false;
+    }
+
+    bool success = false;
+    if (reply->type == REDIS_REPLY_INTEGER) {
+        success = reply->integer > 0;
+    }
+
+    freeReplyObject(reply);
+    return success;
+}
+
 bool RedisManager::existsKey(const std::string& key)
 {
     ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),

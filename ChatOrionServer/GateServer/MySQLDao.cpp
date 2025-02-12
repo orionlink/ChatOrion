@@ -5,6 +5,7 @@
 #include "MySQLDao.h"
 #include "Settings.h"
 #include "tools.h"
+#include "log.h"
 
 MySQLDao::MySQLDao()
 {
@@ -40,7 +41,7 @@ MySQLDao::MySQLDao()
 
             stmt->execute(sql_procedure);
 
-            std::cout << "SQL script executed successfully" << std::endl;
+            LOG_INFO << "SQL script executed successfully";
         } catch (sql::SQLException& e) {
             std::cerr << "SQLException: " << e.what();
             std::cerr << " (MySQL error code: " << e.getErrorCode();

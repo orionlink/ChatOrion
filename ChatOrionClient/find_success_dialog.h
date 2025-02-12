@@ -23,7 +23,7 @@ private slots:
 private:
     Ui::FindSuccessDialog *ui;
     QWidget * _parent;
-    std::shared_ptr<SearchInfo> _si;
+    std::shared_ptr<SearchInfo> _search_info;
 };
 
 #endif // FIND_SUCCESS_DIALOG_H

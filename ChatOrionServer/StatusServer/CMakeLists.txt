@@ -63,8 +63,13 @@ set(MYSQL_CONNECTOR_PATHS
         "${THIRD_PARTY_ROOT}/linux/mysql_connector"
 )
 
+# 设置 glog 的路径列表
+set(GLOG_PATHS
+        "${THIRD_PARTY_ROOT}/linux/glog"
+)
+
 # 将所有路径加入到 CMAKE_PREFIX_PATH
-list(APPEND CMAKE_PREFIX_PATH ${PLATFROM_PATHS} ${GRPC_PATHS} ${BOOST_PATHS} ${JSONCPP_PATHS} ${HREDIS_PATHS} ${MYSQL_CONNECTOR_PATHS})
+list(APPEND CMAKE_PREFIX_PATH ${PLATFROM_PATHS} ${GRPC_PATHS} ${BOOST_PATHS} ${JSONCPP_PATHS} ${HREDIS_PATHS} ${MYSQL_CONNECTOR_PATHS} ${GLOG_PATHS})
 
 # 添加include路径
 include_directories(
@@ -74,6 +79,7 @@ include_directories(
         ${JSONCPP_PATHS}/include
         ${HIREDIS_PATHS}/include
         ${MYSQL_CONNECTOR_PATHS}/include
+        ${GLOG_PATHS}/include
 )
 
 # 查找线程库
@@ -100,6 +106,8 @@ find_package(Boost REQUIRED COMPONENTS filesystem system)
 
 # mysql_connector
 find_package(mysql-concpp REQUIRED)
+
+find_package (glog 0.5.0 REQUIRED)
 
 # JsonCpp配置
 set(JSONCPP_LIBRARIES ${JSONCPP_PATHS}/lib/libjsoncpp.so)
@@ -131,6 +139,7 @@ target_link_libraries(${ITEM_NAME}
         ${HIREDIS_LIBRARIES}
         mysql::concpp-xdevapi
         mysql::concpp-jdbc
+        glog::glog
 )
 
 # 打印调试信息

@@ -6,6 +6,16 @@ service VarifyService {
   rpc GetVarifyCode (GetVarifyReq) returns (GetVarifyRsp) {}
 }
 
+enum ErrorCode {
+    Success = 0;            // 成功
+    InvalidArgument = 1;    // 参数无效
+    ServerNotFound = 2;     // 服务器未找到
+    UidInvalid = 3;         // 用户ID无效
+    TokenInvalid = 4;       // Token无效
+    InternalError = 5;      // 内部错误
+    ServerOffline = 6;      // 服务器离线
+}
+
 message GetVarifyReq {
   string email = 1;
 }
@@ -42,10 +52,26 @@ message LoginRsp
   string token = 3;
 }
 
+message RegisterChatServerReq {
+    string host = 1;
+    string port = 2;
+    string name = 3;
+}
+
+message HeartbeatReq {
+    string name = 1;  // 服务器名称
+}
+
+message MessageRes {
+    ErrorCode error = 1;
+}
+
 service StatusService
 {
   rpc GetChatServer (GetChatServerReq) returns (GetChatServerRes);
   rpc Login(LoginReq) returns(LoginRsp);
+  rpc RegisterChatServer (RegisterChatServerReq) returns (MessageRes) {}
+  rpc Heartbeat (HeartbeatReq) returns (MessageRes) {}
 }
 
 message AddFriendReq {

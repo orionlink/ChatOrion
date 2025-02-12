@@ -22,7 +22,6 @@ public:
      */
     int checkUserLogin(const std::string& name, const std::string& pwd, UserInfo& userInfo);
     bool checkEmailLoginWithCode(const std::string& email, UserInfo& userInfo);
-    bool testProcedure(const std::string& email, int& uid, std::string& name);
 private:
     MySQLDao _dao;
 };

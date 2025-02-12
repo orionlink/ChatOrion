@@ -28,7 +28,3 @@ bool MySQLManager::checkEmailLoginWithCode(const std::string &email, UserInfo &u
 {
     return _dao.checkEmailLoginWithCode(email, userInfo);
 }
-
-bool MySQLManager::testProcedure(const std::string& email, int& uid, std::string& name)
-{
-}

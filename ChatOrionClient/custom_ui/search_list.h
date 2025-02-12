@@ -11,6 +11,8 @@
 
 #include "user_data.h"
 
+class LoadingDlg;
+
 /**
  * @brief 搜索列表
  */
@@ -20,7 +22,6 @@ class SearchList: public QListWidget
 public:
     SearchList(QWidget *parent = nullptr);
     void CloseFindDlg();
-    void SetSearchEdit(QWidget* edit);
     std::shared_ptr<QDialog> getFindDialog() { return _find_dlg; }
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -28,13 +29,19 @@ private:
     void waitPending(bool pending = true);
     void addTipItem();
 
+    /**
+     * @brief 搜索用户回包处理
+     * @param len
+     * @param data
+     */
+    void searchUserRsp(int len, QByteArray data);
+private:
     bool _send_pending;
     std::shared_ptr<QDialog> _find_dlg;
-    QWidget* _search_edit;
-//    LoadingDlg * _loadingDialog;
+    QString _search_edit_text; // 搜索框内容
+    LoadingDlg * _loadingDialog;
 private slots:
     void slot_item_clicked(QListWidgetItem *item);
-    void slot_user_search(std::shared_ptr<SearchInfo> si);
 signals:
     void sig_jump_chat_item(std::shared_ptr<SearchInfo> si);
 };

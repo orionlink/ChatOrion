@@ -2,7 +2,8 @@
 
 #include "const.h"
 #include "cserver.h"
-#include  "Settings.h"
+#include "Settings.h"
+#include "log.h"
 
 #include <hiredis/hiredis.h>
 #include <mysqlx/xdevapi.h>
@@ -20,7 +21,7 @@ void TestRedis();
 void TestRedisManager();
 void test_mysql_connection();
 
-int main()
+int main(int argc, char *argv[])
 {
     // TestRedis();
     // test_mysql_connection();
@@ -31,7 +32,13 @@ int main()
         settings.setFileName("config.ini");
         settings.load();
 
-        TestRedisManager();
+        // TestRedisManager();
+        auto log = Log::GetInstance();
+        if (!log->Initialize(argv[0], true))
+        {
+            std::cerr << "日志模块初始化失败" << std::endl;
+            return -1;
+        }
 
         unsigned short port = settings.value("GateServer/port", 8080).toInt();
         net::io_context ioc{1};
@@ -43,7 +50,7 @@ int main()
             ioc.stop();
         });
         std::make_shared<CServer>(ioc, port)->start();
-        std::cout << "Gate Server listen on port: " << port << std::endl;
+        LOG_INFO << "Gate Server listen on port: " << port;
         std::cout << "主线程 id: " << std::this_thread::get_id() << std::endl;
 
         ioc.run();

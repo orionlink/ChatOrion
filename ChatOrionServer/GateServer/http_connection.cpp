@@ -1,6 +1,7 @@
 #include "http_connection.h"
 #include "logic_system.h"
 #include "tools.h"
+#include "log.h"
 
 #include <iostream>
 
@@ -19,7 +20,7 @@ void HttpConnection::start()
         {
             if (ec)
             {
-                std::cout << "http read err is " << ec.what() << std::endl;
+                LOG_WARNING << "http read err is " << ec.what();
                 return;
             }
 

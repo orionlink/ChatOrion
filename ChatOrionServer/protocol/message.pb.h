@@ -31,6 +31,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
@@ -47,7 +48,7 @@ struct TableStruct_message_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[17]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[20]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -79,12 +80,21 @@ extern GetVarifyReqDefaultTypeInternal _GetVarifyReq_default_instance_;
 class GetVarifyRsp;
 class GetVarifyRspDefaultTypeInternal;
 extern GetVarifyRspDefaultTypeInternal _GetVarifyRsp_default_instance_;
+class HeartbeatReq;
+class HeartbeatReqDefaultTypeInternal;
+extern HeartbeatReqDefaultTypeInternal _HeartbeatReq_default_instance_;
 class LoginReq;
 class LoginReqDefaultTypeInternal;
 extern LoginReqDefaultTypeInternal _LoginReq_default_instance_;
 class LoginRsp;
 class LoginRspDefaultTypeInternal;
 extern LoginRspDefaultTypeInternal _LoginRsp_default_instance_;
+class MessageRes;
+class MessageResDefaultTypeInternal;
+extern MessageResDefaultTypeInternal _MessageRes_default_instance_;
+class RegisterChatServerReq;
+class RegisterChatServerReqDefaultTypeInternal;
+extern RegisterChatServerReqDefaultTypeInternal _RegisterChatServerReq_default_instance_;
 class RplyFriendReq;
 class RplyFriendReqDefaultTypeInternal;
 extern RplyFriendReqDefaultTypeInternal _RplyFriendReq_default_instance_;
@@ -116,8 +126,11 @@ template<> ::message::GetChatServerReq* Arena::CreateMaybeMessage<::message::Get
 template<> ::message::GetChatServerRes* Arena::CreateMaybeMessage<::message::GetChatServerRes>(Arena*);
 template<> ::message::GetVarifyReq* Arena::CreateMaybeMessage<::message::GetVarifyReq>(Arena*);
 template<> ::message::GetVarifyRsp* Arena::CreateMaybeMessage<::message::GetVarifyRsp>(Arena*);
+template<> ::message::HeartbeatReq* Arena::CreateMaybeMessage<::message::HeartbeatReq>(Arena*);
 template<> ::message::LoginReq* Arena::CreateMaybeMessage<::message::LoginReq>(Arena*);
 template<> ::message::LoginRsp* Arena::CreateMaybeMessage<::message::LoginRsp>(Arena*);
+template<> ::message::MessageRes* Arena::CreateMaybeMessage<::message::MessageRes>(Arena*);
+template<> ::message::RegisterChatServerReq* Arena::CreateMaybeMessage<::message::RegisterChatServerReq>(Arena*);
 template<> ::message::RplyFriendReq* Arena::CreateMaybeMessage<::message::RplyFriendReq>(Arena*);
 template<> ::message::RplyFriendRsp* Arena::CreateMaybeMessage<::message::RplyFriendRsp>(Arena*);
 template<> ::message::SendChatMsgReq* Arena::CreateMaybeMessage<::message::SendChatMsgReq>(Arena*);
@@ -128,6 +141,36 @@ template<> ::message::TextChatMsgRsp* Arena::CreateMaybeMessage<::message::TextC
 PROTOBUF_NAMESPACE_CLOSE
 namespace message {
 
+enum ErrorCode : int {
+  Success = 0,
+  InvalidArgument = 1,
+  ServerNotFound = 2,
+  UidInvalid = 3,
+  TokenInvalid = 4,
+  InternalError = 5,
+  ServerOffline = 6,
+  ErrorCode_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  ErrorCode_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool ErrorCode_IsValid(int value);
+constexpr ErrorCode ErrorCode_MIN = Success;
+constexpr ErrorCode ErrorCode_MAX = ServerOffline;
+constexpr int ErrorCode_ARRAYSIZE = ErrorCode_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ErrorCode_descriptor();
+template<typename T>
+inline const std::string& ErrorCode_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, ErrorCode>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function ErrorCode_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    ErrorCode_descriptor(), enum_t_value);
+}
+inline bool ErrorCode_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ErrorCode* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ErrorCode>(
+    ErrorCode_descriptor(), name, value);
+}
 // ===================================================================
 
 class GetVarifyReq PROTOBUF_FINAL :
@@ -1089,6 +1132,467 @@ class LoginRsp PROTOBUF_FINAL :
 };
 // -------------------------------------------------------------------
 
+class RegisterChatServerReq PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:message.RegisterChatServerReq) */ {
+ public:
+  inline RegisterChatServerReq() : RegisterChatServerReq(nullptr) {}
+  virtual ~RegisterChatServerReq();
+
+  RegisterChatServerReq(const RegisterChatServerReq& from);
+  RegisterChatServerReq(RegisterChatServerReq&& from) noexcept
+    : RegisterChatServerReq() {
+    *this = ::std::move(from);
+  }
+
+  inline RegisterChatServerReq& operator=(const RegisterChatServerReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RegisterChatServerReq& operator=(RegisterChatServerReq&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const RegisterChatServerReq& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const RegisterChatServerReq* internal_default_instance() {
+    return reinterpret_cast<const RegisterChatServerReq*>(
+               &_RegisterChatServerReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(RegisterChatServerReq& a, RegisterChatServerReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RegisterChatServerReq* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(RegisterChatServerReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline RegisterChatServerReq* New() const final {
+    return CreateMaybeMessage<RegisterChatServerReq>(nullptr);
+  }
+
+  RegisterChatServerReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<RegisterChatServerReq>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const RegisterChatServerReq& from);
+  void MergeFrom(const RegisterChatServerReq& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RegisterChatServerReq* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "message.RegisterChatServerReq";
+  }
+  protected:
+  explicit RegisterChatServerReq(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_message_2eproto);
+    return ::descriptor_table_message_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kHostFieldNumber = 1,
+    kPortFieldNumber = 2,
+    kNameFieldNumber = 3,
+  };
+  // string host = 1;
+  void clear_host();
+  const std::string& host() const;
+  void set_host(const std::string& value);
+  void set_host(std::string&& value);
+  void set_host(const char* value);
+  void set_host(const char* value, size_t size);
+  std::string* mutable_host();
+  std::string* release_host();
+  void set_allocated_host(std::string* host);
+  private:
+  const std::string& _internal_host() const;
+  void _internal_set_host(const std::string& value);
+  std::string* _internal_mutable_host();
+  public:
+
+  // string port = 2;
+  void clear_port();
+  const std::string& port() const;
+  void set_port(const std::string& value);
+  void set_port(std::string&& value);
+  void set_port(const char* value);
+  void set_port(const char* value, size_t size);
+  std::string* mutable_port();
+  std::string* release_port();
+  void set_allocated_port(std::string* port);
+  private:
+  const std::string& _internal_port() const;
+  void _internal_set_port(const std::string& value);
+  std::string* _internal_mutable_port();
+  public:
+
+  // string name = 3;
+  void clear_name();
+  const std::string& name() const;
+  void set_name(const std::string& value);
+  void set_name(std::string&& value);
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  std::string* mutable_name();
+  std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
+  // @@protoc_insertion_point(class_scope:message.RegisterChatServerReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr host_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr port_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_message_2eproto;
+};
+// -------------------------------------------------------------------
+
+class HeartbeatReq PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:message.HeartbeatReq) */ {
+ public:
+  inline HeartbeatReq() : HeartbeatReq(nullptr) {}
+  virtual ~HeartbeatReq();
+
+  HeartbeatReq(const HeartbeatReq& from);
+  HeartbeatReq(HeartbeatReq&& from) noexcept
+    : HeartbeatReq() {
+    *this = ::std::move(from);
+  }
+
+  inline HeartbeatReq& operator=(const HeartbeatReq& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline HeartbeatReq& operator=(HeartbeatReq&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const HeartbeatReq& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const HeartbeatReq* internal_default_instance() {
+    return reinterpret_cast<const HeartbeatReq*>(
+               &_HeartbeatReq_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(HeartbeatReq& a, HeartbeatReq& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(HeartbeatReq* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(HeartbeatReq* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline HeartbeatReq* New() const final {
+    return CreateMaybeMessage<HeartbeatReq>(nullptr);
+  }
+
+  HeartbeatReq* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<HeartbeatReq>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const HeartbeatReq& from);
+  void MergeFrom(const HeartbeatReq& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(HeartbeatReq* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "message.HeartbeatReq";
+  }
+  protected:
+  explicit HeartbeatReq(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_message_2eproto);
+    return ::descriptor_table_message_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kNameFieldNumber = 1,
+  };
+  // string name = 1;
+  void clear_name();
+  const std::string& name() const;
+  void set_name(const std::string& value);
+  void set_name(std::string&& value);
+  void set_name(const char* value);
+  void set_name(const char* value, size_t size);
+  std::string* mutable_name();
+  std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
+  // @@protoc_insertion_point(class_scope:message.HeartbeatReq)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_message_2eproto;
+};
+// -------------------------------------------------------------------
+
+class MessageRes PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:message.MessageRes) */ {
+ public:
+  inline MessageRes() : MessageRes(nullptr) {}
+  virtual ~MessageRes();
+
+  MessageRes(const MessageRes& from);
+  MessageRes(MessageRes&& from) noexcept
+    : MessageRes() {
+    *this = ::std::move(from);
+  }
+
+  inline MessageRes& operator=(const MessageRes& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MessageRes& operator=(MessageRes&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const MessageRes& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const MessageRes* internal_default_instance() {
+    return reinterpret_cast<const MessageRes*>(
+               &_MessageRes_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    8;
+
+  friend void swap(MessageRes& a, MessageRes& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MessageRes* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MessageRes* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline MessageRes* New() const final {
+    return CreateMaybeMessage<MessageRes>(nullptr);
+  }
+
+  MessageRes* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<MessageRes>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const MessageRes& from);
+  void MergeFrom(const MessageRes& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(MessageRes* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "message.MessageRes";
+  }
+  protected:
+  explicit MessageRes(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_message_2eproto);
+    return ::descriptor_table_message_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kErrorFieldNumber = 1,
+  };
+  // .message.ErrorCode error = 1;
+  void clear_error();
+  ::message::ErrorCode error() const;
+  void set_error(::message::ErrorCode value);
+  private:
+  ::message::ErrorCode _internal_error() const;
+  void _internal_set_error(::message::ErrorCode value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:message.MessageRes)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  int error_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_message_2eproto;
+};
+// -------------------------------------------------------------------
+
 class AddFriendReq PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:message.AddFriendReq) */ {
  public:
@@ -1131,7 +1635,7 @@ class AddFriendReq PROTOBUF_FINAL :
                &_AddFriendReq_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    9;
 
   friend void swap(AddFriendReq& a, AddFriendReq& b) {
     a.Swap(&b);
@@ -1362,7 +1866,7 @@ class AddFriendRsp PROTOBUF_FINAL :
                &_AddFriendRsp_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    10;
 
   friend void swap(AddFriendRsp& a, AddFriendRsp& b) {
     a.Swap(&b);
@@ -1521,7 +2025,7 @@ class RplyFriendReq PROTOBUF_FINAL :
                &_RplyFriendReq_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    11;
 
   friend void swap(RplyFriendReq& a, RplyFriendReq& b) {
     a.Swap(&b);
@@ -1680,7 +2184,7 @@ class RplyFriendRsp PROTOBUF_FINAL :
                &_RplyFriendRsp_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    12;
 
   friend void swap(RplyFriendRsp& a, RplyFriendRsp& b) {
     a.Swap(&b);
@@ -1839,7 +2343,7 @@ class SendChatMsgReq PROTOBUF_FINAL :
                &_SendChatMsgReq_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    13;
 
   friend void swap(SendChatMsgReq& a, SendChatMsgReq& b) {
     a.Swap(&b);
@@ -2005,7 +2509,7 @@ class SendChatMsgRsp PROTOBUF_FINAL :
                &_SendChatMsgRsp_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    14;
 
   friend void swap(SendChatMsgRsp& a, SendChatMsgRsp& b) {
     a.Swap(&b);
@@ -2164,7 +2668,7 @@ class AuthFriendReq PROTOBUF_FINAL :
                &_AuthFriendReq_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    15;
 
   friend void swap(AuthFriendReq& a, AuthFriendReq& b) {
     a.Swap(&b);
@@ -2312,7 +2816,7 @@ class AuthFriendRsp PROTOBUF_FINAL :
                &_AuthFriendRsp_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    16;
 
   friend void swap(AuthFriendRsp& a, AuthFriendRsp& b) {
     a.Swap(&b);
@@ -2471,7 +2975,7 @@ class TextChatMsgReq PROTOBUF_FINAL :
                &_TextChatMsgReq_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    17;
 
   friend void swap(TextChatMsgReq& a, TextChatMsgReq& b) {
     a.Swap(&b);
@@ -2639,7 +3143,7 @@ class TextChatData PROTOBUF_FINAL :
                &_TextChatData_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    18;
 
   friend void swap(TextChatData& a, TextChatData& b) {
     a.Swap(&b);
@@ -2801,7 +3305,7 @@ class TextChatMsgRsp PROTOBUF_FINAL :
                &_TextChatMsgRsp_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    19;
 
   friend void swap(TextChatMsgRsp& a, TextChatMsgRsp& b) {
     a.Swap(&b);
@@ -3539,6 +4043,286 @@ inline void LoginRsp::set_allocated_token(std::string* token) {
   token_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), token,
       GetArena());
   // @@protoc_insertion_point(field_set_allocated:message.LoginRsp.token)
+}
+
+// -------------------------------------------------------------------
+
+// RegisterChatServerReq
+
+// string host = 1;
+inline void RegisterChatServerReq::clear_host() {
+  host_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& RegisterChatServerReq::host() const {
+  // @@protoc_insertion_point(field_get:message.RegisterChatServerReq.host)
+  return _internal_host();
+}
+inline void RegisterChatServerReq::set_host(const std::string& value) {
+  _internal_set_host(value);
+  // @@protoc_insertion_point(field_set:message.RegisterChatServerReq.host)
+}
+inline std::string* RegisterChatServerReq::mutable_host() {
+  // @@protoc_insertion_point(field_mutable:message.RegisterChatServerReq.host)
+  return _internal_mutable_host();
+}
+inline const std::string& RegisterChatServerReq::_internal_host() const {
+  return host_.Get();
+}
+inline void RegisterChatServerReq::_internal_set_host(const std::string& value) {
+  
+  host_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void RegisterChatServerReq::set_host(std::string&& value) {
+  
+  host_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:message.RegisterChatServerReq.host)
+}
+inline void RegisterChatServerReq::set_host(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  host_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:message.RegisterChatServerReq.host)
+}
+inline void RegisterChatServerReq::set_host(const char* value,
+    size_t size) {
+  
+  host_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:message.RegisterChatServerReq.host)
+}
+inline std::string* RegisterChatServerReq::_internal_mutable_host() {
+  
+  return host_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* RegisterChatServerReq::release_host() {
+  // @@protoc_insertion_point(field_release:message.RegisterChatServerReq.host)
+  return host_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void RegisterChatServerReq::set_allocated_host(std::string* host) {
+  if (host != nullptr) {
+    
+  } else {
+    
+  }
+  host_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), host,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:message.RegisterChatServerReq.host)
+}
+
+// string port = 2;
+inline void RegisterChatServerReq::clear_port() {
+  port_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& RegisterChatServerReq::port() const {
+  // @@protoc_insertion_point(field_get:message.RegisterChatServerReq.port)
+  return _internal_port();
+}
+inline void RegisterChatServerReq::set_port(const std::string& value) {
+  _internal_set_port(value);
+  // @@protoc_insertion_point(field_set:message.RegisterChatServerReq.port)
+}
+inline std::string* RegisterChatServerReq::mutable_port() {
+  // @@protoc_insertion_point(field_mutable:message.RegisterChatServerReq.port)
+  return _internal_mutable_port();
+}
+inline const std::string& RegisterChatServerReq::_internal_port() const {
+  return port_.Get();
+}
+inline void RegisterChatServerReq::_internal_set_port(const std::string& value) {
+  
+  port_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void RegisterChatServerReq::set_port(std::string&& value) {
+  
+  port_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:message.RegisterChatServerReq.port)
+}
+inline void RegisterChatServerReq::set_port(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  port_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:message.RegisterChatServerReq.port)
+}
+inline void RegisterChatServerReq::set_port(const char* value,
+    size_t size) {
+  
+  port_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:message.RegisterChatServerReq.port)
+}
+inline std::string* RegisterChatServerReq::_internal_mutable_port() {
+  
+  return port_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* RegisterChatServerReq::release_port() {
+  // @@protoc_insertion_point(field_release:message.RegisterChatServerReq.port)
+  return port_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void RegisterChatServerReq::set_allocated_port(std::string* port) {
+  if (port != nullptr) {
+    
+  } else {
+    
+  }
+  port_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), port,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:message.RegisterChatServerReq.port)
+}
+
+// string name = 3;
+inline void RegisterChatServerReq::clear_name() {
+  name_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& RegisterChatServerReq::name() const {
+  // @@protoc_insertion_point(field_get:message.RegisterChatServerReq.name)
+  return _internal_name();
+}
+inline void RegisterChatServerReq::set_name(const std::string& value) {
+  _internal_set_name(value);
+  // @@protoc_insertion_point(field_set:message.RegisterChatServerReq.name)
+}
+inline std::string* RegisterChatServerReq::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:message.RegisterChatServerReq.name)
+  return _internal_mutable_name();
+}
+inline const std::string& RegisterChatServerReq::_internal_name() const {
+  return name_.Get();
+}
+inline void RegisterChatServerReq::_internal_set_name(const std::string& value) {
+  
+  name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void RegisterChatServerReq::set_name(std::string&& value) {
+  
+  name_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:message.RegisterChatServerReq.name)
+}
+inline void RegisterChatServerReq::set_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:message.RegisterChatServerReq.name)
+}
+inline void RegisterChatServerReq::set_name(const char* value,
+    size_t size) {
+  
+  name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:message.RegisterChatServerReq.name)
+}
+inline std::string* RegisterChatServerReq::_internal_mutable_name() {
+  
+  return name_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* RegisterChatServerReq::release_name() {
+  // @@protoc_insertion_point(field_release:message.RegisterChatServerReq.name)
+  return name_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void RegisterChatServerReq::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:message.RegisterChatServerReq.name)
+}
+
+// -------------------------------------------------------------------
+
+// HeartbeatReq
+
+// string name = 1;
+inline void HeartbeatReq::clear_name() {
+  name_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& HeartbeatReq::name() const {
+  // @@protoc_insertion_point(field_get:message.HeartbeatReq.name)
+  return _internal_name();
+}
+inline void HeartbeatReq::set_name(const std::string& value) {
+  _internal_set_name(value);
+  // @@protoc_insertion_point(field_set:message.HeartbeatReq.name)
+}
+inline std::string* HeartbeatReq::mutable_name() {
+  // @@protoc_insertion_point(field_mutable:message.HeartbeatReq.name)
+  return _internal_mutable_name();
+}
+inline const std::string& HeartbeatReq::_internal_name() const {
+  return name_.Get();
+}
+inline void HeartbeatReq::_internal_set_name(const std::string& value) {
+  
+  name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void HeartbeatReq::set_name(std::string&& value) {
+  
+  name_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:message.HeartbeatReq.name)
+}
+inline void HeartbeatReq::set_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:message.HeartbeatReq.name)
+}
+inline void HeartbeatReq::set_name(const char* value,
+    size_t size) {
+  
+  name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:message.HeartbeatReq.name)
+}
+inline std::string* HeartbeatReq::_internal_mutable_name() {
+  
+  return name_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* HeartbeatReq::release_name() {
+  // @@protoc_insertion_point(field_release:message.HeartbeatReq.name)
+  return name_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void HeartbeatReq::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:message.HeartbeatReq.name)
+}
+
+// -------------------------------------------------------------------
+
+// MessageRes
+
+// .message.ErrorCode error = 1;
+inline void MessageRes::clear_error() {
+  error_ = 0;
+}
+inline ::message::ErrorCode MessageRes::_internal_error() const {
+  return static_cast< ::message::ErrorCode >(error_);
+}
+inline ::message::ErrorCode MessageRes::error() const {
+  // @@protoc_insertion_point(field_get:message.MessageRes.error)
+  return _internal_error();
+}
+inline void MessageRes::_internal_set_error(::message::ErrorCode value) {
+  
+  error_ = value;
+}
+inline void MessageRes::set_error(::message::ErrorCode value) {
+  _internal_set_error(value);
+  // @@protoc_insertion_point(field_set:message.MessageRes.error)
 }
 
 // -------------------------------------------------------------------
@@ -4672,10 +5456,26 @@ TextChatMsgRsp::textmsgs() const {
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace message
+
+PROTOBUF_NAMESPACE_OPEN
+
+template <> struct is_proto_enum< ::message::ErrorCode> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::message::ErrorCode>() {
+  return ::message::ErrorCode_descriptor();
+}
+
+PROTOBUF_NAMESPACE_CLOSE
 
 // @@protoc_insertion_point(global_scope)
 

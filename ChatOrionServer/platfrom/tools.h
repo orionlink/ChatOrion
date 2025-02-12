@@ -2,6 +2,7 @@
 #define TOOLS_H
 
 #include <string>
+#include <vector>
 
 class Tools
 {
@@ -20,6 +21,8 @@ public:
 
     // 去除字符串中的所有空白字符
     static void RemoveWhitespace(std::string& str);
+
+    static std::vector<std::string> GetLocalIPs();
 private:
     Tools();
 };

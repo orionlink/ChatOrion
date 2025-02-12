@@ -32,6 +32,7 @@ public:
     bool hget(const std::string &key, const std::string &hkey, std::string &value);
 
     bool del(const std::string &key);
+    bool hdel(const std::string& key, const std::string& field);
     bool existsKey(const std::string &key);
     void close();
 private:

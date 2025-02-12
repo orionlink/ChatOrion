@@ -85,6 +85,8 @@ VarifyService::Service::~Service() {
 static const char* StatusService_method_names[] = {
   "/message.StatusService/GetChatServer",
   "/message.StatusService/Login",
+  "/message.StatusService/RegisterChatServer",
+  "/message.StatusService/Heartbeat",
 };
 
 std::unique_ptr< StatusService::Stub> StatusService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -96,6 +98,8 @@ std::unique_ptr< StatusService::Stub> StatusService::NewStub(const std::shared_p
 StatusService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel)
   : channel_(channel), rpcmethod_GetChatServer_(StatusService_method_names[0], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_Login_(StatusService_method_names[1], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_RegisterChatServer_(StatusService_method_names[2], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_Heartbeat_(StatusService_method_names[3], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status StatusService::Stub::GetChatServer(::grpc::ClientContext* context, const ::message::GetChatServerReq& request, ::message::GetChatServerRes* response) {
@@ -144,6 +148,52 @@ void StatusService::Stub::experimental_async::Login(::grpc::ClientContext* conte
   return result;
 }
 
+::grpc::Status StatusService::Stub::RegisterChatServer(::grpc::ClientContext* context, const ::message::RegisterChatServerReq& request, ::message::MessageRes* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::message::RegisterChatServerReq, ::message::MessageRes, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_RegisterChatServer_, context, request, response);
+}
+
+void StatusService::Stub::experimental_async::RegisterChatServer(::grpc::ClientContext* context, const ::message::RegisterChatServerReq* request, ::message::MessageRes* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::message::RegisterChatServerReq, ::message::MessageRes, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RegisterChatServer_, context, request, response, std::move(f));
+}
+
+void StatusService::Stub::experimental_async::RegisterChatServer(::grpc::ClientContext* context, const ::message::RegisterChatServerReq* request, ::message::MessageRes* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_RegisterChatServer_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::message::MessageRes>* StatusService::Stub::PrepareAsyncRegisterChatServerRaw(::grpc::ClientContext* context, const ::message::RegisterChatServerReq& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::message::MessageRes, ::message::RegisterChatServerReq, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_RegisterChatServer_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::message::MessageRes>* StatusService::Stub::AsyncRegisterChatServerRaw(::grpc::ClientContext* context, const ::message::RegisterChatServerReq& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncRegisterChatServerRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
+::grpc::Status StatusService::Stub::Heartbeat(::grpc::ClientContext* context, const ::message::HeartbeatReq& request, ::message::MessageRes* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::message::HeartbeatReq, ::message::MessageRes, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_Heartbeat_, context, request, response);
+}
+
+void StatusService::Stub::experimental_async::Heartbeat(::grpc::ClientContext* context, const ::message::HeartbeatReq* request, ::message::MessageRes* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::message::HeartbeatReq, ::message::MessageRes, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_Heartbeat_, context, request, response, std::move(f));
+}
+
+void StatusService::Stub::experimental_async::Heartbeat(::grpc::ClientContext* context, const ::message::HeartbeatReq* request, ::message::MessageRes* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_Heartbeat_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::message::MessageRes>* StatusService::Stub::PrepareAsyncHeartbeatRaw(::grpc::ClientContext* context, const ::message::HeartbeatReq& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::message::MessageRes, ::message::HeartbeatReq, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_Heartbeat_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::message::MessageRes>* StatusService::Stub::AsyncHeartbeatRaw(::grpc::ClientContext* context, const ::message::HeartbeatReq& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncHeartbeatRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 StatusService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       StatusService_method_names[0],
@@ -165,6 +215,26 @@ StatusService::Service::Service() {
              ::message::LoginRsp* resp) {
                return service->Login(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      StatusService_method_names[2],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< StatusService::Service, ::message::RegisterChatServerReq, ::message::MessageRes, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](StatusService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::message::RegisterChatServerReq* req,
+             ::message::MessageRes* resp) {
+               return service->RegisterChatServer(ctx, req, resp);
+             }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      StatusService_method_names[3],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< StatusService::Service, ::message::HeartbeatReq, ::message::MessageRes, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](StatusService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::message::HeartbeatReq* req,
+             ::message::MessageRes* resp) {
+               return service->Heartbeat(ctx, req, resp);
+             }, this)));
 }
 
 StatusService::Service::~Service() {
@@ -178,6 +248,20 @@ StatusService::Service::~Service() {
 }
 
 ::grpc::Status StatusService::Service::Login(::grpc::ServerContext* context, const ::message::LoginReq* request, ::message::LoginRsp* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status StatusService::Service::RegisterChatServer(::grpc::ServerContext* context, const ::message::RegisterChatServerReq* request, ::message::MessageRes* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status StatusService::Service::Heartbeat(::grpc::ServerContext* context, const ::message::HeartbeatReq* request, ::message::MessageRes* response) {
   (void) context;
   (void) request;
   (void) response;

@@ -23,6 +23,9 @@ using grpc::ClientContext;
 
 using message::GetChatServerReq;
 using message::GetChatServerRes;
+using message::RegisterChatServerReq;
+using message::HeartbeatReq;
+using message::MessageRes;
 using message::StatusService;
 
 class StatusConnectPool
@@ -53,6 +56,10 @@ public:
     ~StatusGrpcClient();
 
     GetChatServerRes GetChatServer(int uid);
+
+    MessageRes RegisterChatServer(const std::string& service_name, const std::string& host, const std::string& port);
+
+    MessageRes Heartbeat(const std::string& service_name);
 private:
     StatusGrpcClient();
 

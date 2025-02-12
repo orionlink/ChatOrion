@@ -19,6 +19,7 @@ SOURCES += \
     custom_ui/con_user_item.cpp \
     custom_ui/contact_user_list.cpp \
     custom_ui/group_tip_item.cpp \
+    custom_ui/loading_dlg.cpp \
     custom_ui/red_dot_label.cpp \
     utils/common_utils.cpp \
     custom_ui/bubble_frame.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
     custom_ui/con_user_item.h \
     custom_ui/contact_user_list.h \
     custom_ui/group_tip_item.h \
+    custom_ui/loading_dlg.h \
     custom_ui/red_dot_label.h \
     utils/common_utils.h \
     custom_ui/bubble_frame.h \

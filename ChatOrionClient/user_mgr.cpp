@@ -1,5 +1,7 @@
 #include "user_mgr.h"
 
+#include <QJsonArray>
+
 UserMgr::UserMgr():_user_info(nullptr)
 {
 
@@ -38,6 +40,35 @@ QString UserMgr::GetIcon()
 std::shared_ptr<UserInfo> UserMgr::GetUserInfo()
 {
     return _user_info;
+}
+
+void UserMgr::AppendFriendList(QJsonArray array)
+{
+    // 遍历 QJsonArray 并输出每个元素
+    for (const QJsonValue& value : array) {
+        auto name = value["name"].toString();
+        auto desc = value["desc"].toString();
+        auto icon = value["icon"].toString();
+        auto nick = value["nick"].toString();
+        auto sex = value["sex"].toInt();
+        auto uid = value["uid"].toInt();
+        auto back = value["back"].toString();
+
+        auto info = std::make_shared<FriendInfo>(uid, name,
+            nick, icon, sex, desc, back);
+        _friend_list.push_back(info);
+        _friend_map.insert(uid, info);
+    }
+}
+
+bool UserMgr::CheckFriendById(int uid)
+{
+    auto iter = _friend_map.find(uid);
+    if(iter == _friend_map.end()){
+        return false;
+    }
+
+    return true;
 }
 
 std::vector<std::shared_ptr<ApplyInfo> > UserMgr::GetApplyList()

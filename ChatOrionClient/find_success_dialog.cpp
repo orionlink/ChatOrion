@@ -32,10 +32,10 @@ FindSuccessDialog::~FindSuccessDialog()
     delete ui;
 }
 
-void FindSuccessDialog::SetSearchInfo(std::shared_ptr<SearchInfo> si)
+void FindSuccessDialog::SetSearchInfo(std::shared_ptr<SearchInfo> search_info)
 {
-    ui->name_lb->setText(si->_name);
-    _si = si;
+    ui->name_lb->setText(search_info->_name);
+    _search_info = search_info;
 }
 
 void FindSuccessDialog::on_add_friend_btn_clicked()
@@ -43,6 +43,6 @@ void FindSuccessDialog::on_add_friend_btn_clicked()
     this->hide();
     //弹出加好友界面
     auto applyFriend = new ApplyFriend(_parent);
-    applyFriend->SetSearchInfo(_si);
+    applyFriend->SetSearchInfo(_search_info);
     applyFriend->show();
 }

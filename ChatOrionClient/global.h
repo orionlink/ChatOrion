@@ -16,6 +16,24 @@ enum ReqId{
     ID_CHAT_LOGIN = 1006, //登陆聊天服务器
 
     ID_CHAT_LOGIN_RSP = 1007, //登陆聊天服务器回包
+
+    ID_SEARCH_USER_REQ = 1008, //用户搜索请求
+    ID_SEARCH_USER_RSP = 1009, //搜索用户回包
+
+    ID_ADD_FRIEND_REQ = 1010, //申请添加好友请求
+    ID_ADD_FRIEND_RSP  = 1011, //申请添加好友回复
+
+    ID_NOTIFY_ADD_FRIEND_REQ = 1012,  //通知用户添加好友申请
+
+    ID_AUTH_FRIEND_REQ = 1013,  //认证好友请求
+    ID_AUTH_FRIEND_RSP = 1014,  //认证好友回复
+
+    ID_NOTIFY_AUTH_FRIEND_REQ = 1015, //通知用户认证好友申请
+
+    ID_TEXT_CHAT_MSG_REQ = 1017, //文本聊天信息请求
+    ID_TEXT_CHAT_MSG_RSP = 1018, //文本聊天信息回复
+
+    ID_NOTIFY_TEXT_CHAT_MSG_REQ = 1019, //通知用户文本聊天信息
 };
 
 enum ErrorCodes{
@@ -28,7 +46,10 @@ enum ErrorCodes{
     PasswdErr = 1006,       // 密码错误
     EmailNotMatch = 1007,   // 邮箱不匹配
     PasswdUpdataFailed = 1008,// 更新密码失败
-    PasswdInvalid = 1009    // 密码无效
+    PasswdInvalid = 1009,    // 密码无效
+    UserNotExist = 1010,    // 用户不存在
+    TokenInvalid = 1011,   //Token失效
+    UidInvalid = 1012,  //uid无效
 };
 
 enum Modules{
@@ -45,7 +66,7 @@ enum ListItemType
     CHAT_USER_ITEM, //聊天用户
     CONTACT_USER_ITEM, //联系人用户
     SEARCH_USER_ITEM, //搜索到的用户
-    ADD_USER_TIP_ITEM, //提示添加用户
+    ADD_USER_TIP_ITEM, //添加好友点击的条目
     INVALID_ITEM,  //不可点击条目
     GROUP_TIP_ITEM, //分组提示条目
     LINE_ITEM,  //分割线

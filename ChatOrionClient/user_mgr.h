@@ -2,6 +2,7 @@
 #define USERMGR_H
 
 #include <QObject>
+#include <QMap>
 
 #include "singleton.h"
 #include "user_data.h"
@@ -25,12 +26,17 @@ public:
 
     std::shared_ptr<UserInfo> GetUserInfo();
 
+    void AppendFriendList(QJsonArray array);
+    bool CheckFriendById(int uid);
+
     std::vector<std::shared_ptr<ApplyInfo>> GetApplyList();
 private:
     explicit UserMgr();
 
     std::shared_ptr<UserInfo> _user_info;
     std::vector<std::shared_ptr<ApplyInfo>> _apply_list;
+    QMap<int, std::shared_ptr<FriendInfo>> _friend_map;
+    std::vector<std::shared_ptr<FriendInfo>> _friend_list;
     QString _token;
 };
 

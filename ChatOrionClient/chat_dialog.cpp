@@ -3,6 +3,7 @@
 #include "chat_user_item.h"
 #include "common_utils.h"
 #include "cui_helper.h"
+#include "message_bus.h"
 
 #include <QMenu>
 #include <QFile>
@@ -99,6 +100,8 @@ ChatDialog::ChatDialog(QWidget *parent) :
         } else {
             clearAction->setIcon(QIcon(":/res/pic/close_transparent.png")); // 文本为空时，切换回透明图标
         }
+
+        MessageBus::instance()->sendMessage(MessageCommand::SEARCH_EDIT_TEXT_CHANGED, text);
     });
 
     QObject::connect(clearAction, &QAction::triggered, [this, clearAction]

@@ -74,9 +74,9 @@ std::shared_ptr<UserInfo> MySQLDao::GetUser(int uid)
         while (ret->next())
         {
             user_ptr.reset(new UserInfo);
-            user_ptr->pwd = ret->getString("pwd");
+            user_ptr->pwd = ret->getString("password");
             user_ptr->email = ret->getString("email");
-            user_ptr->name= ret->getString("name");
+            user_ptr->name= ret->getString("username");
             user_ptr->nick = ret->getString("nick");
             user_ptr->desc = ret->getString("desc");
             user_ptr->sex = ret->getInt("sex");
@@ -103,7 +103,33 @@ std::shared_ptr<UserInfo> MySQLDao::GetUser(std::string name)
 
     try
     {
+        Defer defer([&conn, this]
+        {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 准备调用存储过程
+        std::unique_ptr <sql::PreparedStatement> pstmt(conn->_connection->prepareStatement("SELECT * FROM user WHERE username = ?"));
+
+        // 设置参数
+        pstmt->setString(1, name);
+
+        std::unique_ptr<sql::ResultSet> ret(pstmt->executeQuery());
         std::shared_ptr<UserInfo> user_ptr = nullptr;
+        // 遍历结果集
+        while (ret->next())
+        {
+            user_ptr.reset(new UserInfo);
+            user_ptr->pwd = ret->getString("password");
+            user_ptr->email = ret->getString("email");
+            user_ptr->name= ret->getString("username");
+            user_ptr->nick = ret->getString("nick");
+            user_ptr->desc = ret->getString("desc");
+            user_ptr->sex = ret->getInt("sex");
+            user_ptr->icon = ret->getString("icon");
+            user_ptr->uid = ret->getInt("uid");
+            break;
+        }
 
         return user_ptr;
     }

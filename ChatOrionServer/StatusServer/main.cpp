@@ -7,6 +7,7 @@
 #include <thread>
 #include <boost/asio.hpp>
 
+#include "log.h"
 #include "const.h"
 #include "Settings.h"
 #include "hiredis/hiredis.h"
@@ -26,7 +27,8 @@ void RunServer(const std::string& host, const std::string& port)
 
     // 构建并启动gRPC服务器
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
+
+    LOG_INFO << "Server listening on " << server_address;
 
     // 创建Boost.Asio的io_context
     boost::asio::io_context io_context;
@@ -36,7 +38,7 @@ void RunServer(const std::string& host, const std::string& port)
     // 设置异步等待SIGINT信号
     signals.async_wait([&server](const boost::system::error_code& error, int signal_number) {
         if (!error) {
-            std::cout << "Shutting down server..." << std::endl;
+            LOG_INFO << "Shutting down server...";
             server->Shutdown(); // 优雅地关闭服务器
         }
         });
@@ -49,11 +51,17 @@ void RunServer(const std::string& host, const std::string& port)
     io_context.stop(); // 停止io_context
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     auto& settings = config::Settings::GetInstance();
     settings.setFileName("config.ini");
     settings.load();
+
+    auto logger = Log::GetInstance();
+    if (!logger->Initialize(argv[0])) {
+        std::cerr << "Failed to initialize logging" << std::endl;
+        return 1;
+    }
 
     try {
         RunServer(settings.value("StatusServer/host").toString(), settings.value("StatusServer/port").toString());

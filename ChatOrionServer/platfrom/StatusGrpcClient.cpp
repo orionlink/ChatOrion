@@ -99,3 +99,54 @@ GetChatServerRes StatusGrpcClient::GetChatServer(int uid)
         return response;
     }
 }
+
+MessageRes StatusGrpcClient::RegisterChatServer(const std::string &service_name, const std::string &host,
+    const std::string &port)
+{
+    RegisterChatServerReq request;
+    MessageRes response;
+    request.set_name(service_name);
+    request.set_host(host);
+    request.set_port(port);
+    auto stub = _pool->getConnection();
+    Defer defer([this, &stub]
+    {
+        _pool->returnConnection(std::move(stub));
+    });
+
+    ClientContext context;
+    grpc::Status status = stub->RegisterChatServer(&context, request, &response);
+    if (status.ok())
+    {
+        return response;
+    }
+    else
+    {
+        response.set_error(message::ServerOffline);
+        return response;
+    }
+}
+
+MessageRes StatusGrpcClient::Heartbeat(const std::string &service_name)
+{
+    HeartbeatReq request;
+    MessageRes response;
+    request.set_name(service_name);
+    auto stub = _pool->getConnection();
+    Defer defer([this, &stub]
+    {
+        _pool->returnConnection(std::move(stub));
+    });
+
+    ClientContext context;
+    grpc::Status status = stub->Heartbeat(&context, request, &response);
+    if (status.ok())
+    {
+        return response;
+    }
+    else
+    {
+        response.set_error(message::ServerOffline);
+        return response;
+    }
+}

@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <iostream>
+#include <boost/asio.hpp>
 
 Tools::Tools()
 {
@@ -104,4 +104,28 @@ void Tools::RemoveWhitespace(std::string &str)
     {
         return std::isspace(c);
     }), str.end());
+}
+
+std::vector<std::string> Tools::GetLocalIPs()
+{
+    std::vector<std::string> result;
+    try {
+        boost::asio::io_context io_context;
+        boost::asio::ip::udp::socket socket(io_context);
+
+        // 通过连接到一个公共IP（这里是8.8.8.8）来获取本地IP
+        socket.open(boost::asio::ip::udp::v4());
+        socket.connect(boost::asio::ip::udp::endpoint(boost::asio::ip::make_address("8.8.8.8"), 53));
+
+        auto local_endpoint = socket.local_endpoint();
+        auto local_address = local_endpoint.address();
+        result.push_back(local_address.to_string());
+
+        socket.close();
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error in GetLocalIPs: " << e.what() << std::endl;
+    }
+
+    return result;
 }

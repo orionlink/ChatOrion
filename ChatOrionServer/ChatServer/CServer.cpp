@@ -10,12 +10,15 @@
 #include "AsioIOServicePool.h"
 #include "UserMgr.h"
 #include "CServer.h"
+#include "log.h"
+#include "StatusGrpcClient.h"
 
-CServer::CServer(boost::asio::io_context &context, unsigned short port)
-    :_context(context), _port(port),_acceptor(context, tcp::endpoint(tcp::v4(), port))
+CServer::CServer(boost::asio::io_context &context, const std::string service_name, unsigned short port)
+    :_context(context), _port(port),_acceptor(context, tcp::endpoint(tcp::v4(), port)), _timer(context), _service_name(service_name)
 {
-    std::cout << "Server start success, listen on port : " << _port << std::endl;
+    LOG_INFO << "Server start success, listen on port : " << _port;
     startAccept();
+    startTimer();
 }
 
 void CServer::startAccept()
@@ -24,6 +27,31 @@ void CServer::startAccept()
     std::shared_ptr<CSession> new_session = std::make_shared<CSession>(context, this);
     _acceptor.async_accept(new_session->get_socket(), std::bind(&CServer::handleAccept,
         this, new_session, std::placeholders::_1));
+}
+
+void CServer::startTimer()
+{
+    _timer.expires_after(boost::asio::chrono::seconds(15));
+    _timer.async_wait(std::bind(&CServer::onTimer, this,
+        std::placeholders::_1));
+}
+
+void CServer::onTimer(boost::system::error_code error)
+{
+    if (!error)
+    {
+        MessageRes message_res = StatusGrpcClient::GetInstance()->Heartbeat(_service_name);
+        if (message_res.error() != message::Success)
+        {
+            LOG_ERROR << "心跳发送失败";
+            if (message_res.error() == message::ServerNotFound)
+            {
+                LOG_INFO << "注册被断开，开始自动重连";
+                StatusGrpcClient::GetInstance()->RegisterChatServer(_service_name, "", std::to_string(_port));
+            }
+        }
+        startTimer();  // 重新启动定时器
+    }
 }
 
 void CServer::handleAccept(std::shared_ptr<CSession> new_session, boost::system::error_code error_code)
@@ -36,7 +64,7 @@ void CServer::handleAccept(std::shared_ptr<CSession> new_session, boost::system:
     }
     else
     {
-        std::cout << "session accept failed, error is " << error_code.what() << std::endl;
+        LOG_ERROR << "session accept failed, error is " << error_code.what() << std::endl;
     }
 
     startAccept();

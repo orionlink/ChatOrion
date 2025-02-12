@@ -5,10 +5,12 @@
 #include "search_user_item.h"
 #include "find_success_dialog.h"
 #include "common_utils.h"
+#include "loading_dlg.h"
+#include "message_bus.h"
 
 #include<QScrollBar>
 
-SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr), _search_edit(nullptr), _send_pending(false)
+SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr), _search_edit_text(""), _send_pending(false)
 {
     Q_UNUSED(parent);
      this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -19,8 +21,16 @@ SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr), 
     connect(this, &QListWidget::itemClicked, this, &SearchList::slot_item_clicked);
     //添加条目
     addTipItem();
-    //连接搜索条目
-//    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_user_search, this, &SearchList::slot_user_search);
+
+    MessageBus::instance()->registerHandler(MessageCommand::SEARCH_EDIT_TEXT_CHANGED, this, [this](const QVariant& data)
+    {
+        _search_edit_text = data.toString();
+    });
+
+    TcpMgr::GetInstance()->registerMessageCallback(ReqId::ID_SEARCH_USER_RSP,
+                                                   std::bind(&SearchList::searchUserRsp,
+                                                   this, std::placeholders::_1,
+                                                   std::placeholders::_2));
 }
 
 void SearchList::CloseFindDlg()
@@ -30,10 +40,6 @@ void SearchList::CloseFindDlg()
         _find_dlg->hide();
         _find_dlg = nullptr;
     }
-}
-
-void SearchList::SetSearchEdit(QWidget* edit) {
-    _search_edit = edit;
 }
 
 bool SearchList::eventFilter(QObject *watched, QEvent *event)
@@ -71,8 +77,17 @@ bool SearchList::eventFilter(QObject *watched, QEvent *event)
 
 void SearchList::waitPending(bool pending)
 {
+    if(pending){
+        _loadingDialog = new LoadingDlg(this);
+        _loadingDialog->setModal(true);
+        _loadingDialog->show();
+        _send_pending = pending;
+    }else{
+        _loadingDialog->hide();
+        _loadingDialog->deleteLater();
+         _send_pending = pending;
+    }
 }
-
 
 void SearchList::addTipItem()
 {
@@ -117,17 +132,76 @@ void SearchList::slot_item_clicked(QListWidgetItem *item)
 
     if(itemType == ListItemType::ADD_USER_TIP_ITEM)
     {
+        if (_send_pending || _search_edit_text.isEmpty())
+        {
+            return;
+        }
 
-        _find_dlg = std::make_shared<FindSuccessDialog>(this);
-        auto si = std::make_shared<SearchInfo>(0, QString("llfc"), QString("llfc"), QString("hello , my friend!"), 0, QString("default_icon.png"));
-        (std::dynamic_pointer_cast<FindSuccessDialog>(_find_dlg))->SetSearchInfo(si);
-        _find_dlg->show();
+        waitPending(true);
+
+        QJsonObject jsonObj;
+        jsonObj["uid"] = _search_edit_text;
+
+        QJsonDocument doc(jsonObj);
+        QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
+
+        //发送tcp请求给chat server
+        emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_SEARCH_USER_REQ, jsonData);
         return;
     }
 
     CloseFindDlg();
 }
 
-void SearchList::slot_user_search(std::shared_ptr<SearchInfo> si)
+void SearchList::searchUserRsp(int len, QByteArray data)
 {
+    waitPending(false);
+
+    Q_UNUSED(len);
+    // 将QByteArray转换为QJsonDocument
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+    // 检查转换是否成功
+    if (jsonDoc.isNull()) {
+        qDebug() << "Failed to create QJsonDocument.";
+        return;
+    }
+
+    QJsonObject jsonObj = jsonDoc.object();
+
+    if (!jsonObj.contains("error")) {
+        int err = ErrorCodes::ERR_JSON;
+        qDebug() << "Login Failed, err is Json Parse Err" << err;
+        return;
+    }
+
+    int err = jsonObj["error"].toInt();
+    if (err != ErrorCodes::SUCCESS) {
+        qDebug() << "Login Failed, err is " << err;
+        return;
+    }
+
+    auto search_info =  std::make_shared<SearchInfo>(jsonObj["uid"].toInt(), jsonObj["name"].toString(),
+        jsonObj["nick"].toString(), jsonObj["desc"].toString(),
+           jsonObj["sex"].toInt(), jsonObj["icon"].toString());
+
+    //如果是自己，暂且先直接返回，以后看逻辑扩充
+    auto self_uid = UserMgr::GetInstance()->GetUid();
+    if (search_info->_uid == self_uid) {
+             return;
+    }
+    //此处分两种情况，一种是搜多到已经是自己的朋友了，一种是未添加好友
+    //查找是否已经是好友
+    bool bExist = UserMgr::GetInstance()->CheckFriendById(search_info->_uid);
+    if(bExist){
+        // 此处处理已经添加的好友，实现页面跳转
+        // 跳转到聊天界面指定的item中
+        emit sig_jump_chat_item(search_info);
+        return;
+    }
+
+    //此处先处理为添加的好友
+    _find_dlg = std::make_shared<FindSuccessDialog>(this);
+    std::dynamic_pointer_cast<FindSuccessDialog>(_find_dlg)->SetSearchInfo(search_info);
+    _find_dlg->show();
 }

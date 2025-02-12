@@ -6,6 +6,8 @@
 
 #include <QScrollBar>
 #include <QMouseEvent>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 //申请好友标签输入框最低长度
 static const int MIN_APPLY_LABEL_ED_LEN = 40;
@@ -98,9 +100,14 @@ bool ApplyFriend::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-void ApplyFriend::SetSearchInfo(std::shared_ptr<SearchInfo> si)
+void ApplyFriend::SetSearchInfo(std::shared_ptr<SearchInfo> search_info)
 {
+    _search_info = search_info;
 
+    auto applyname = UserMgr::GetInstance()->GetName();
+    auto bakname = _search_info->_name;
+    ui->name_ed->setText(applyname);
+    ui->back_ed->setText(bakname);
 }
 
 void ApplyFriend::resetLabels()
@@ -289,7 +296,33 @@ void ApplyFriend::SlotAddFirendLabelByClickTip(QString text)
 
 void ApplyFriend::SlotApplySure()
 {
+    qDebug()<<"Slot Apply Sure called" ;
+    //发送请求逻辑
+    QJsonObject jsonObj;
+    auto uid = UserMgr::GetInstance()->GetUid();
+    jsonObj["uid"] = uid;
+    auto name = ui->name_ed->text();
+    if(name.isEmpty()){
+        name = ui->name_ed->placeholderText();
+    }
 
+    jsonObj["applyname"] = name;
+
+    auto bakname = ui->back_ed->text();
+    if(bakname.isEmpty()){
+        bakname = ui->back_ed->placeholderText();
+    }
+
+    jsonObj["bakname"] = bakname;
+    jsonObj["touid"] = _search_info->_uid;
+
+    QJsonDocument doc(jsonObj);
+    QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
+
+    //发送tcp请求给chat server
+    emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_ADD_FRIEND_REQ, jsonData);
+    this->hide();
+    deleteLater();
 }
 
 void ApplyFriend::SlotApplyCancel()

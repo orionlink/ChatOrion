@@ -21,7 +21,7 @@ public:
     ~ApplyFriend();
     void InitTipLbs();
     void AddTipLbs(ClickedLabel*, QPoint cur_point, QPoint &next_point, int text_width, int text_height);
-    void SetSearchInfo(std::shared_ptr<SearchInfo> si);
+    void SetSearchInfo(std::shared_ptr<SearchInfo> search_info);
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 private:
@@ -38,7 +38,8 @@ private:
     std::vector<QString> _friend_label_keys;
     std::vector<QString> _tip_data;
     QPoint _tip_cur_point;
-    std::shared_ptr<SearchInfo> _si;
+
+    std::shared_ptr<SearchInfo> _search_info; // 搜索到的信息
 public slots:
     //显示更多label标签
     void ShowMoreLabel();
