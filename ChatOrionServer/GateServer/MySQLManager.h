@@ -13,6 +13,11 @@ class MySQLManager : public Singleton<MySQLManager>
 {
     friend class Singleton<MySQLManager>;
 public:
+    /**
+     * 初始化数据库
+     */
+    bool init();
+
     int registerUser(const std::string& name, const std::string& email,  const std::string& pwd, const std::string& icon);
     bool checkUsernameEmailMatch(const std::string& name, const std::string & email);
     bool updatePassword(const std::string& name, const std::string& newpwd);

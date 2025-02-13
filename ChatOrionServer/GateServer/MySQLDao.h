@@ -22,6 +22,7 @@ class MySQLDao
 public:
     MySQLDao();
     ~MySQLDao();
+    bool init();
     int registerUser(const std::string& name, const std::string& email, const std::string& pwd);
     bool checkUsernameEmailMatch(const std::string& name, const std::string & email);
     bool updatePassword(const std::string& name, const std::string& newpwd);

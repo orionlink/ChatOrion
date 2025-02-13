@@ -2,7 +2,7 @@
 
 #include <QJsonArray>
 
-UserMgr::UserMgr():_user_info(nullptr)
+UserMgr::UserMgr():_user_info(nullptr), _contact_loaded(0), _chat_count_per_page(13)
 {
 
 }
@@ -91,21 +91,68 @@ void UserMgr::AppendApplyList(QJsonArray array)
         auto info = std::make_shared<ApplyInfo>(uid, name,
                            desc, icon, nick, sex, status);
         _apply_list.push_back(info);
+        _apply_map.insert(uid, info);
     }
 }
 
 void UserMgr::AddApplyList(std::shared_ptr<ApplyInfo> app)
 {
+    _apply_map.insert(app->_uid, app);
     _apply_list.push_back(app);
 }
 
 bool UserMgr::AlreadyApply(int uid)
 {
-    for(auto& apply: _apply_list){
-        if(apply->_uid == uid){
-            return true;
-        }
+//    for(auto& apply: _apply_list){
+//        if(apply->_uid == uid){
+//            return true;
+//        }
+//    }
+
+//    return false;
+    return _apply_map.find(uid) != _apply_map.end();
+}
+
+std::shared_ptr<ApplyInfo> UserMgr::GetApplyInfoByUid(int uid)
+{
+    if (_apply_map.find(uid) != _apply_map.end())
+    {
+        return _apply_map.value(uid);
     }
 
-    return false;
+    return nullptr;
+}
+
+std::vector<std::shared_ptr<FriendInfo>> UserMgr::GetConListPerPage() {
+    if (_friend_list.empty() || _chat_count_per_page <= 0)
+    {
+        return {};
+    }
+
+    size_t begin = _contact_loaded;
+    int end = std::min(begin + _chat_count_per_page, _friend_list.size());
+
+    if (begin >= _friend_list.size()) {
+        return {};
+    }
+
+    return std::vector<std::shared_ptr<FriendInfo>>(_friend_list.begin() + begin, _friend_list.begin() + end);
+}
+
+void UserMgr::UpdateContactLoadedCount()
+{
+    size_t begin = _contact_loaded;
+    size_t end = begin + _chat_count_per_page;
+
+    if (begin >= _friend_list.size()) {
+        return;
+    }
+
+    if (end > _friend_list.size())
+    {
+        _contact_loaded = _friend_list.size();
+        return;
+    }
+
+    _contact_loaded = end;
 }

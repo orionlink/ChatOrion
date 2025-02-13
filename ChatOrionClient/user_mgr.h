@@ -66,14 +66,36 @@ public:
      * @return
      */
     bool AlreadyApply(int uid);
+
+    /**
+     * @brief 通过uid返回请求信息
+     * @param uid
+     * @return
+     */
+    std::shared_ptr<ApplyInfo> GetApplyInfoByUid(int uid);
+
+    /**
+     * @brief 获取好友列表
+     * @return
+     */
+    std::vector<std::shared_ptr<FriendInfo>> GetConListPerPage();
+
+    /**
+     * @brief 更新 _contact_loaded 变量的计数
+     */
+    void UpdateContactLoadedCount();
 private:
     explicit UserMgr();
 
     std::shared_ptr<UserInfo> _user_info;  // 用户信息
     std::vector<std::shared_ptr<ApplyInfo>> _apply_list; // 用户请求列表
+    QMap<int, std::shared_ptr<ApplyInfo>> _apply_map;
     QMap<int, std::shared_ptr<FriendInfo>> _friend_map;
     std::vector<std::shared_ptr<FriendInfo>> _friend_list; // 好友列表
     QString _token;
+
+    size_t _contact_loaded;
+    const size_t _chat_count_per_page; // 每页加载的数量 默认13
 };
 
 #endif // USERMGR_H

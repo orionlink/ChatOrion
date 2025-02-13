@@ -111,13 +111,14 @@ void ApplyFriendPage::loadApplyList()
 
         //收到审核好友信号
         connect(apply_item, &ApplyFriendItem::sig_auth_friend, [this](std::shared_ptr<ApplyInfo> apply_info) {
-//            auto* authFriend = new AuthenFriend(this);
-//            authFriend->setModal(true);
-//            authFriend->SetApplyInfo(apply_info);
-//            authFriend->show();
-            });
+            auto* authFriend = new AuthenFriendDialog(this);
+            authFriend->setModal(true);
+            authFriend->SetApplyInfo(apply_info);
+            authFriend->show();
+        });
     }
 
+#if 0
     // 模拟假数据，创建QListWidgetItem，并设置自定义的widget
     for(int i = 0; i < 13; i++){
         int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
@@ -144,6 +145,7 @@ void ApplyFriendPage::loadApplyList()
 //            authFriend->show();
         });
     }
+#endif
 }
 
 void ApplyFriendPage::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp)

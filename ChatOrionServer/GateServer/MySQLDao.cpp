@@ -9,6 +9,15 @@
 
 MySQLDao::MySQLDao()
 {
+}
+
+MySQLDao::~MySQLDao()
+{
+    _pool->close();
+}
+
+bool MySQLDao::init()
+{
     config::Settings& settings = config::Settings::GetInstance();
     std::string host = settings.value<std::string>("MySQL/host", "127.0.0.1").toString();
     int port = settings.value("MySQL/port", 3306).toInt();
@@ -39,20 +48,21 @@ MySQLDao::MySQLDao()
                 stmt->execute(statement);
             }
 
+            stmt->execute("DROP PROCEDURE IF EXISTS reg_user");
             stmt->execute(sql_procedure);
-
             LOG_INFO << "SQL script executed successfully";
+            return true;
         } catch (sql::SQLException& e) {
             std::cerr << "SQLException: " << e.what();
             std::cerr << " (MySQL error code: " << e.getErrorCode();
             std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+            return false;
         }
     }
-}
-
-MySQLDao::~MySQLDao()
-{
-    _pool->close();
+    else
+    {
+        return false;
+    }
 }
 
 int MySQLDao::registerUser(const std::string &name, const std::string &email, const std::string &pwd)

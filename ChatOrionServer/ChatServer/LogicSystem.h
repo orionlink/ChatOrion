@@ -86,6 +86,22 @@ private:
      * @param rt_value
      */
     void GetUserByName(const std::string& username_str, Json::Value& rt_value);
+
+    /**
+     * 从数据库获取请求列表
+     * @param self_id
+     * @param apply_list
+     * @return
+     */
+    bool GetFriendApplyInfo(int self_id, std::vector<std::shared_ptr<ApplyInfo>> & apply_list);
+
+    /**
+    * 从数据库获取好友列表
+    * @param self_id
+    * @param apply_list
+    * @return
+    */
+    bool GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_list);
 private:
     BS::thread_pool<BS::tp::pause> _pool;  // 线程池
     bool _b_stop;

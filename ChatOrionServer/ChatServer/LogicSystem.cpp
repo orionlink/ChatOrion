@@ -127,10 +127,37 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const std::str
     rtvalue["sex"] = user_info->sex;
     rtvalue["icon"] = user_info->icon;
 
+    //从数据库获取申请列表
+    std::vector<std::shared_ptr<ApplyInfo>> apply_list;
+    auto b_apply = GetFriendApplyInfo(uid,apply_list);
+    if (b_apply) {
+        for (auto & apply : apply_list) {
+            Json::Value obj;
+            obj["name"] = apply->_name;
+            obj["uid"] = apply->_uid;
+            obj["icon"] = apply->_icon;
+            obj["nick"] = apply->_nick;
+            obj["sex"] = apply->_sex;
+            obj["desc"] = apply->_desc;
+            obj["status"] = apply->_status;
+            rtvalue["apply_list"].append(obj);
+        }
+    }
 
-    // 从数据库获取申请列表
-
-    // 获取好友列表
+    //获取好友列表
+    std::vector<std::shared_ptr<UserInfo>> friend_list;
+    bool b_friend_list = GetFriendList(uid, friend_list);
+    for (auto& friend_ele : friend_list) {
+        Json::Value obj;
+        obj["name"] = friend_ele->name;
+        obj["uid"] = friend_ele->uid;
+        obj["icon"] = friend_ele->icon;
+        obj["nick"] = friend_ele->nick;
+        obj["sex"] = friend_ele->sex;
+        obj["desc"] = friend_ele->desc;
+        obj["back"] = friend_ele->back;
+        rtvalue["friend_list"].append(obj);
+    }
 
     // 将登录该服务器的数量增加
     auto &setting = config::Settings::GetInstance();
@@ -283,14 +310,12 @@ void LogicSystem::AuthFriendApplyHandler(std::shared_ptr<CSession> session, cons
 
     Json::Value  rtvalue;
     rtvalue["error"] = ErrorCodes::Success;
-    rtvalue["uid"] = touid;
     Defer defer([this, &rtvalue, session]
     {
         std::string return_str = rtvalue.toStyledString();
         session->send(return_str, ID_AUTH_FRIEND_RSP);
     });
 
-#if 0
     auto user_info = std::make_shared<UserInfo>();
     std::string base_key = USER_BASE_INFO + std::to_string(touid);
     bool b_info = GetBaseInfo(touid, user_info);
@@ -304,13 +329,14 @@ void LogicSystem::AuthFriendApplyHandler(std::shared_ptr<CSession> session, cons
     else {
         rtvalue["error"] = ErrorCodes::UidInvalid;
     }
-#endif
 
     //先更新数据库
     MySQLManager::GetInstance()->AuthFriendApply(fromuid, touid);
 
     //更新数据库添加好友
-    MySQLManager::GetInstance()->AddFriend(fromuid, touid, back_name);
+    bool add_success = MySQLManager::GetInstance()->AddFriend(fromuid, touid, back_name);
+    if (!add_success)
+        LOG_WARNING << "好友表插入数据失败";
 
     //查询redis 查找touid对应的服务名称
     auto to_uid_str = std::to_string(touid);
@@ -339,9 +365,8 @@ void LogicSystem::AuthFriendApplyHandler(std::shared_ptr<CSession> session, cons
         notify["error"] = ErrorCodes::Success;
         notify["fromuid"] = fromuid;
         notify["touid"] = touid;
-        std::string base_key = USER_BASE_INFO + std::to_string(fromuid);
         auto apply_info = std::make_shared<UserInfo>();
-        bool b_info = GetBaseInfo(touid, apply_info);
+        bool b_info = GetBaseInfo(fromuid, apply_info);
         if (b_info) {
             notify["name"] = apply_info->name;
             notify["nick"] = apply_info->nick;
@@ -396,7 +421,7 @@ bool LogicSystem::GetBaseInfo(int uid, std::shared_ptr<UserInfo> &userinfo)
         userinfo->desc = root["desc"].asString();
         userinfo->sex = root["sex"].asInt();
         userinfo->icon = root["icon"].asString();
-        std::cout << "user login uid is  " << userinfo->uid << " name  is "
+        std::cout << "LogicSystem::GetBaseInfo  " << userinfo->uid << " name  is "
             << userinfo->name << " pwd is " << userinfo->pwd << " email is " << userinfo->email << std::endl;
 
         return true;
@@ -450,7 +475,7 @@ void LogicSystem::GetUserByUid(const std::string &uid_str, Json::Value &rt_value
         auto desc = root["desc"].asString();
         auto sex = root["sex"].asInt();
         auto icon = root["icon"].asString();
-        std::cout << "user  uid is  " << uid << " name  is "
+        std::cout << "LogicSystem::GetUserByUid  " << uid << " name  is "
             << name << " pwd is " << pwd << " email is " << email <<" icon is " << icon << std::endl;
 
         rt_value["uid"] = uid;
@@ -519,7 +544,7 @@ void LogicSystem::GetUserByName(const std::string &username_str, Json::Value &rt
         auto desc = root["desc"].asString();
         auto sex = root["sex"].asInt();
         auto icon = root["icon"].asString();
-        std::cout << "user  uid is  " << uid << " name  is "
+        std::cout << "LogicSystem::GetUserByName  " << uid << " name  is "
             << name << " pwd is " << pwd << " email is " << email <<" icon is " << icon << std::endl;
 
         rt_value["uid"] = uid;
@@ -564,4 +589,16 @@ void LogicSystem::GetUserByName(const std::string &username_str, Json::Value &rt
     rt_value["desc"] = user_info->desc;
     rt_value["sex"] = user_info->sex;
     rt_value["icon"] = user_info->icon;
+}
+
+bool LogicSystem::GetFriendApplyInfo(int self_id, std::vector<std::shared_ptr<ApplyInfo>>& list)
+{
+    //从mysql获取好友申请列表
+    return MySQLManager::GetInstance()->GetApplyList(self_id, list, 0, 10);
+}
+
+bool LogicSystem::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_list)
+{
+    //从mysql获取好友列表
+    return MySQLManager::GetInstance()->GetFriendList(self_id, user_list);
 }

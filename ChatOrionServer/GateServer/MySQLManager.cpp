@@ -4,6 +4,11 @@
 
 #include "MySQLManager.h"
 
+bool MySQLManager::init()
+{
+    return _dao.init();
+}
+
 int MySQLManager::registerUser(const std::string& name, const std::string& email,  const std::string& pwd, const std::string& icon)
 {
     return _dao.registerUser(name, email, pwd);

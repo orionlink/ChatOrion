@@ -28,3 +28,13 @@ bool MySQLManager::AddFriend(const int &from_uid, const int &to_uid, std::string
 {
     return _dao.AddFriend(from_uid, to_uid, back_name);
 }
+
+bool MySQLManager::GetApplyList(int self_id, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int offset, int limit)
+{
+    return _dao.GetApplyList(self_id, applyList, offset, limit);
+}
+
+bool MySQLManager::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_info_list)
+{
+    return _dao.GetFriendList(self_id, user_info_list);
+}

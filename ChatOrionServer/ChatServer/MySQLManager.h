@@ -22,6 +22,10 @@ public:
     bool AuthFriendApply(const int& from_uid, const int& to_uid);
 
     bool AddFriend(const int& from_uid, const int& to_uid, std::string back_name);
+
+    bool GetApplyList(int self_id, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int offset, int limit);
+
+    bool GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo> >& user_info);
 private:
     MySQLDao _dao;
 };

@@ -9,6 +9,8 @@
 #include <QRandomGenerator>
 #include <QTimer>
 #include <QCoreApplication>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 /************************测试使用　开始**************************/
 inline std::vector<QString>  test_strs ={"你好",
@@ -50,12 +52,13 @@ ContactUserList::ContactUserList(QWidget *parent): _add_friend_item(nullptr)
     //连接点击的信号和槽
     connect(this, &QListWidget::itemClicked, this, &ContactUserList::slot_item_clicked);
 //    //链接对端同意认证后通知的信号
-//    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_add_auth_friend,this,
-//            &ContactUserList::slot_add_auth_firend);
+    TcpMgr::GetInstance()->registerMessageCallback(ReqId::ID_NOTIFY_AUTH_FRIEND_REQ,
+                                                   std::bind(&ContactUserList::NotifyAuthFriendReq,
+                                                   this, std::placeholders::_1, std::placeholders::_2));
 
-//    //链接自己点击同意认证后界面刷新
-//    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_auth_rsp,this,
-//            &ContactUserList::slot_auth_rsp);
+    TcpMgr::GetInstance()->registerMessageCallback(ReqId::ID_AUTH_FRIEND_RSP,
+                                                   std::bind(&ContactUserList::AuthFriendRsp,
+                                                   this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -67,7 +70,6 @@ void ContactUserList::SetRedDot(bool show, int count)
 void ContactUserList::addContactUserList()
 {
     //获取好友列表
-
     auto * groupTip = new GroupTipItem();
     groupTip->SetGroupTip(QStringLiteral("新的朋友"));
     QListWidgetItem *item = new QListWidgetItem;
@@ -97,20 +99,21 @@ void ContactUserList::addContactUserList()
     _groupitem->setFlags(_groupitem->flags() & ~Qt::ItemIsSelectable);
 
 //    //加载后端发送过来的好友列表
-//    auto con_list = UserMgr::GetInstance()->GetConListPerPage();
-//    for(auto & con_ele : con_list){
-//        auto *con_user_wid = new ConUserItem();
-//        con_user_wid->SetInfo(con_ele->_uid,con_ele->_name, con_ele->_icon);
-//        QListWidgetItem *item = new QListWidgetItem;
-//        //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
-//        item->setSizeHint(con_user_wid->sizeHint());
-//        this->addItem(item);
-//        this->setItemWidget(item, con_user_wid);
-//    }
+    auto con_list = UserMgr::GetInstance()->GetConListPerPage();
+    for(auto & con_ele : con_list){
+        auto *con_user_wid = new ConUserItem();
+        con_user_wid->SetInfo(con_ele->_uid,con_ele->_name, con_ele->_icon);
+        QListWidgetItem *item = new QListWidgetItem;
+        //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
+        item->setSizeHint(con_user_wid->sizeHint());
+        this->addItem(item);
+        this->setItemWidget(item, con_user_wid);
+    }
 
-//    UserMgr::GetInstance()->UpdateContactLoadedCount();
+    UserMgr::GetInstance()->UpdateContactLoadedCount();
 
     // 模拟列表， 创建QListWidgetItem，并设置自定义的widget
+#if 0
     for(int i = 0; i < 13; i++){
         int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
         int str_i = randomValue%test_strs.size();
@@ -125,6 +128,125 @@ void ContactUserList::addContactUserList()
         this->addItem(item);
         this->setItemWidget(item, con_user_wid);
     }
+#endif
+}
+
+void ContactUserList::NotifyAuthFriendReq(int len, QByteArray data)
+{
+    Q_UNUSED(len);
+    // 将QByteArray转换为QJsonDocument
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+    // 检查转换是否成功
+    if (jsonDoc.isNull()) {
+        qDebug() << "Failed to create QJsonDocument.";
+        return;
+    }
+
+    QJsonObject jsonObj = jsonDoc.object();
+    if (!jsonObj.contains("error")) {
+        int err = ErrorCodes::ERR_JSON;
+        qDebug() << "Auth Friend Failed, err is " << err;
+        return;
+    }
+
+    int err = jsonObj["error"].toInt();
+    if (err != ErrorCodes::SUCCESS) {
+        qDebug() << "Auth Friend Failed, err is " << err;
+        return;
+    }
+
+    int from_uid = jsonObj["fromuid"].toInt();
+    QString name = jsonObj["name"].toString();
+    QString nick = jsonObj["nick"].toString();
+    QString icon = jsonObj["icon"].toString();
+    int sex = jsonObj["sex"].toInt();
+
+    auto auth_info = std::make_shared<AuthInfo>(from_uid,name,
+                                                nick, icon, sex);
+
+    bool isFriend = UserMgr::GetInstance()->CheckFriendById(auth_info->_uid);
+    if(isFriend){
+        return;
+    }
+
+    // 在 groupitem 之后插入新项
+    int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+    int str_i = randomValue% test_strs.size();
+
+#if 1
+    auth_info->_icon = heads[randomValue% heads.size()];
+#endif
+
+    auto *con_user_wid = new ConUserItem();
+    con_user_wid->SetInfo(auth_info);
+    QListWidgetItem *item = new QListWidgetItem;
+    //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
+    item->setSizeHint(con_user_wid->sizeHint());
+
+    // 获取 groupitem 的索引
+    int index = this->row(_groupitem);
+    // 在 groupitem 之后插入新项
+    this->insertItem(index + 1, item);
+
+    this->setItemWidget(item, con_user_wid);
+}
+
+void ContactUserList::AuthFriendRsp(int len, QByteArray data)
+{
+    Q_UNUSED(len);
+    // 将QByteArray转换为QJsonDocument
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+    // 检查转换是否成功
+    if (jsonDoc.isNull()) {
+        qDebug() << "Failed to create QJsonDocument.";
+        return;
+    }
+
+    QJsonObject jsonObj = jsonDoc.object();
+
+    if (!jsonObj.contains("error")) {
+        int err = ErrorCodes::ERR_JSON;
+        qDebug() << "Auth Friend Failed, err is Json Parse Err" << err;
+        return;
+    }
+
+    int err = jsonObj["error"].toInt();
+    if (err != ErrorCodes::SUCCESS) {
+        qDebug() << "Auth Friend Failed, err is " << err;
+        return;
+    }
+
+    auto name = jsonObj["name"].toString();
+    auto nick = jsonObj["nick"].toString();
+    auto icon = jsonObj["icon"].toString();
+    auto sex = jsonObj["sex"].toInt();
+    auto uid = jsonObj["uid"].toInt();
+
+    auto auth_rsp = std::make_shared<AuthRsp>(uid, name, nick, icon, sex);
+
+    bool isFriend = UserMgr::GetInstance()->CheckFriendById(auth_rsp->_uid);
+    if(isFriend){
+        return;
+    }
+    // 在 groupitem 之后插入新项
+    int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+    int str_i = randomValue%test_strs.size();
+    int head_i = randomValue%heads.size();
+
+    auto *con_user_wid = new ConUserItem();
+    con_user_wid->SetInfo(auth_rsp->_uid ,auth_rsp->_name, heads[head_i]);
+    QListWidgetItem *item = new QListWidgetItem;
+    //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
+    item->setSizeHint(con_user_wid->sizeHint());
+
+    // 获取 groupitem 的索引
+    int index = this->row(_groupitem);
+    // 在 groupitem 之后插入新项
+    this->insertItem(index + 1, item);
+
+    this->setItemWidget(item, con_user_wid);
 }
 
 bool ContactUserList::eventFilter(QObject *watched, QEvent *event)

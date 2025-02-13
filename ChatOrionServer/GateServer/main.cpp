@@ -15,6 +15,7 @@
 #include <jdbc/cppconn/statement.h>
 #include <jdbc/cppconn/exception.h>
 
+#include "MySQLManager.h"
 #include "RedisManager.h"
 
 void TestRedis();
@@ -38,6 +39,12 @@ int main(int argc, char *argv[])
         {
             std::cerr << "日志模块初始化失败" << std::endl;
             return -1;
+        }
+
+        if (!MySQLManager::GetInstance()->init())
+        {
+            LOG_ERROR << "数据库初始化失败";
+            return -2;
         }
 
         unsigned short port = settings.value("GateServer/port", 8080).toInt();
