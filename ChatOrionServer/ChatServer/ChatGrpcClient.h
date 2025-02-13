@@ -61,6 +61,7 @@ private:
 
 class ChatGrpcClient : public Singleton<ChatGrpcClient>
 {
+    friend class Singleton<ChatGrpcClient>;
 public:
     ~ChatGrpcClient() {}
 

@@ -50,6 +50,13 @@ private:
      * @param msg_data
      */
     void AddFriendApplyHandler(std::shared_ptr<CSession> session, const std::string &msg_data);
+
+    /**
+    * 通过好友添加请求
+    * @param session
+    * @param msg_data
+    */
+    void AuthFriendApplyHandler(std::shared_ptr<CSession> session, const std::string &msg_data);
 private:
     /**
      * 判断字符串是否都是数字字符

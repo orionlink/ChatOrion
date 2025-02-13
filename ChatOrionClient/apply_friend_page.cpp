@@ -3,6 +3,7 @@
 #include "user_mgr.h"
 #include "apply_friend_item.h"
 #include "apply_friend_list.h"
+#include "authen_friend_dialog.h"
 
 #include <QRandomGenerator>
 #include <QListWidgetItem>
@@ -69,11 +70,11 @@ void ApplyFriendPage::AddNewApply(std::shared_ptr<AddFriendApply> apply)
     apply_item->ShowAddBtn(true);
     //收到审核好友信号
     connect(apply_item, &ApplyFriendItem::sig_auth_friend, [this](std::shared_ptr<ApplyInfo> apply_info) {
-//        auto* authFriend = new AuthenFriend(this);
-//        authFriend->setModal(true);
-//        authFriend->SetApplyInfo(apply_info);
-//        authFriend->show();
-        });
+        auto* authFriend = new AuthenFriendDialog(this);
+        authFriend->setModal(true);
+        authFriend->SetApplyInfo(apply_info);
+        authFriend->show();
+    });
 }
 
 void ApplyFriendPage::paintEvent(QPaintEvent *event)

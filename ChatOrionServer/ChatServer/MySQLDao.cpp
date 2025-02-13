@@ -142,6 +142,152 @@ std::shared_ptr<UserInfo> MySQLDao::GetUser(std::string name)
     }
 }
 
+bool MySQLDao::AddFriendApply(const int &from_uid, const int &to_uid)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this]
+        {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 查询是否已经存在记录
+        std::unique_ptr<sql::PreparedStatement> checkStmt(conn->_connection->prepareStatement(
+            "SELECT COUNT(*) FROM friend_apply WHERE from_uid = ? AND to_uid = ?"));
+        checkStmt->setInt(1, from_uid);
+        checkStmt->setInt(2, to_uid);
+
+        std::unique_ptr<sql::ResultSet> resultSet(checkStmt->executeQuery());
+        if (resultSet->next() && resultSet->getInt(1) > 0)
+        {
+            // TODO
+            // 记录已经存在，更新状态即可
+            return true;
+        }
+
+        // 准备调用存储过程
+        std::unique_ptr <sql::PreparedStatement> pstmt(conn->_connection->prepareStatement("INSERT INTO friend_apply (from_uid, to_uid) VALUES (?, ?)"));
+
+        // 设置参数
+        pstmt->setInt(1, from_uid);
+        pstmt->setInt(2, to_uid);
+
+        // 执行更新
+        int rowAffected = pstmt->executeUpdate();
+        if (rowAffected < 0) {
+            return false;
+        }
+
+        return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
+}
+
+bool MySQLDao::AuthFriendApply(const int &from_uid, const int &to_uid)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this]
+        {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 准备调用存储过程
+        std::string sql = "UPDATE friend_apply SET status = 1 WHERE from_uid = ? AND to_uid = ?";
+        std::unique_ptr <sql::PreparedStatement> pstmt(conn->_connection->prepareStatement(sql));
+
+        // 设置参数
+        pstmt->setInt(1, to_uid);
+        pstmt->setInt(2, from_uid);
+
+        // 执行更新
+        int rowAffected = pstmt->executeUpdate();
+        if (rowAffected < 0) {
+            return false;
+        }
+
+        return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
+}
+
+bool MySQLDao::AddFriend(const int &from_uid, const int &to_uid, std::string back_name)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    Defer defer([&conn, this]
+    {
+        _pool->returnConnection(std::move(conn));
+    });
+
+    try
+    {
+        // 开始事务
+        conn->_connection->setAutoCommit(false);
+
+        // 准备第一个SQL语句, 插入认证方好友数据
+        std::string sql = "INSERT IGNORE INTO friend(self_id, friend_id, back) VALUES (?, ?, ?)";
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->_connection->prepareStatement(sql));
+        //反过来的申请时from，验证时to
+        pstmt->setInt(1, from_uid); // from id
+        pstmt->setInt(2, to_uid);
+        pstmt->setString(3, back_name);
+        // 执行更新
+        int rowAffected = pstmt->executeUpdate();
+        if (rowAffected < 0)
+        {
+            conn->_connection->rollback();
+            return false;
+        }
+
+        //准备第二个SQL语句，插入申请方好友数据
+        std::unique_ptr<sql::PreparedStatement> pstmt2(conn->_connection->prepareStatement(sql));
+        //反过来的申请时from，验证时to
+        pstmt2->setInt(1, to_uid);
+        pstmt2->setInt(2, from_uid);
+        pstmt2->setString(3, back_name);
+        // 执行更新
+        int rowAffected2 = pstmt2->executeUpdate();
+        if (rowAffected2 < 0)
+        {
+            conn->_connection->rollback();
+            return false;
+        }
+
+        return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        // 如果发生错误，回滚事务
+        if (conn) {
+            conn->_connection->rollback();
+        }
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
+}
+
 std::vector<std::string> MySQLDao::splitSQLScript(const std::string& sql_content)
 {
     std::vector<std::string> sql_statements;

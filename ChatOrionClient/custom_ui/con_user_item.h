@@ -10,6 +10,8 @@ namespace Ui {
 class ConUserItem;
 }
 
+class RedDotLabel;
+
 /**
  * @brief 联系人项
  */
@@ -24,11 +26,17 @@ public:
     void SetInfo(std::shared_ptr<AuthInfo> auth_info);
     void SetInfo(std::shared_ptr<AuthRsp> auth_rsp);
     void SetInfo(int uid, QString name, QString icon);
-    void ShowRedPoint(bool show = false);
+//    void ShowRedPoint(bool show = false);
+
+    void SetRedDot(bool show, int count);
     std::shared_ptr<UserInfo> GetInfo();
 private:
+    void resizeEvent(QResizeEvent *event) override;
+    void updateRedDotPosition();
+
     Ui::ConUserItem *ui;
     std::shared_ptr<UserInfo> _info;
+    RedDotLabel* _redDotLabel;
 };
 
 #endif // CON_USER_ITEM_H

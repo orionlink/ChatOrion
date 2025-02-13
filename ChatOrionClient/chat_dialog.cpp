@@ -4,6 +4,8 @@
 #include "common_utils.h"
 #include "cui_helper.h"
 #include "message_bus.h"
+#include "tcp_mgr.h"
+#include "user_mgr.h"
 
 #include <QMenu>
 #include <QFile>
@@ -134,11 +136,20 @@ ChatDialog::ChatDialog(QWidget *parent) :
 
     installEventFilter(this);
 
+    // 注册网络处理函数
+    TcpMgr::GetInstance()->registerMessageCallback(ReqId::ID_NOTIFY_ADD_FRIEND_REQ,
+                                                   std::bind(&ChatDialog::NotifyAddFriendReq, this,
+                                                   std::placeholders::_1, std::placeholders::_2));
+
     /// 测试使用
     addChatUserList();
     QPixmap pixmap(":/res/pic/head_5.jpg");
     ui->side_head_lb->setPixmap(pixmap.scaled(ui->side_head_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     ui->side_head_lb->setScaledContents(true);
+
+//    ui->side_contact_lb->SetRedDot(true);
+//    ui->side_chat_lb->SetRedDot(true, 8);
+//    ui->con_user_list->SetRedDot(true);
 }
 
 ChatDialog::~ChatDialog()
@@ -160,6 +171,56 @@ void ChatDialog::clearLabelState(StateWidget *lb)
 
         ele->ClearState();
     }
+}
+
+void ChatDialog::NotifyAddFriendReq(int len, QByteArray data)
+{
+    Q_UNUSED(len);
+    // 将QByteArray转换为QJsonDocument
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+    // 检查转换是否成功
+    if (jsonDoc.isNull()) {
+        qDebug() << "Failed to create QJsonDocument.";
+        return;
+    }
+
+    QJsonObject jsonObj = jsonDoc.object();
+
+    if (!jsonObj.contains("error"))
+    {
+        int err = ErrorCodes::ERR_JSON;
+        qDebug() << "Login Failed, err is Json Parse Err" << err;
+        return;
+    }
+
+    int err = jsonObj["error"].toInt();
+    if (err != ErrorCodes::SUCCESS)
+    {
+        qDebug() << "Login Failed, err is " << err;
+        return;
+    }
+
+     int from_uid = jsonObj["applyuid"].toInt();
+     QString name = jsonObj["name"].toString();
+     QString desc = jsonObj["desc"].toString();
+     QString icon = jsonObj["icon"].toString();
+     QString nick = jsonObj["nick"].toString();
+     int sex = jsonObj["sex"].toInt();
+
+    auto apply_info = std::make_shared<AddFriendApply>(
+                from_uid, name, desc,
+                  icon, nick, sex);
+
+    bool b_already = UserMgr::GetInstance()->AlreadyApply(apply_info->_from_uid);
+    if(b_already){
+         return;
+    }
+
+    UserMgr::GetInstance()->AddApplyList(std::make_shared<ApplyInfo>(apply_info));
+    ui->side_contact_lb->SetRedDot(true);
+    ui->con_user_list->SetRedDot(true);
+    ui->apply_friend_page->AddNewApply(apply_info);
 }
 
 bool ChatDialog::eventFilter(QObject *obj, QEvent *event)

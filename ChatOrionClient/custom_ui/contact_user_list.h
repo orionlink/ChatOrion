@@ -19,7 +19,7 @@ class ContactUserList : public QListWidget
     Q_OBJECT
 public:
     ContactUserList(QWidget* parent = nullptr);
-    void ShowRedPoint(bool bshow = true);
+    void SetRedDot(bool show = false, int count = 0);
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override ;
 private:

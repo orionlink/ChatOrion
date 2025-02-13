@@ -17,6 +17,11 @@ public:
 
     std::shared_ptr<UserInfo> GetUser(int uid);
     std::shared_ptr<UserInfo> GetUser(std::string name);
+    bool AddFriendApply(const int& from_uid, const int& to_uid);
+
+    bool AuthFriendApply(const int& from_uid, const int& to_uid);
+
+    bool AddFriend(const int& from_uid, const int& to_uid, std::string back_name);
 private:
     // 拆分 SQL 脚本为多个语句
     std::vector<std::string> splitSQLScript(const std::string& sql_content);

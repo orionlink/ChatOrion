@@ -54,6 +54,8 @@ public slots:
      */
     void login();
 
+    void attemptAutoLogin(const QString& username, const QString& password);
+
     /**
      * @brief 登录界面切换
      */

@@ -21,6 +21,8 @@ void RedDotLabel::paintEvent(QPaintEvent *event)
         painter.setBrush(Qt::red);
         painter.setPen(Qt::NoPen);
 
+//        if (_radius != 8) radius = _radius;
+
         if (_count >= 10)
         {
             // 绘制两个圆形做相交，即可做出药丸型，计算两个圆的中心

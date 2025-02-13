@@ -59,9 +59,9 @@ ContactUserList::ContactUserList(QWidget *parent): _add_friend_item(nullptr)
 }
 
 
-void ContactUserList::ShowRedPoint(bool bshow /*= true*/)
+void ContactUserList::SetRedDot(bool show, int count)
 {
-    _add_friend_item->ShowRedPoint(bshow);
+    _add_friend_item->SetRedDot(show, count);
 }
 
 void ContactUserList::addContactUserList()
@@ -173,7 +173,6 @@ bool ContactUserList::eventFilter(QObject *watched, QEvent *event)
 //                QCoreApplication::quit(); // 完成后退出应用程序
 //                });
             // 滚动到底部，加载新的联系人
-            qDebug()<<"load more contact user";
             //发送信号通知聊天界面加载更多聊天内容
             emit sig_loading_contact_user();
          }

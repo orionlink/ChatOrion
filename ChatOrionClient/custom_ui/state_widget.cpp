@@ -1,4 +1,5 @@
 #include "state_widget.h"
+#include "red_dot_label.h"
 
 #include <QVBoxLayout>
 #include <QStyleOption>
@@ -6,12 +7,20 @@
 #include <QPainter>
 #include <QDebug>
 
-StateWidget::StateWidget(QWidget *parent): QWidget(parent),_curstate(ClickLbState::Normal)
+StateWidget::StateWidget(QWidget *parent): QWidget(parent),_curstate(ClickLbState::Normal), _redDotLabel(nullptr)
 {
     setCursor(Qt::PointingHandCursor);
-    //添加红点
-    AddRedPoint();
+//    //添加红点
+//    AddRedPoint();
     SetState("normal","hover","pressed","selected_normal","selected_hover","selected_pressed");
+
+    // 创建红点标签
+    _redDotLabel = new RedDotLabel((QWidget*)parent->parent());
+    _redDotLabel->hide();  // 默认隐藏
+    // 将红点移到最上层
+    _redDotLabel->raise();
+
+    _redDotLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
 }
 
 void StateWidget::SetState(QString normal, QString hover, QString press, QString select, QString select_hover, QString select_press)
@@ -58,23 +67,11 @@ void StateWidget::SetSelected(bool bselected)
     return;
 }
 
-
-void StateWidget::AddRedPoint()
+void StateWidget::SetRedDot(bool show, int count)
 {
-    //添加红点示意图
-    _red_point = new QLabel();
-    _red_point->setObjectName("red_point");
-    QVBoxLayout* layout2 = new QVBoxLayout;
-    _red_point->setAlignment(Qt::AlignCenter);
-    layout2->addWidget(_red_point);
-    layout2->setMargin(0);
-    this->setLayout(layout2);
-    _red_point->setVisible(false);
-}
-
-void StateWidget::ShowRedPoint(bool show)
-{
-    _red_point->setVisible(true);
+    _redDotLabel->setCount(show, count);
+    _redDotLabel->setVisible(true);
+    _redDotLabel->raise();  // 确保在最上层
 }
 
 void StateWidget::paintEvent(QPaintEvent *event)
@@ -168,5 +165,25 @@ void StateWidget::leaveEvent(QEvent *event)
         update();
     }
     QWidget::leaveEvent(event);
+}
+
+void StateWidget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    updateRedDotPosition();
+}
+
+void StateWidget::updateRedDotPosition()
+{
+    if (!this->geometry().isValid()) {
+        return;
+    }
+
+    // 将红点放置在右上角
+    int x = this->pos().x() + width() -10;
+    int y = this->pos().y() + 20; // 顶部对齐
+
+    _redDotLabel->move(x, y);
+    _redDotLabel->raise();
 }
 

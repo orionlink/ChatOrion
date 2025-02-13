@@ -6,6 +6,7 @@
 #include "tcp_mgr.h"
 #include "user_data.h"
 #include "user_mgr.h"
+#include "tools.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -48,7 +49,7 @@ LoginGUI::LoginGUI(QDialog*parent) :
     QObject::connect(ui->btn_login_page, &QPushButton::clicked, this, &LoginGUI::loginPage);
     QObject::connect(ui->btn_login, &QPushButton::clicked, this, &LoginGUI::login);
     QObject::connect(ui->btn_forget, &QPushButton::clicked, this, &LoginGUI::forgetPage);
-    QObject::connect(ui->btn_forget_2, &QPushButton::clicked, this, &LoginGUI::forgetPage);
+    QObject::connect(ui->btn_direct_login, &QPushButton::clicked, this, &LoginGUI::loginPage);
     QObject::connect(ui->btn_submit, &QPushButton::clicked, this, &LoginGUI::forgetPassword);
     QObject::connect(ui->getcodeButton, &QPushButton::clicked, this, &LoginGUI::getCode);
     QObject::connect(ui->getcodeButton_2, &QPushButton::clicked, this, &LoginGUI::getCode);
@@ -71,6 +72,29 @@ LoginGUI::LoginGUI(QDialog*parent) :
 
     TcpMgr::GetInstance()->registerMessageCallback(ReqId::ID_CHAT_LOGIN_RSP, std::bind(&LoginGUI::onChatLoginRsp, this, std::placeholders::_1,
                                                                                            std::placeholders::_2));
+
+    // 检查是否使用自动登录
+    bool autoLogin = false;
+    QString savedUsername = "";
+    bool remember = false;
+    Tools::loadLoginState(savedUsername, remember, autoLogin);
+    ui->remPwd_checkBox->setChecked(remember);
+    ui->autoLogin_checkBox->setChecked(autoLogin);
+
+    if (remember || autoLogin)
+    {
+        Tools::loadPassword(savedUsername, this, [this, savedUsername, autoLogin](const QString& password)
+        {
+            if (!password.isEmpty())
+            {
+                qDebug() << "savedUsername: " << savedUsername << " password: " << password;
+                // 自动填充并登录
+                ui->lineE_user_name->setText(savedUsername);
+                ui->lineE_pwd->setText(password);
+                if (autoLogin) attemptAutoLogin(savedUsername, password);
+            }
+        });
+    }
 
     QPushButton* btn_login = ui->btn_login;
 
@@ -154,6 +178,28 @@ void LoginGUI::login()
     request_json["username"] = username;
     request_json["password"] = password;
     HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/user_login"), request_json, Modules::LOGIN_MOD, ReqId::ID_LOGIN_USER);
+
+    bool rem = ui->remPwd_checkBox->isChecked();
+    bool autoLogin = ui->autoLogin_checkBox->isChecked();
+    Tools::saveLoginState(username, rem, autoLogin);
+    if (rem || autoLogin)
+    {
+        Tools::savePassword(username, ui->lineE_pwd->text());
+    }
+}
+
+void LoginGUI::attemptAutoLogin(const QString &username, const QString &password)
+{
+    ui->btn_login->setEnabled(false);
+    ui->btn_login->setText(QString::fromLocal8Bit("登陆中..."));
+
+    QJsonObject request_json;
+    request_json["username"] = username;
+    request_json["password"] = Tools::hashString(password, QCryptographicHash::Sha256);
+    HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/user_login"), request_json, Modules::LOGIN_MOD, ReqId::ID_LOGIN_USER);
+
+    bool rem = ui->remPwd_checkBox->isChecked();
+    Tools::saveLoginState(username, rem, false);
 }
 
 void LoginGUI::emailLogin()

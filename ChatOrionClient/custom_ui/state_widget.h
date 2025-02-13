@@ -6,6 +6,8 @@
 
 #include "clicked_label.h"
 
+class RedDotLabel;
+
 /**
  * @brief 侧边栏支持点击的按钮，为了加红点显示(消息未读数量)
  */
@@ -22,9 +24,9 @@ public:
     void ClearState();
 
     void SetSelected(bool bselected);
-    void AddRedPoint();
-    void ShowRedPoint(bool show=true);
-
+//    void AddRedPoint();
+//    void ShowRedPoint(bool show=true);
+    void SetRedDot(bool show = false, int count = 0);
 protected:
     void paintEvent(QPaintEvent* event) override;
 
@@ -32,7 +34,9 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *ev) override;
     virtual void enterEvent(QEvent* event) override;
     virtual void leaveEvent(QEvent* event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
+    void updateRedDotPosition();
 private:
 
     QString _normal;
@@ -44,8 +48,7 @@ private:
     QString _selected_press;
 
     ClickLbState _curstate;
-    QLabel * _red_point;
-
+    RedDotLabel* _redDotLabel;
 signals:
     void clicked(void);
 };

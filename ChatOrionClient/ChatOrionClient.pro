@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     apply_friend_dialog.cpp \
     apply_friend_page.cpp \
+    authen_friend_dialog.cpp \
     chat_dialog.cpp \
     chat_page.cpp \
     chat_view.cpp \
@@ -51,7 +52,7 @@ SOURCES += \
     network/http_mgr.cpp \
     network/tcp_mgr.cpp \
     normal_page.cpp \
-    tools.cpp \
+    utils/tools.cpp \
     user_data.cpp \
     user_mgr.cpp \
     utils/cui_helper.cpp \
@@ -61,6 +62,7 @@ SOURCES += \
 HEADERS += \
     apply_friend_dialog.h \
     apply_friend_page.h \
+    authen_friend_dialog.h \
     chat_dialog.h \
     chat_page.h \
     chat_view.h \
@@ -101,7 +103,7 @@ HEADERS += \
     network/tcp_mgr.h \
     normal_page.h \
     singleton.h \
-    tools.h \
+    utils/tools.h \
     user_data.h \
     user_mgr.h \
     utils/cui_helper.h \
@@ -112,6 +114,7 @@ HEADERS += \
 FORMS += \
     apply_friend_dialog.ui \
     apply_friend_page.ui \
+    authen_friend_dialog.ui \
     chat_dialog.ui \
     chat_page.ui \
     custom_ui/apply_friend_item.ui \
@@ -130,6 +133,9 @@ DESTDIR = $$PWD/bin
 INCLUDEPATH += $$PWD/custom_ui
 INCLUDEPATH += $$PWD/network
 INCLUDEPATH += $$PWD/utils
+INCLUDEPATH += $$PWD/../third/linux/qtkeychain/include
+
+LIBS += -L$$PWD/../third/linux/qtkeychain/lib -lqt5keychain
 
 include($$PWD/FrameWgt/FrameWgt.pri)
 

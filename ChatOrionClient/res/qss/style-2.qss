@@ -42,13 +42,13 @@ QLineEdit{
     border: none;
 }
 
-#btn_forget_2{
+#btn_direct_login{
     border:none;
     color:#d7b105;
 }
 
 
-#btn_forget_2:hover{
+#btn_direct_login:hover{
     border:none;
     color:#d7b105;
 }

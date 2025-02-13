@@ -16,6 +16,12 @@ class MySQLManager : public Singleton<MySQLManager>
 public:
     std::shared_ptr<UserInfo> GetUser(int uid);
     std::shared_ptr<UserInfo> GetUser(std::string name);
+
+    bool AddFriendApply(const int& from_uid, const int& to_uid);
+
+    bool AuthFriendApply(const int& from_uid, const int& to_uid);
+
+    bool AddFriend(const int& from_uid, const int& to_uid, std::string back_name);
 private:
     MySQLDao _dao;
 };

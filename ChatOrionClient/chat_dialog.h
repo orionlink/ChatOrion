@@ -31,6 +31,8 @@ private:
      */
     void clearLabelState(StateWidget *lb);
 
+    void NotifyAddFriendReq(int len, QByteArray data);
+
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     // 测试函数

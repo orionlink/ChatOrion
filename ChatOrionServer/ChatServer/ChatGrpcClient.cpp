@@ -3,6 +3,9 @@
 //
 
 #include "ChatGrpcClient.h"
+
+#include <log.h>
+
 #include "Settings.h"
 #include "tools.h"
 
@@ -85,11 +88,61 @@ ChatGrpcClient::ChatGrpcClient()
 AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFriendReq &req)
 {
     AddFriendRsp rsp;
+
+    auto find_iter = _pools.find(server_ip);
+    if (find_iter == _pools.end())
+    {
+        rsp.set_error(ErrorCodes::RPCFailed);
+        LOG_ERROR << "在rpc请求池中找不到需要请求的服务 server_name: " << server_ip;
+        return rsp;
+    }
+
+    auto &pool = find_iter->second;
+    ClientContext context;
+    auto stub = pool->getConnection();
+    Status status = stub->NotifyAddFriend(&context, req, &rsp);
+    Defer defercon([&stub, this, &pool]() {
+        pool->returnConnection(std::move(stub));
+    });
+
+    if (!status.ok())
+    {
+        rsp.set_error(ErrorCodes::RPCFailed);
+        LOG_ERROR << "rpc请求失败";
+        return rsp;
+    }
+
+    return rsp;
 }
 
 AuthFriendRsp ChatGrpcClient::NotifyAuthFriend(std::string server_ip, const AuthFriendReq &req)
 {
     AuthFriendRsp rsp;
+
+    auto find_iter = _pools.find(server_ip);
+    if (find_iter == _pools.end())
+    {
+        rsp.set_error(ErrorCodes::RPCFailed);
+        LOG_ERROR << "在rpc请求池中找不到需要请求的服务 server_name: " << server_ip;
+        return rsp;
+    }
+
+    auto &pool = find_iter->second;
+    ClientContext context;
+    auto stub = pool->getConnection();
+    Status status = stub->NotifyAuthFriend(&context, req, &rsp);
+    Defer defercon([&stub, this, &pool]() {
+        pool->returnConnection(std::move(stub));
+    });
+
+    if (!status.ok())
+    {
+        rsp.set_error(ErrorCodes::RPCFailed);
+        LOG_ERROR << "rpc请求失败";
+        return rsp;
+    }
+
+    return rsp;
 }
 
 bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo> &userinfo)
