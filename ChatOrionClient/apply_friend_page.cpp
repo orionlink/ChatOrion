@@ -4,10 +4,12 @@
 #include "apply_friend_item.h"
 #include "apply_friend_list.h"
 #include "authen_friend_dialog.h"
+#include "message_bus.h"
 
 #include <QRandomGenerator>
 #include <QListWidgetItem>
 #include <QPainter>
+#include <QJsonObject>
 
 /************************测试使用　开始**************************/
 inline std::vector<QString>  test_strs ={"你好",
@@ -44,7 +46,20 @@ ApplyFriendPage::ApplyFriendPage(QWidget *parent) :
     connect(ui->apply_friend_list, &ApplyFriendList::sig_show_search, this, &ApplyFriendPage::sig_show_search);
     loadApplyList();
     //接受tcp传递的authrsp信号处理
-//    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_auth_rsp, this, &ApplyFriendPage::slot_auth_rsp);
+    MessageBus::instance()->registerHandler(MessageCommand::AUTH_FRIEND_RSP, this,[this](const QVariant& data)
+    {
+        QJsonObject jsonObj = data.toJsonObject();
+
+        auto uid = jsonObj["uid"].toInt();
+
+        auto find_iter = _unauth_items.find(uid);
+        if (find_iter == _unauth_items.end()) {
+            return;
+        }
+
+        find_iter->second->ShowAddBtn(false);
+    });
+
 }
 
 ApplyFriendPage::~ApplyFriendPage()
@@ -58,8 +73,15 @@ void ApplyFriendPage::AddNewApply(std::shared_ptr<AddFriendApply> apply)
     int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
     int head_i = randomValue % heads.size();
     auto* apply_item = new ApplyFriendItem();
+
+#if 1
     auto apply_info = std::make_shared<ApplyInfo>(apply->_from_uid,
              apply->_name, apply->_desc,heads[head_i], apply->_name, 0, 0);
+#else
+    auto apply_info = std::make_shared<ApplyInfo>(apply->_from_uid,
+             apply->_name, apply->_desc,apply->_icon, apply->_name, 0, 0);
+#endif
+
     apply_item->SetInfo( apply_info);
     QListWidgetItem* item = new QListWidgetItem;
     //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
@@ -68,6 +90,8 @@ void ApplyFriendPage::AddNewApply(std::shared_ptr<AddFriendApply> apply)
     ui->apply_friend_list->insertItem(0,item);
     ui->apply_friend_list->setItemWidget(item, apply_item);
     apply_item->ShowAddBtn(true);
+    _unauth_items[apply->_from_uid] = apply_item;
+
     //收到审核好友信号
     connect(apply_item, &ApplyFriendItem::sig_auth_friend, [this](std::shared_ptr<ApplyInfo> apply_info) {
         auto* authFriend = new AuthenFriendDialog(this);
@@ -146,15 +170,4 @@ void ApplyFriendPage::loadApplyList()
         });
     }
 #endif
-}
-
-void ApplyFriendPage::slot_auth_rsp(std::shared_ptr<AuthRsp> auth_rsp)
-{
-    auto uid = auth_rsp->_uid;
-    auto find_iter = _unauth_items.find(uid);
-    if (find_iter == _unauth_items.end()) {
-        return;
-    }
-
-    find_iter->second->ShowAddBtn(false);
 }

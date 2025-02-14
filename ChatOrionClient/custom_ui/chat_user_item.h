@@ -2,6 +2,7 @@
 #define CHATUSER_ITEM_H
 
 #include "list_item_base.h"
+#include "user_data.h"
 
 namespace Ui {
 class ChatUserItem;
@@ -26,7 +27,12 @@ public:
 
     void SetInfo(QString name, QString head, QString msg);
 
+    void SetInfo(std::shared_ptr<UserInfo> user_info);
+    void SetInfo(std::shared_ptr<FriendInfo> friend_info);
+
     void SetRedDot(bool show = false, int count = 0);
+
+    std::shared_ptr<UserInfo> GetUserInfo();
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -35,11 +41,9 @@ private:
 
     Ui::ChatUserItem *ui;
 
-    QString _name;
-    QString _head;
-    QString _msg;
-
     RedDotLabel* redDotLabel;
+
+    std::shared_ptr<UserInfo> _user_info;
 };
 
 #endif // CHATUSER_ITEM_H

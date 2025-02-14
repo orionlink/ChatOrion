@@ -241,6 +241,11 @@ bool MySQLDao::AddFriend(const int &from_uid, const int &to_uid, std::string bac
 
     try
     {
+        // 设置事务超时时间
+        conn->_connection->setTransactionIsolation(sql::TRANSACTION_READ_COMMITTED);  // 添加这行
+        std::unique_ptr<sql::Statement> stmt(conn->_connection->createStatement());
+        stmt->execute("SET innodb_lock_wait_timeout = 50");  // 添加这行，设置锁等待超时时间
+
         // 开始事务
         conn->_connection->setAutoCommit(false);
 

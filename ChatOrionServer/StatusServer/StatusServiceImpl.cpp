@@ -73,13 +73,22 @@ Status StatusServiceImpl::GetChatServer(ServerContext* context, const GetChatSer
                                         GetChatServerRes* reply)
 {
     std::string prefix("status server has received :  ");
-    const auto &server = getChatServer();
-    reply->set_host(server.host);
-    reply->set_port(std::atoi(server.port.c_str()));
-    reply->set_error(ErrorCodes::Success);
-    reply->set_token(generate_unique_string());
 
-    insertToken(request->uid(), reply->token());
+    try
+    {
+        const auto &server = getChatServer();
+        reply->set_host(server.host);
+        reply->set_port(std::atoi(server.port.c_str()));
+        reply->set_error(ErrorCodes::Success);
+        reply->set_token(generate_unique_string());
+
+        insertToken(request->uid(), reply->token());
+    }
+    catch (std::exception& ex)
+    {
+        LOG_ERROR << ex.what();
+    }
+
     return Status::OK;
 }
 
@@ -150,6 +159,10 @@ ChatServer StatusServiceImpl::getChatServer()
 {
     std::lock_guard<std::mutex> lock(_servers_mutex);
 
+    if (_servers.empty())
+    {
+        throw std::runtime_error("No available chat servers");
+    }
     // 获取 Redis 连接数的辅助函数
     auto getConnectionCount = [](const std::string& server_name)
     {

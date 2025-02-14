@@ -4,13 +4,14 @@
 #include "user_mgr.h"
 #include "search_user_item.h"
 #include "find_success_dialog.h"
+#include "find_failed_dialog.h"
 #include "common_utils.h"
 #include "loading_dlg.h"
 #include "message_bus.h"
 
 #include<QScrollBar>
 
-SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr), _search_edit_text(""), _send_pending(false)
+SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_success_dlg(nullptr), _find_failed_dlg(nullptr), _send_pending(false),_search_edit_text("")
 {
     Q_UNUSED(parent);
      this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -35,10 +36,16 @@ SearchList::SearchList(QWidget *parent):QListWidget(parent),_find_dlg(nullptr), 
 
 void SearchList::CloseFindDlg()
 {
-    if(_find_dlg)
+    if(_find_success_dlg)
     {
-        _find_dlg->hide();
-        _find_dlg = nullptr;
+        _find_success_dlg->hide();
+        _find_success_dlg = nullptr;
+    }
+
+    if (_find_failed_dlg)
+    {
+        _find_failed_dlg->hide();
+        _find_failed_dlg = nullptr;
     }
 }
 
@@ -176,8 +183,14 @@ void SearchList::searchUserRsp(int len, QByteArray data)
     }
 
     int err = jsonObj["error"].toInt();
-    if (err != ErrorCodes::SUCCESS) {
-        qDebug() << "Login Failed, err is " << err;
+    if (err != ErrorCodes::SUCCESS)
+    {
+        if (err == ErrorCodes::UserNotExist)
+        {
+            qDebug() << "查询不到该用户 err: "<< err;
+            _find_failed_dlg = std::make_shared<FindFailedDialog>(this);
+            _find_failed_dlg->show();
+        }
         return;
     }
 
@@ -187,8 +200,9 @@ void SearchList::searchUserRsp(int len, QByteArray data)
 
     //如果是自己，暂且先直接返回，以后看逻辑扩充
     auto self_uid = UserMgr::GetInstance()->GetUid();
-    if (search_info->_uid == self_uid) {
-             return;
+    if (search_info->_uid == self_uid)
+    {
+        return;
     }
     //此处分两种情况，一种是搜多到已经是自己的朋友了，一种是未添加好友
     //查找是否已经是好友
@@ -201,7 +215,7 @@ void SearchList::searchUserRsp(int len, QByteArray data)
     }
 
     //此处先处理为添加的好友
-    _find_dlg = std::make_shared<FindSuccessDialog>(this);
-    std::dynamic_pointer_cast<FindSuccessDialog>(_find_dlg)->SetSearchInfo(search_info);
-    _find_dlg->show();
+    _find_success_dlg = std::make_shared<FindSuccessDialog>(this);
+    std::dynamic_pointer_cast<FindSuccessDialog>(_find_success_dlg)->SetSearchInfo(search_info);
+    _find_success_dlg->show();
 }

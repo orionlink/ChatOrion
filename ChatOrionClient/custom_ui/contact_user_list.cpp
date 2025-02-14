@@ -5,6 +5,8 @@
 #include "con_user_item.h"
 #include "tcp_mgr.h"
 #include "user_mgr.h"
+#include "message_bus.h"
+#include "message_commands.h"
 
 #include <QRandomGenerator>
 #include <QTimer>
@@ -100,9 +102,18 @@ void ContactUserList::addContactUserList()
 
 //    //加载后端发送过来的好友列表
     auto con_list = UserMgr::GetInstance()->GetConListPerPage();
-    for(auto & con_ele : con_list){
+    for(auto & con_ele : con_list)
+    {
         auto *con_user_wid = new ConUserItem();
+
+#if 1
+        int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
+        int head_i = randomValue % heads.size();
+        con_ele->_icon = heads[head_i];
         con_user_wid->SetInfo(con_ele->_uid,con_ele->_name, con_ele->_icon);
+#else
+        con_user_wid->SetInfo(con_ele->_uid,con_ele->_name, con_ele->_icon);
+#endif
         QListWidgetItem *item = new QListWidgetItem;
         //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
         item->setSizeHint(con_user_wid->sizeHint());
@@ -170,9 +181,10 @@ void ContactUserList::NotifyAuthFriendReq(int len, QByteArray data)
         return;
     }
 
+    UserMgr::GetInstance()->AddFriend(auth_info);
+
     // 在 groupitem 之后插入新项
     int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
-    int str_i = randomValue% test_strs.size();
 
 #if 1
     auth_info->_icon = heads[randomValue% heads.size()];
@@ -190,6 +202,8 @@ void ContactUserList::NotifyAuthFriendReq(int len, QByteArray data)
     this->insertItem(index + 1, item);
 
     this->setItemWidget(item, con_user_wid);
+
+    MessageBus::instance()->sendMessage(MessageCommand::NOTIFY_AUTH_FRIEND_REQ, jsonObj);
 }
 
 void ContactUserList::AuthFriendRsp(int len, QByteArray data)
@@ -230,6 +244,9 @@ void ContactUserList::AuthFriendRsp(int len, QByteArray data)
     if(isFriend){
         return;
     }
+
+    UserMgr::GetInstance()->AddFriend(auth_rsp);
+
     // 在 groupitem 之后插入新项
     int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
     int str_i = randomValue%test_strs.size();
@@ -247,6 +264,9 @@ void ContactUserList::AuthFriendRsp(int len, QByteArray data)
     this->insertItem(index + 1, item);
 
     this->setItemWidget(item, con_user_wid);
+
+    // 发送给其他界面
+    MessageBus::sendMessage(MessageCommand::AUTH_FRIEND_RSP, jsonObj);
 }
 
 bool ContactUserList::eventFilter(QObject *watched, QEvent *event)
@@ -279,21 +299,20 @@ bool ContactUserList::eventFilter(QObject *watched, QEvent *event)
 
         if (maxScrollValue - currentValue <= 0) {
 
-//            auto b_loaded = UserMgr::GetInstance()->IsLoadChatFin();
-//            if(b_loaded){
-//                return true;
-//            }
+            auto b_loaded = UserMgr::GetInstance()->IsLoadConFinal();
+            if(b_loaded){
+                return true;
+            }
 
-//            if(_load_pending){
-//                return true;
-//            }
+            if(_load_pending){
+                return true;
+            }
 
-//            _load_pending = true;
+            _load_pending = true;
 
-//            QTimer::singleShot(100, [this](){
-//                _load_pending = false;
-//                QCoreApplication::quit(); // 完成后退出应用程序
-//                });
+            QTimer::singleShot(100, [this](){
+                _load_pending = false;
+            });
             // 滚动到底部，加载新的联系人
             //发送信号通知聊天界面加载更多聊天内容
             emit sig_loading_contact_user();
@@ -328,10 +347,13 @@ void ContactUserList::slot_item_clicked(QListWidgetItem *item)
         return;
     }
 
-   if(itemType == ListItemType::APPLY_FRIEND_ITEM){
-
-       // 创建对话框，提示用户
-       qDebug()<< "apply friend item clicked ";
+   if(itemType == ListItemType::APPLY_FRIEND_ITEM)
+   {
+       ConUserItem* conUserItem = qobject_cast<ConUserItem*>(customItem);
+       if (conUserItem)
+       {
+           conUserItem->SetRedDot(false);
+       }
        //跳转到好友申请界面
        emit sig_switch_apply_friend_page();
        return;

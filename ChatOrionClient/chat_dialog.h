@@ -8,8 +8,10 @@ class ChatDialog;
 }
 
 #include "FrameWgt/framewgt.h"
+#include "user_data.h"
 
 class StateWidget;
+class QListWidgetItem;
 
 class ChatDialog : public QDialog
 {
@@ -35,8 +37,11 @@ private:
 
     bool eventFilter(QObject *obj, QEvent *event) override;
 
-    // 测试函数
     void addChatUserList();
+
+    void loadMoreChatUser();
+
+    void loadMoreConUser();
 private slots:
     /**
      * @brief 点击侧边聊天
@@ -61,9 +66,33 @@ private slots:
      * @brief 跳转到好友申请界面
      */
     void slot_switch_apply_friend_page();
+
+    /**
+     * @brief 连接searchlist跳转聊天信号
+     * @param si
+     */
+    void slot_jump_chat_item(std::shared_ptr<SearchInfo> si);
+
+    /**
+     * @brief 加载联系人
+     */
+    void slot_loading_contact_user();
+
+    /**
+     * @brief 加载聊天用户
+     */
+    void slot_loading_chat_user();
+
+    void slot_chat_user_item_clicked(QListWidgetItem *item);
+
+    void onAuthFriendRsp(const QVariant& data);
+    void onNotifyAuthFriendReq(const QVariant& data);
 private:
     Ui::ChatDialog *ui;
     QList<StateWidget*> _side_lb_list;
+    QMap<int, QListWidgetItem*> _chat_items_added; // key: uid, value: ChatUserItem
+    int _current_chat_uid;
+    bool _b_loading;
 };
 
 #endif // CHAT_DIALOG_H

@@ -6,6 +6,7 @@
 #include "emotion_bubble.h"
 #include "content_bubble.h"
 #include "message_bus.h"
+#include "user_mgr.h"
 
 #include <QStyleOption>
 #include <QPainter>
@@ -66,12 +67,37 @@ ChatPage::ChatPage(QWidget *parent) :
     QObject::connect(ui->delete_lb, &ClickedLabel::clicked, this, &ChatPage::onDeleteLabelClicked);
     QObject::connect(ui->action_close_lb, &ClickedLabel::clicked, this, &ChatPage::onCloseLabelClicked);
     QObject::connect(_emotion_wid, &EmotionWindow::signalEmotionItemClicked, this, &ChatPage::onEmotionItemClicked);
+    QObject::connect(ui->chatEdit, &MessageTextEdit::textChanged, this, [this](){
+        QString text = ui->chatEdit->toPlainText();
+        if (text.isEmpty())
+        {
+            ui->send_btn->setObjectName("send_btn");
+        }
+        else
+        {
+            ui->send_btn->setObjectName("send_activa_btn");
+        }
+
+        repolish(ui->send_btn);
+    });
 }
 
 ChatPage::~ChatPage()
 {
     delete ui;
     _emotion_wid->deleteLater();
+}
+
+void ChatPage::SetUserInfo(std::shared_ptr<UserInfo> user_info)
+{
+    _user_info = user_info;
+
+    //设置ui界面
+    ui->username_label->setText(_user_info->_name);
+    ui->chat_data_list->removeAllItem();
+    for(auto & msg : user_info->_chat_msgs){
+        AppendChatMsg(msg);
+    }
 }
 
 void ChatPage::paintEvent(QPaintEvent *event)
@@ -155,6 +181,38 @@ void ChatPage::handleGroupedMessages(const QVector<MsgInfo>& msgList, ChatRole r
     // 处理最后一组消息
     if (!currentGroup.isEmpty()) {
         createAndAppendChatItem(currentGroup);
+    }
+}
+
+void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
+{
+    auto self_info = UserMgr::GetInstance()->GetUserInfo();
+    ChatRole role;
+    //todo... 添加聊天显示
+    if (msg->_from_uid == self_info->_uid) {
+        role = ChatRole::Self;
+        auto pChatItem = std::make_unique<ChatItemBase>(role);
+
+        pChatItem->setUserName(self_info->_name);
+        pChatItem->setUserIcon(QPixmap(self_info->_icon));
+        QWidget* pBubble = nullptr;
+        pBubble = new TextBubble(role, msg->_msg_content);
+        pChatItem->setWidget(pBubble);
+        ui->chat_data_list->appendChatItem(std::move(pChatItem));
+    }
+    else {
+        role = ChatRole::Other;
+        auto pChatItem = std::make_unique<ChatItemBase>(role);
+        auto friend_info = UserMgr::GetInstance()->GetFriendById(msg->_from_uid);
+        if (friend_info == nullptr) {
+            return;
+        }
+        pChatItem->setUserName(friend_info->_name);
+        pChatItem->setUserIcon(QPixmap(friend_info->_icon));
+        QWidget* pBubble = nullptr;
+        pBubble = new TextBubble(role, msg->_msg_content);
+        pChatItem->setWidget(pBubble);
+        ui->chat_data_list->appendChatItem(std::move(pChatItem));
     }
 }
 

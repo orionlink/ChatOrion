@@ -28,7 +28,7 @@ public:
     void SetInfo(int uid, QString name, QString icon);
 //    void ShowRedPoint(bool show = false);
 
-    void SetRedDot(bool show, int count);
+    void SetRedDot(bool show, int count = 0);
     std::shared_ptr<UserInfo> GetInfo();
 private:
     void resizeEvent(QResizeEvent *event) override;

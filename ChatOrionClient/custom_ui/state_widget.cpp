@@ -19,8 +19,6 @@ StateWidget::StateWidget(QWidget *parent): QWidget(parent),_curstate(ClickLbStat
     _redDotLabel->hide();  // 默认隐藏
     // 将红点移到最上层
     _redDotLabel->raise();
-
-    _redDotLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
 }
 
 void StateWidget::SetState(QString normal, QString hover, QString press, QString select, QString select_hover, QString select_press)

@@ -2,6 +2,7 @@
 
 RedDotLabel::RedDotLabel(QWidget *parent) : QLabel(parent)
 {
+    setAttribute(Qt::WA_TransparentForMouseEvents, true);
     setAttribute(Qt::WA_TranslucentBackground);
     setAutoFillBackground(false);
     this->setFixedSize(25, 24);  // 设置固定大小

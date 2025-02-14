@@ -42,6 +42,10 @@ public:
      */
     bool CheckFriendById(int uid);
 
+    void AddFriend(std::shared_ptr<AuthRsp> auth_rsp);
+    void AddFriend(std::shared_ptr<AuthInfo> auth_info);
+    std::shared_ptr<FriendInfo> GetFriendById(int uid);
+
     /**
      * @brief 获取请求列表
      * @return
@@ -84,6 +88,21 @@ public:
      * @brief 更新 _contact_loaded 变量的计数
      */
     void UpdateContactLoadedCount();
+
+    /**
+     * @brief 是否加载完联系人
+     * @return
+     */
+    bool IsLoadConFinal();
+
+    std::vector<std::shared_ptr<FriendInfo>> GetChatListPerPage();
+
+    /**
+     * @brief 是否加载聊天列表
+     * @return
+     */
+    bool IsLoadChatFinal();
+    void UpdateChatLoadedCount();
 private:
     explicit UserMgr();
 
@@ -95,6 +114,7 @@ private:
     QString _token;
 
     size_t _contact_loaded;
+    size_t _chat_loaded;
     const size_t _chat_count_per_page; // 每页加载的数量 默认13
 };
 

@@ -11,7 +11,6 @@ ApplyFriendItem::ApplyFriendItem(QWidget *parent) :
     ShowAddBtn(true);
     connect(ui->addBtn, &ClickedBtn::clicked,  [this](){
         emit this->sig_auth_friend(_apply_info);
-        ShowAddBtn(false);
     });
 }
 

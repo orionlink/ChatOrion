@@ -144,6 +144,9 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const std::str
         }
     }
 
+    if (b_apply)
+        LOG_INFO << "获取申请列表: " << rtvalue["apply_list"].toStyledString();
+
     //获取好友列表
     std::vector<std::shared_ptr<UserInfo>> friend_list;
     bool b_friend_list = GetFriendList(uid, friend_list);
@@ -158,6 +161,9 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const std::str
         obj["back"] = friend_ele->back;
         rtvalue["friend_list"].append(obj);
     }
+
+    if (b_friend_list)
+        LOG_INFO << "获取好友列表: " << rtvalue["friend_list"].toStyledString();
 
     // 将登录该服务器的数量增加
     auto &setting = config::Settings::GetInstance();
@@ -563,7 +569,7 @@ void LogicSystem::GetUserByName(const std::string &username_str, Json::Value &rt
     std::shared_ptr<UserInfo> user_info = nullptr;
     user_info = MySQLManager::GetInstance()->GetUser(username_str);
     if (user_info == nullptr) {
-        rt_value["error"] = ErrorCodes::UidInvalid;
+        rt_value["error"] = ErrorCodes::UserNotExist;
         return;
     }
 

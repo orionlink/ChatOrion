@@ -2,7 +2,7 @@
 
 #include <QJsonArray>
 
-UserMgr::UserMgr():_user_info(nullptr), _contact_loaded(0), _chat_count_per_page(13)
+UserMgr::UserMgr():_user_info(nullptr), _contact_loaded(0), _chat_loaded(0),_chat_count_per_page(5)
 {
 
 }
@@ -69,6 +69,28 @@ bool UserMgr::CheckFriendById(int uid)
     }
 
     return true;
+}
+
+void UserMgr::AddFriend(std::shared_ptr<AuthRsp> auth_rsp)
+{
+    auto friend_info = std::make_shared<FriendInfo>(auth_rsp);
+    _friend_map[friend_info->_uid] = friend_info;
+}
+
+void UserMgr::AddFriend(std::shared_ptr<AuthInfo> auth_info)
+{
+    auto friend_info = std::make_shared<FriendInfo>(auth_info);
+    _friend_map[friend_info->_uid] = friend_info;
+}
+
+std::shared_ptr<FriendInfo> UserMgr::GetFriendById(int uid)
+{
+    auto find_it = _friend_map.find(uid);
+    if(find_it == _friend_map.end()){
+        return nullptr;
+    }
+
+    return *find_it;
 }
 
 std::vector<std::shared_ptr<ApplyInfo> > UserMgr::GetApplyList()
@@ -155,4 +177,59 @@ void UserMgr::UpdateContactLoadedCount()
     }
 
     _contact_loaded = end;
+}
+
+bool UserMgr::IsLoadConFinal()
+{
+    if (_contact_loaded >= _friend_list.size()) {
+        return true;
+    }
+
+    return false;
+}
+
+std::vector<std::shared_ptr<FriendInfo> > UserMgr::GetChatListPerPage()
+{
+    std::vector<std::shared_ptr<FriendInfo>> friend_list;
+    size_t begin = _chat_loaded;
+    size_t end = begin + _chat_count_per_page;
+
+    if (begin >= _friend_list.size()) {
+        return friend_list;
+    }
+
+    if (end > _friend_list.size()) {
+        friend_list = std::vector<std::shared_ptr<FriendInfo>>(_friend_list.begin() + begin, _friend_list.end());
+        return friend_list;
+    }
+
+
+    friend_list = std::vector<std::shared_ptr<FriendInfo>>(_friend_list.begin() + begin, _friend_list.begin()+ end);
+    return friend_list;
+}
+
+bool UserMgr::IsLoadChatFinal()
+{
+    if (_chat_loaded >= _friend_list.size()) {
+        return true;
+    }
+
+    return false;
+}
+
+void UserMgr::UpdateChatLoadedCount()
+{
+    size_t begin = _chat_loaded;
+    size_t end = begin + _chat_count_per_page;
+
+    if (begin >= _friend_list.size()) {
+        return ;
+    }
+
+    if (end > _friend_list.size()) {
+        _chat_loaded = _friend_list.size();
+        return ;
+    }
+
+    _chat_loaded = end;
 }

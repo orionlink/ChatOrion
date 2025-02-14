@@ -10,6 +10,8 @@ namespace MessageCommand
     const QString DELETE_MULTI_SELECT_REQ = "DELETE_MULTI_SELECT_REQ"; // 删除多选的消息
     const QString DELETE_SINGLE_SELECT_REQ = "DELETE_SINGLE_SELECT_REQ"; // 删除多选的消息
     const QString SEARCH_EDIT_TEXT_CHANGED = "SEARCH_EDIT_TEXT_CHANGED"; // 搜索框文本改变
+    const QString AUTH_FRIEND_RSP = "AUTH_FRIEND_RSP"; // 好友验证自己点击同意认证后界面刷新
+    const QString NOTIFY_AUTH_FRIEND_REQ = "NOTIFY_AUTH_FRIEND_REQ"; // 对端同意认证后通知的信号
 
     // 用户相关命令
     const QString LOGIN = "Login";

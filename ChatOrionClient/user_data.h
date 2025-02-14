@@ -3,17 +3,19 @@
 
 #include <QString>
 #include <memory>
+#include <QJsonArray>
+#include <QJsonObject>
 
 class SearchInfo
 {
 public:
     SearchInfo(int uid, QString name, QString nick, QString desc, int sex, QString icon);
-    int _uid;
-    QString _name;
-    QString _nick;
-    QString _desc;
-    int _sex;
-    QString _icon;
+    int _uid{0};
+    QString _name{""};
+    QString _nick{""};
+    QString _desc{""};
+    int _sex{0};
+    QString _icon{""};
 };
 
 class AddFriendApply
@@ -21,12 +23,12 @@ class AddFriendApply
 public:
     AddFriendApply(int from_uid, QString name, QString desc,
                    QString icon, QString nick, int sex);
-    int _from_uid;
-    QString _name;
-    QString _desc;
-    QString _icon;
-    QString _nick;
-    int     _sex;
+    int _from_uid{0};
+    QString _name{""};
+    QString _desc{""};
+    QString _icon{""};
+    QString _nick{""};
+    int     _sex{0};
 };
 
 struct ApplyInfo
@@ -46,13 +48,13 @@ struct ApplyInfo
     {
         _icon = head;
     }
-    int _uid;
-    QString _name;
-    QString _desc;
-    QString _icon;
-    QString _nick;
-    int _sex;
-    int _status;
+    int _uid{0};
+    QString _name{""};
+    QString _desc{""};
+    QString _icon{""};
+    QString _nick{""};
+    int _sex{0};
+    int _status{0};
 };
 
 struct AuthInfo
@@ -61,11 +63,11 @@ struct AuthInfo
              QString nick, QString icon, int sex):
         _uid(uid), _name(name), _nick(nick), _icon(icon),
         _sex(sex){}
-    int _uid;
-    QString _name;
-    QString _nick;
-    QString _icon;
-    int _sex;
+    int _uid{0};
+    QString _name{""};
+    QString _nick{""};
+    QString _icon{""};
+    int _sex{0};
 };
 
 struct AuthRsp
@@ -76,11 +78,11 @@ struct AuthRsp
           _icon(peer_icon),_sex(peer_sex)
     {}
 
-    int _uid;
-    QString _name;
-    QString _nick;
-    QString _icon;
-    int _sex;
+    int _uid{0};
+    QString _name{""};
+    QString _nick{""};
+    QString _icon{""};
+    int _sex{0};
 };
 
 struct TextChatData;
@@ -101,14 +103,14 @@ struct FriendInfo
 
     void AppendChatMsgs(const std::vector<std::shared_ptr<TextChatData>> text_vec);
 
-    int _uid;
-    QString _name;
-    QString _nick;
-    QString _icon;
-    int _sex;
-    QString _desc;
+    int _uid{0};
+    QString _name{""};
+    QString _nick{""};
+    QString _icon{""};
+    int _sex{0};
+    QString _desc{""};
     QString _back;
-    QString _last_msg;
+    QString _last_msg{""};
     std::vector<std::shared_ptr<TextChatData>> _chat_msgs;
 };
 
@@ -143,12 +145,41 @@ struct UserInfo {
             _chat_msgs = friend_info->_chat_msgs;
         }
 
-    int _uid;
-    QString _name;
-    QString _nick;
-    QString _icon;
-    int _sex;
-    QString _last_msg;
+    int _uid{0};
+    QString _name{""};
+    QString _nick{""};
+    QString _icon{""};
+    int _sex{0};
+    QString _last_msg{""};
+    std::vector<std::shared_ptr<TextChatData>> _chat_msgs;
+};
+
+struct TextChatData
+{
+    TextChatData(QString msg_id, QString msg_content, int fromuid, int touid)
+        :_msg_id(msg_id),_msg_content(msg_content),_from_uid(fromuid),_to_uid(touid){
+
+    }
+    QString _msg_id;
+    QString _msg_content;
+    int _from_uid;
+    int _to_uid;
+};
+
+struct TextChatMsg
+{
+    TextChatMsg(int fromuid, int touid, QJsonArray arrays):
+        _from_uid(fromuid),_to_uid(touid){
+        for(auto  msg_data : arrays){
+            auto msg_obj = msg_data.toObject();
+            auto content = msg_obj["content"].toString();
+            auto msgid = msg_obj["msgid"].toString();
+            auto msg_ptr = std::make_shared<TextChatData>(msgid, content,fromuid, touid);
+            _chat_msgs.push_back(msg_ptr);
+        }
+    }
+    int _to_uid;
+    int _from_uid;
     std::vector<std::shared_ptr<TextChatData>> _chat_msgs;
 };
 

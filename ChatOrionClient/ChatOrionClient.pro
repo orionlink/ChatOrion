@@ -22,6 +22,7 @@ SOURCES += \
     custom_ui/group_tip_item.cpp \
     custom_ui/loading_dlg.cpp \
     custom_ui/red_dot_label.cpp \
+    find_failed_dialog.cpp \
     utils/common_utils.cpp \
     custom_ui/bubble_frame.cpp \
     custom_ui/chat_item_base.cpp \
@@ -73,6 +74,7 @@ HEADERS += \
     custom_ui/group_tip_item.h \
     custom_ui/loading_dlg.h \
     custom_ui/red_dot_label.h \
+    find_failed_dialog.h \
     utils/common_utils.h \
     custom_ui/bubble_frame.h \
     custom_ui/chat_item_base.h \
@@ -124,6 +126,7 @@ FORMS += \
     custom_ui/group_tip_item.ui \
     custom_ui/search_user_item.ui \
     emotion_window.ui \
+    find_failed_dialog.ui \
     find_success_dialog.ui \
     login_gui.ui \
     normal_page.ui

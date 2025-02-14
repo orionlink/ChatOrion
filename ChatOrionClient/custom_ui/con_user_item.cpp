@@ -1,6 +1,7 @@
 #include "con_user_item.h"
 #include "ui_con_user_item.h"
 #include "red_dot_label.h"
+#include "contact_user_list.h"
 
 ConUserItem::ConUserItem(QWidget *parent) :
     ListItemBase(parent),
@@ -62,6 +63,7 @@ void ConUserItem::SetRedDot(bool show, int count)
     _redDotLabel->setCount(show, count);
     _redDotLabel->show();
     _redDotLabel->raise();  // 确保在最上层
+    updateRedDotPosition();
 }
 
 void ConUserItem::SetInfo(std::shared_ptr<AuthRsp> auth_rsp){
@@ -75,6 +77,8 @@ void ConUserItem::SetInfo(std::shared_ptr<AuthRsp> auth_rsp){
     ui->icon_lb->setScaledContents(true);
 
     ui->user_name_lb->setText(_info->_name);
+
+    updateRedDotPosition();
 }
 
 std::shared_ptr<UserInfo> ConUserItem::GetInfo()
@@ -98,8 +102,8 @@ void ConUserItem::updateRedDotPosition()
     QSize dotSize = _redDotLabel->size();
 
     // 将红点放置在图标右上角
-    int x = iconRect.right() - dotSize.width() / 2 + 8;
-    int y = iconRect.top() - dotSize.height() / 2 + 5;
+    int x = iconRect.right() - dotSize.width() / 2;
+    int y = iconRect.top() - dotSize.height() / 2;
 
     _redDotLabel->move(x, y);
     _redDotLabel->raise();  // 确保在最上层

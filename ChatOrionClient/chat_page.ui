@@ -63,7 +63,7 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="username_label">
            <property name="text">
             <string>燃烧的胸毛</string>
            </property>

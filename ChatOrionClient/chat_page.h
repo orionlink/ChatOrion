@@ -5,6 +5,7 @@
 
 #include "clicked_label.h"
 #include "emotion_window.h"
+#include "user_data.h"
 
 namespace Ui {
 class ChatPage;
@@ -17,6 +18,8 @@ class ChatPage : public QWidget
 public:
     explicit ChatPage(QWidget *parent = nullptr);
     ~ChatPage();
+
+    void SetUserInfo(std::shared_ptr<UserInfo> user_info);
 protected:
     void paintEvent(QPaintEvent *event);
 private slots:
@@ -41,9 +44,12 @@ private slots:
 private:
     void handleGroupedMessages(const QVector<MsgInfo>& msgList, ChatRole role,
                                          const QString& userName, const QString& userIcon);
+
+    void AppendChatMsg(std::shared_ptr<TextChatData> msg);
 private:
     Ui::ChatPage *ui;
     EmotionWindow* _emotion_wid;
+    std::shared_ptr<UserInfo> _user_info;
 };
 
 #endif // CHAT_PAGE_H

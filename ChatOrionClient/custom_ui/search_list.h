@@ -22,7 +22,8 @@ class SearchList: public QListWidget
 public:
     SearchList(QWidget *parent = nullptr);
     void CloseFindDlg();
-    std::shared_ptr<QDialog> getFindDialog() { return _find_dlg; }
+    std::shared_ptr<QDialog> getFindSuccessDialog() { return _find_success_dlg; }
+    std::shared_ptr<QDialog> getFindFailedDialog() { return _find_failed_dlg; }
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 private:
@@ -37,7 +38,8 @@ private:
     void searchUserRsp(int len, QByteArray data);
 private:
     bool _send_pending;
-    std::shared_ptr<QDialog> _find_dlg;
+    std::shared_ptr<QDialog> _find_success_dlg;
+    std::shared_ptr<QDialog> _find_failed_dlg;
     QString _search_edit_text; // 搜索框内容
     LoadingDlg * _loadingDialog;
 private slots:
