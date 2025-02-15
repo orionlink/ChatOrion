@@ -27,7 +27,6 @@ using message::AuthFriendRsp;
 using message::ChatService;
 using message::TextChatMsgReq;
 using message::TextChatMsgRsp;
-using message::TextChatData;
 
 
 class ChatServiceImpl final: public ChatService::Service

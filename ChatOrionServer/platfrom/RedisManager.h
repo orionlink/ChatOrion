@@ -34,6 +34,15 @@ public:
     bool del(const std::string &key);
     bool hdel(const std::string& key, const std::string& field);
     bool existsKey(const std::string &key);
+    bool expire(const std::string& key, int seconds);
+    // 执行原始Redis命令
+    bool execute(const std::string& command);
+    // 获取列表所有元素
+    bool lrange(const std::string& key, std::vector<std::string>& values);
+
+    bool hkeys(const std::string& key, std::vector<std::string>& fields);
+    // 倒序获取有序集合的范围数据
+    std::vector<std::string> zrevrange(const std::string& key, int start, int stop);
     void close();
 private:
     RedisManager();

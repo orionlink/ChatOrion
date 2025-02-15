@@ -34,6 +34,8 @@ public:
     }
     bool setContent(const QVector<MsgInfo>& messages);
 
+    bool setContent(const QString& messages);
+
     // 获取当前气泡中的所有消息
     QVector<MsgInfo> getMessages() const
     {
@@ -53,6 +55,7 @@ private:
     void insertEmotion(QTextCursor &cursor, const QString &emotionPath);
     void adjustTextHeight();
     void calculateMaxWidth(const QVector<MsgInfo>& messages);
+    QVector<MsgInfo> parseMixedMessage(const QString& message);
 
     ContentLabel* m_contentLabel;
     QMap<QString, QMovie*> m_emotionMovies;

@@ -19,7 +19,12 @@ public:
     explicit ChatPage(QWidget *parent = nullptr);
     ~ChatPage();
 
-    void SetUserInfo(std::shared_ptr<UserInfo> user_info);
+    void SetFriendUserInfo(std::shared_ptr<UserInfo> user_info);
+
+    void AppendChatMsg(std::shared_ptr<TextChatData> msg);
+signals:
+    void sig_append_send_chat_msg(std::shared_ptr<TextChatData> msg);
+
 protected:
     void paintEvent(QPaintEvent *event);
 private slots:
@@ -42,14 +47,19 @@ private slots:
 
     void onCloseLabelClicked();
 private:
-    void handleGroupedMessages(const QVector<MsgInfo>& msgList, ChatRole role,
-                                         const QString& userName, const QString& userIcon);
 
-    void AppendChatMsg(std::shared_ptr<TextChatData> msg);
+    /**
+     * @brief 根据内容创建一个 ChatItemBase
+     * @param user_info
+     * @param group
+     * @param isPicture 是否是图片消息
+     * @return 返回一个 ChatItemBase 的uuid，可作为消息id
+     */
+    QString createAndAppendChatItem(std::shared_ptr<UserInfo> user_info, const QVector<MsgInfo>& group, bool isPicture = false);
 private:
     Ui::ChatPage *ui;
     EmotionWindow* _emotion_wid;
-    std::shared_ptr<UserInfo> _user_info;
+    std::shared_ptr<UserInfo> _friend_user_info; // 记录当前对话的用户信息
 };
 
 #endif // CHAT_PAGE_H

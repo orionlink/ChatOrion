@@ -6,6 +6,7 @@
 #include "Settings.h"
 #include "ConnectionPoolProxy.h"
 #include "const.h"
+#include "log.h"
 
 #include <hiredis/hiredis.h>
 #include <cstring>
@@ -28,20 +29,21 @@ RedisManager::~RedisManager()
 
 bool RedisManager::set(const std::string& key, const std::string& value)
 {
-    // auto connect = _pool->getConnection();
-    // if (connect == nullptr) return false;
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    // ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
+    //     [this]() {
+    //         return this->_pool->getConnection();
+    // }, [this](redisContext* conn) {
+    //     this->_pool->returnConnection(conn);
+    // });
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "SET %s %s", key.c_str(), value.c_str());
+    auto reply = (redisReply*)redisCommand(connect, "SET %s %s", key.c_str(), value.c_str());
 
-    Defer defer([&reply] {
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     //如果返回NULL则说明执行失败
@@ -63,17 +65,21 @@ bool RedisManager::set(const std::string& key, const std::string& value)
 
 bool RedisManager::get(const std::string& key, std::string& value)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "GET %s", key.c_str());
+    // ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
+    //     [this]() {
+    //         return this->_pool->getConnection();
+    // }, [this](redisContext* conn) {
+    //     this->_pool->returnConnection(conn);
+    // });
 
-    Defer defer([&reply] {
+    auto reply = (redisReply*)redisCommand(connect, "GET %s", key.c_str());
+
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (reply == NULL) {
@@ -93,17 +99,21 @@ bool RedisManager::get(const std::string& key, std::string& value)
 
 bool RedisManager::rpush(const std::string& key, const std::string& value)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    // ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
+    //     [this]() {
+    //         return this->_pool->getConnection();
+    // }, [this](redisContext* conn) {
+    //     this->_pool->returnConnection(conn);
+    // });
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "RPUSH %s %s", key.c_str(), value.c_str());
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    Defer defer([&reply] {
+    auto reply = (redisReply*)redisCommand(connect, "RPUSH %s %s", key.c_str(), value.c_str());
+
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (NULL == reply)
@@ -123,17 +133,21 @@ bool RedisManager::rpush(const std::string& key, const std::string& value)
 
 bool RedisManager::rpop(const std::string& key, std::string& value)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "RPOP %s ", key.c_str());
+    // ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
+    //     [this]() {
+    //         return this->_pool->getConnection();
+    // }, [this](redisContext* conn) {
+    //     this->_pool->returnConnection(conn);
+    // });
 
-    Defer defer([&reply] {
+    auto reply = (redisReply*)redisCommand(connect, "RPOP %s ", key.c_str());
+
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (reply == nullptr || reply->type == REDIS_REPLY_NIL)
@@ -149,17 +163,14 @@ bool RedisManager::rpop(const std::string& key, std::string& value)
 
 bool RedisManager::lpush(const std::string& key, const std::string& value)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "LPUSH %s %s", key.c_str(), value.c_str());
+    auto reply = (redisReply*)redisCommand(connect, "LPUSH %s %s", key.c_str(), value.c_str());
 
-    Defer defer([&reply] {
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (NULL == reply)
@@ -179,17 +190,14 @@ bool RedisManager::lpush(const std::string& key, const std::string& value)
 
 bool RedisManager::lpop(const std::string& key, std::string& value)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "LPOP %s ", key.c_str());
+    auto reply = (redisReply*)redisCommand(connect, "LPOP %s ", key.c_str());
 
-    Defer defer([&reply] {
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (reply == nullptr || reply->type == REDIS_REPLY_NIL)
@@ -205,17 +213,14 @@ bool RedisManager::lpop(const std::string& key, std::string& value)
 
 bool RedisManager::hset(const std::string& key, const std::string& hkey, const std::string& value)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "HSET %s %s %s", key.c_str(), hkey.c_str(), value.c_str());
+    auto reply = (redisReply*)redisCommand(connect, "HSET %s %s %s", key.c_str(), hkey.c_str(), value.c_str());
 
-    Defer defer([&reply] {
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER )
@@ -230,12 +235,8 @@ bool RedisManager::hset(const std::string& key, const std::string& hkey, const s
 
 bool RedisManager::hset(const char* key, const char* hkey, const char* hvalue, size_t hvaluelen)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
     const char* argv[4];
     size_t argvlen[4];
@@ -247,10 +248,11 @@ bool RedisManager::hset(const char* key, const char* hkey, const char* hvalue, s
     argvlen[2] = strlen(hkey);
     argv[3] = hvalue;
     argvlen[3] = hvaluelen;
-    auto reply = (redisReply*)redisCommandArgv(proxy.get(), 4, argv, argvlen);
+    auto reply = (redisReply*)redisCommandArgv(connect, 4, argv, argvlen);
 
-    Defer defer([&reply] {
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER)
@@ -265,12 +267,8 @@ bool RedisManager::hset(const char* key, const char* hkey, const char* hvalue, s
 
 bool RedisManager::hget(const std::string& key, const std::string& hkey, std::string &value)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
     const char* argv[3];
     size_t argvlen[3];
@@ -280,10 +278,11 @@ bool RedisManager::hget(const std::string& key, const std::string& hkey, std::st
     argvlen[1] = key.length();
     argv[2] = hkey.c_str();
     argvlen[2] = hkey.length();
-    auto reply = (redisReply*)redisCommandArgv(proxy.get(), 3, argv, argvlen);
+    auto reply = (redisReply*)redisCommandArgv(connect, 3, argv, argvlen);
 
-    Defer defer([&reply] {
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (reply == nullptr || reply->type == REDIS_REPLY_NIL)
@@ -298,17 +297,14 @@ bool RedisManager::hget(const std::string& key, const std::string& hkey, std::st
 
 bool RedisManager::del(const std::string& key)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "DEL %s", key.c_str());
+    auto reply = (redisReply*)redisCommand(connect, "DEL %s", key.c_str());
 
-    Defer defer([&reply] {
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER)
@@ -327,38 +323,35 @@ bool RedisManager::hdel(const std::string &key, const std::string &field)
         return false;
     }
 
-    Defer defer([&connect, this]() {
-        _pool->returnConnection(connect);
-    });
-
     redisReply* reply = (redisReply*)redisCommand(connect, "HDEL %s %s", key.c_str(), field.c_str());
     if (reply == nullptr) {
         std::cerr << "HDEL command failed" << std::endl;
         return false;
     }
 
+    Defer defer([this, &reply, connect] {
+        freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
+    });
+
     bool success = false;
     if (reply->type == REDIS_REPLY_INTEGER) {
         success = reply->integer > 0;
     }
 
-    freeReplyObject(reply);
     return success;
 }
 
 bool RedisManager::existsKey(const std::string& key)
 {
-    ConnectionPoolProxy<redisContext*, RedisConnectPool> proxy(*_pool.get(),
-        [this]() {
-            return this->_pool->getConnection();
-    }, [this](redisContext* conn) {
-        this->_pool->returnConnection(conn);
-    });
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
 
-    auto reply = (redisReply*)redisCommand(proxy.get(), "exists %s", key.c_str());
+    auto reply = (redisReply*)redisCommand(connect, "exists %s", key.c_str());
 
-    Defer defer([&reply] {
+    Defer defer([this, &reply, connect] {
         freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
     });
 
     if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER || reply->integer == 0)
@@ -368,6 +361,158 @@ bool RedisManager::existsKey(const std::string& key)
     }
     std::cout << " Found [ Key " << key << " ] exists ! " << std::endl;
     return true;
+}
+
+bool RedisManager::expire(const std::string& key, int seconds)
+{
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
+
+    auto reply = (redisReply*)redisCommand(connect, "EXPIRE %s %d",
+        key.c_str(), seconds);
+
+    Defer defer([this, &reply, connect] {
+        freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
+    });
+
+    if (reply == nullptr || reply->type != REDIS_REPLY_INTEGER || reply->integer == 0)
+    {
+        std::cout << "Not Found [ Key " << key << " ]  ! " << std::endl;
+        return false;
+    }
+
+    std::cout << " Found [ Key " << key << " ] exists ! " << std::endl;
+    return true;
+}
+
+bool RedisManager::execute(const std::string& command)
+{
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
+
+    try {
+        redisReply* reply = (redisReply*)redisCommand(connect, command.c_str());
+        if (reply == nullptr)
+        {
+            LOG_ERROR << "Redis execute failed: " << command;
+            return false;
+        }
+
+        Defer defer([this, &reply, connect] {
+            freeReplyObject(reply);
+            this->_pool->returnConnection(connect);
+        });
+
+        bool success = (reply->type != REDIS_REPLY_ERROR);
+        return success;
+    } catch (const std::exception& e)
+    {
+        LOG_ERROR << "Redis execute exception: " << e.what();
+        return false;
+    }
+}
+
+bool RedisManager::lrange(const std::string& key, std::vector<std::string>& values)
+{
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
+
+    auto reply = (redisReply*)redisCommand(connect, "LRANGE %s 0 -1",
+        key.c_str());
+
+    Defer defer([this, &reply, connect] {
+        freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
+    });
+
+    if (reply == nullptr)
+    {
+        std::cout << "Not Found [ Key " << key << " ]  ! " << std::endl;
+        return false;
+    }
+
+    if (reply->type == REDIS_REPLY_ARRAY)
+    {
+        for (size_t i = 0; i < reply->elements; i++) {
+            values.push_back(reply->element[i]->str);
+        }
+    }
+
+    std::cout << " Found [ Key " << key << " ] exists ! " << std::endl;
+    return true;
+}
+
+bool RedisManager::hkeys(const std::string& key, std::vector<std::string>& fields)
+{
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return false;
+
+    try
+    {
+        redisReply* reply = (redisReply*)redisCommand(connect, "HKEYS %s", key.c_str());
+        if (reply == nullptr) {
+            LOG_ERROR << "HKEYS command failed for key: " << key;
+            return false;
+        }
+
+        Defer defer([this, &reply, connect] {
+            freeReplyObject(reply);
+            this->_pool->returnConnection(connect);
+        });
+
+        if (reply->type == REDIS_REPLY_ARRAY)
+        {
+            for (size_t i = 0; i < reply->elements; i++)
+            {
+                fields.push_back(reply->element[i]->str);
+            }
+        }
+
+        return true;
+    } catch (const std::exception& e) {
+        LOG_ERROR << "HKEYS failed: " << e.what();
+        return false;
+    }
+}
+
+std::vector<std::string> RedisManager::zrevrange(const std::string& key, int start, int stop)
+{
+    std::vector<std::string> result;
+
+    auto connect = _pool->getConnection();
+    if (connect == nullptr) return result;
+
+    redisReply* reply = (redisReply*)redisCommand(
+        connect,
+        "ZREVRANGE %s %d %d",
+        key.c_str(), start, stop
+    );
+
+    if (reply == nullptr) {
+        std::cout << "Redis zrevrange error: " << connect->errstr;
+        return result;
+    }
+
+    Defer defer([this, &reply, connect] {
+        freeReplyObject(reply);
+        this->_pool->returnConnection(connect);
+    });
+
+    if (reply->type == REDIS_REPLY_ARRAY)
+    {
+        for (size_t i = 0; i < reply->elements; i++)
+        {
+            if (reply->element[i]->type == REDIS_REPLY_STRING)
+            {
+                result.push_back(reply->element[i]->str);
+            }
+        }
+    } else {
+        std::cout << "Redis zrevrange unexpected reply type: " << reply->type;
+    }
+
+    return result;
 }
 
 void RedisManager::close()

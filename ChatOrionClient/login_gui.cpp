@@ -7,6 +7,7 @@
 #include "user_data.h"
 #include "user_mgr.h"
 #include "tools.h"
+#include "message_bus.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -73,6 +74,10 @@ LoginGUI::LoginGUI(QDialog*parent) :
 
     TcpMgr::GetInstance()->registerMessageCallback(ReqId::ID_CHAT_LOGIN_RSP, std::bind(&LoginGUI::onChatLoginRsp, this, std::placeholders::_1,
                                                                                            std::placeholders::_2));
+
+    TcpMgr::GetInstance()->registerMessageCallback(ReqId::ID_LOGIN_LOAD_UNREAD_CHAT_MSG,
+                                                   std::bind(&LoginGUI::LoginLoadUnRedChatMsg, this,
+                                                   std::placeholders::_1, std::placeholders::_2));
 
     // 检查是否使用自动登录
     bool autoLogin = false;
@@ -615,6 +620,56 @@ void LoginGUI::onChatLoginRsp(int len, QByteArray data)
     }
 
     QDialog::accept();
+}
+
+void LoginGUI::LoginLoadUnRedChatMsg(int len, QByteArray data)
+{
+    Q_UNUSED(len);
+    // 将QByteArray转换为QJsonDocument
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+
+    // 检查转换是否成功
+    if (jsonDoc.isNull()) {
+        qDebug() << "Failed to create QJsonDocument.";
+        return;
+    }
+
+    QJsonObject jsonObj = jsonDoc.object();
+
+    if (!jsonObj.contains("error"))
+    {
+        int err = ErrorCodes::ERR_JSON;
+        qDebug() << "Notify Chat Msg Failed, err is Json Parse Err" << err;
+        return;
+    }
+
+    int err = jsonObj["error"].toInt();
+    if (err != ErrorCodes::SUCCESS)
+    {
+        qDebug() << "Notify Chat Msg Failed, err is " << err;
+        return;
+    }
+
+    qDebug() << "Receive Text Chat Notify Success " ;
+    QJsonArray msgArray = jsonObj["messages"].toArray();
+    for (int i = 0; i < msgArray.size(); ++i)
+    {
+        QJsonObject msg = msgArray.at(i).toObject();
+
+        auto fromuid = msg["fromuid"].toInt();
+        auto touid = msg["touid"].toInt();
+        auto content = msg["content"].toString();
+        auto msgid = msg["msgid"].toString();
+        auto msg_type = msg["msg_type"].toInt();
+        auto send_time = msg["send_time"].toInt();
+        auto status = msg["status"].toInt();
+
+        auto msg_ptr = std::make_shared<TextChatMsg>(fromuid,
+                        touid, msgid, content);
+
+        UserMgr::GetInstance()->AppendFriendChatMsg(fromuid, msg_ptr->_chat_msgs);
+        UserMgr::GetInstance()->AppendSlefChatMsg(msg_ptr->_chat_msgs);
+    }
 }
 
 void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)

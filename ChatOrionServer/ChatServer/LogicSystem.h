@@ -10,6 +10,7 @@
 #include "const.h"
 #include "data.h"
 #include "BS_thread_pool.hpp"
+#include "ChatCacheManager.h"
 
 class LogicSystem : public Singleton<LogicSystem>
 {
@@ -57,6 +58,27 @@ private:
     * @param msg_data
     */
     void AuthFriendApplyHandler(std::shared_ptr<CSession> session, const std::string &msg_data);
+
+    /**
+    * 通过好友添加请求
+    * @param session
+    * @param msg_data
+    */
+    void DealChatTextMsgHandler(std::shared_ptr<CSession> session, const std::string &msg_data);
+
+    /**
+     * 获取历史消息请求
+     * @param session
+     * @param msg_data
+     */
+    void GetHistoryMessages(std::shared_ptr<CSession> session, const std::string &msg_data);
+
+     /**
+     * 标记已读消息
+     * @param session
+     * @param msg_data
+     */
+    void MarkMessagesRead(std::shared_ptr<CSession> session, const std::string &msg_data);
 private:
     /**
      * 判断字符串是否都是数字字符

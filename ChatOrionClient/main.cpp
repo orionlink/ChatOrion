@@ -2,6 +2,7 @@
 #include "login_gui.h"
 #include "global.h"
 #include "FrameWgt/framewgt.h"
+#include "message_bus.h"
 
 #include <QApplication>
 #include <QFile>
@@ -46,13 +47,13 @@ int main(int argc, char *argv[])
     a.setWindowIcon(QIcon(":/res/icon/ChatOrion.ico"));
 
     LoginGUI login_gui;
+
     if (login_gui.exec() == QDialog::Rejected)
     {
         return -1;
     }
 
-
-    ChatDialog* dlg = new ChatDialog();
+   ChatDialog* dlg = new ChatDialog();
 
     FrameWgt w(dlg);
 

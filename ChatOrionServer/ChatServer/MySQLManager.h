@@ -14,6 +14,9 @@ class MySQLManager : public Singleton<MySQLManager>
 {
     friend class Singleton<MySQLManager>;
 public:
+
+    bool init();
+
     std::shared_ptr<UserInfo> GetUser(int uid);
     std::shared_ptr<UserInfo> GetUser(std::string name);
 
@@ -26,6 +29,16 @@ public:
     bool GetApplyList(int self_id, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int offset, int limit);
 
     bool GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo> >& user_info);
+
+    bool MarkMessagesAsRead(int uid, int peer_id);
+
+    bool SaveChatMessage(int from_uid, int to_uid, const std::string& msg_id,
+                const std::string& content, int msg_type = 1);
+
+    std::vector<ChatMessage> GetRecentMessages(int uid, int limit = 50, int64_t before_id = 0);
+
+    // 更新会话最后一条消息
+    bool UpdateLastMessage(int uid, int peerId, const std::string& msgId);
 private:
     MySQLDao _dao;
 };

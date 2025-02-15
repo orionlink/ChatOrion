@@ -7,10 +7,12 @@
 #include "content_bubble.h"
 #include "message_bus.h"
 #include "user_mgr.h"
+#include "tcp_mgr.h"
 
 #include <QStyleOption>
 #include <QPainter>
 #include <QDebug>
+#include <QJsonDocument>
 
 ChatPage::ChatPage(QWidget *parent) :
     QWidget(parent),
@@ -85,15 +87,16 @@ ChatPage::ChatPage(QWidget *parent) :
 ChatPage::~ChatPage()
 {
     delete ui;
-    _emotion_wid->deleteLater();
+    if (_emotion_wid)
+        _emotion_wid->deleteLater();
 }
 
-void ChatPage::SetUserInfo(std::shared_ptr<UserInfo> user_info)
+void ChatPage::SetFriendUserInfo(std::shared_ptr<UserInfo> user_info)
 {
-    _user_info = user_info;
+    _friend_user_info = user_info;
 
     //设置ui界面
-    ui->username_label->setText(_user_info->_name);
+    ui->username_label->setText(_friend_user_info->_name);
     ui->chat_data_list->removeAllItem();
     for(auto & msg : user_info->_chat_msgs){
         AppendChatMsg(msg);
@@ -111,77 +114,142 @@ void ChatPage::paintEvent(QPaintEvent *event)
 void ChatPage::on_send_btn_clicked()
 {
     auto pTextEdit = ui->chatEdit;
-    ChatRole role = ChatRole::Self;
-    QString userName = QStringLiteral("test");
-    QString userIcon = ":/res/pic/head_1.jpg";
+
+    auto user_info = UserMgr::GetInstance()->GetUserInfo();
 
     const QVector<MsgInfo>& msgList = pTextEdit->getMsgList();
     if (msgList.isEmpty()) return;
 
-    // 使用新的消息分组处理函数
-    handleGroupedMessages(msgList, role, userName, userIcon);
-
-    // 清空输入框
-    pTextEdit->clear();
-}
-
-// 消息分组处理函数
-void ChatPage::handleGroupedMessages(const QVector<MsgInfo>& msgList, ChatRole role,
-                                     const QString& userName, const QString& userIcon)
-{
-    if (msgList.isEmpty()) return;
-
     QVector<MsgInfo> currentGroup;
-    bool hasImage = false;
 
-    auto createAndAppendChatItem = [this, role, userName, userIcon](const QVector<MsgInfo>& group, bool isPicture = false) {
-        if (group.isEmpty()) return;
-
-        auto pChatItem = std::make_unique<ChatItemBase>(role);
-        pChatItem->setUserName(userName);
-        pChatItem->setUserIcon(QPixmap(userIcon));
-
-        QWidget *pBubble = nullptr;
-        if (isPicture) {
-            // 创建图片气泡
-            pBubble = new PictureBubble(QPixmap(group.first().content), role);
-        } else {
-            // 创建内容气泡
-            ContentBubbleFrame* bubble = new ContentBubbleFrame(role);
-            bool success = bubble->setContent(group);
-            if (!success) return;
-            pBubble = bubble;
-        }
-
-        pChatItem->setWidget(pBubble);
-        ui->chat_data_list->appendChatItem(std::move(pChatItem));
-    };
+    QJsonObject textObj;
+//    QJsonArray textArray;
+//    int txt_size = 0;
+    QString content = "";
 
     // 遍历消息列表
-    for (int i = 0; i < msgList.size(); ++i) {
+    for (int i = 0; i < msgList.size(); ++i)
+    {
+        //消息内容长度不合规就跳过
+        if(msgList[i].content.length() > 1024) continue;
+
         const MsgInfo& msg = msgList[i];
 
-        if (msg.msgFlag == "image") {
+        if (msg.msgFlag == "image")
+        {
             // 如果当前组有内容，先创建内容气泡
-            if (!currentGroup.isEmpty()) {
-                createAndAppendChatItem(currentGroup);
+            if (!currentGroup.isEmpty())
+            {
+                QString msgid = createAndAppendChatItem(user_info, currentGroup, false);
+
+                textObj["fromuid"] = user_info->_uid;
+                textObj["touid"] = _friend_user_info->_uid;
+                textObj["msgid"] = msgid;
+                textObj["content"] = content;
+
+                qDebug() << "消息发送的文本内容: " << content;
+
+                QJsonDocument doc(textObj);
+                QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
+
+                emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_TEXT_CHAT_MSG_REQ, jsonData);
+
+                auto txt_msg = std::make_shared<TextChatData>(msgid, content,
+                                user_info->_uid, _friend_user_info->_uid);
+                emit sig_append_send_chat_msg(txt_msg);
+
+                //发送并清空之前累计的文本
+                textObj = QJsonObject();
+                content = "";
+
                 currentGroup.clear();
             }
 
             // 创建单独的图片气泡
             QVector<MsgInfo> imageGroup;
             imageGroup.append(msg);
-            createAndAppendChatItem(imageGroup, true);
-        } else {
+            createAndAppendChatItem(user_info, imageGroup, true);
+        }
+        else if (msg.msgFlag == "text")
+        {
+            QByteArray utf8Message = msg.content.toUtf8();
+            content += QString::fromUtf8(utf8Message);
             // 文本或表情消息，添加到当前组
+            currentGroup.append(msg);
+        }
+        else if(msg.msgFlag == "emotion")
+        {
+            QByteArray utf8Message = msg.content.toUtf8();
+            QString emotion_path = QString::fromUtf8(utf8Message);
+            int startIndex = emotion_path.lastIndexOf('/') + 1;  // 找到最后一个 '/' 的位置
+            int endIndex = emotion_path.lastIndexOf('.');        // 找到最后一个 '.' 的位置
+            QString result = emotion_path.mid(startIndex, endIndex - startIndex);  // 提取中间部分
+            result.prepend("[");
+            result.append("]");
+
+            content += result;
+
             currentGroup.append(msg);
         }
     }
 
+    qDebug() << "消息发送的文本内容: " << content;
+
     // 处理最后一组消息
-    if (!currentGroup.isEmpty()) {
-        createAndAppendChatItem(currentGroup);
+    if (!currentGroup.isEmpty())
+    {
+        QString msgid = createAndAppendChatItem(user_info, currentGroup, false);
+
+        textObj["fromuid"] = user_info->_uid;
+        textObj["touid"] = _friend_user_info->_uid;
+        textObj["msgid"] = msgid;
+        textObj["content"] = content;
+
+        QJsonDocument doc(textObj);
+        QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
+
+        emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_TEXT_CHAT_MSG_REQ, jsonData);
+
+        auto txt_msg = std::make_shared<TextChatData>(msgid, content,
+                        user_info->_uid, _friend_user_info->_uid);
+        emit sig_append_send_chat_msg(txt_msg);
+
+        //发送并清空之前累计的文本列表
+        textObj = QJsonObject();
     }
+
+    // 清空输入框
+    pTextEdit->clear();
+}
+
+QString ChatPage::createAndAppendChatItem(std::shared_ptr<UserInfo> user_info,const QVector<MsgInfo> &group, bool isPicture)
+{
+    QString uuid = "";
+    if (group.isEmpty() || !user_info) return uuid;
+
+    ChatRole role = ChatRole::Self;
+    auto pChatItem = std::make_unique<ChatItemBase>(role);
+    pChatItem->setUserName(user_info->_name);
+    pChatItem->setUserIcon(QPixmap(user_info->_icon));
+
+    QWidget *pBubble = nullptr;
+    if (isPicture) {
+        // 创建图片气泡
+        pBubble = new PictureBubble(QPixmap(group.first().content), role);
+    } else {
+        // 创建内容气泡
+        ContentBubbleFrame* bubble = new ContentBubbleFrame(role);
+        bool success = bubble->setContent(group);
+        if (!success) return uuid;
+        pBubble = bubble;
+    }
+
+    pChatItem->setWidget(pBubble);
+    uuid = pChatItem->getUuid();
+
+    ui->chat_data_list->appendChatItem(std::move(pChatItem));
+
+    return uuid;
 }
 
 void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
@@ -195,8 +263,9 @@ void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
 
         pChatItem->setUserName(self_info->_name);
         pChatItem->setUserIcon(QPixmap(self_info->_icon));
-        QWidget* pBubble = nullptr;
-        pBubble = new TextBubble(role, msg->_msg_content);
+        ContentBubbleFrame* pBubble = nullptr;
+        pBubble = new ContentBubbleFrame(role);
+        pBubble->setContent(msg->_msg_content);
         pChatItem->setWidget(pBubble);
         ui->chat_data_list->appendChatItem(std::move(pChatItem));
     }
@@ -204,13 +273,15 @@ void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
         role = ChatRole::Other;
         auto pChatItem = std::make_unique<ChatItemBase>(role);
         auto friend_info = UserMgr::GetInstance()->GetFriendById(msg->_from_uid);
-        if (friend_info == nullptr) {
+        if (friend_info == nullptr)
+        {
             return;
         }
         pChatItem->setUserName(friend_info->_name);
         pChatItem->setUserIcon(QPixmap(friend_info->_icon));
-        QWidget* pBubble = nullptr;
-        pBubble = new TextBubble(role, msg->_msg_content);
+        ContentBubbleFrame* pBubble = nullptr;
+        pBubble = new ContentBubbleFrame(role);
+        pBubble->setContent(msg->_msg_content);
         pChatItem->setWidget(pBubble);
         ui->chat_data_list->appendChatItem(std::move(pChatItem));
     }

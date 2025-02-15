@@ -31,6 +31,15 @@ LogicSystem::LogicSystem()
 
     registerMsgCallBacks(MSG_IDS::ID_AUTH_FRIEND_REQ, std::bind(&LogicSystem::AuthFriendApplyHandler, this,
         std::placeholders::_1, std::placeholders::_2));
+
+    registerMsgCallBacks(MSG_IDS::ID_TEXT_CHAT_MSG_REQ, std::bind(&LogicSystem::DealChatTextMsgHandler, this,
+        std::placeholders::_1, std::placeholders::_2));
+
+    registerMsgCallBacks(MSG_IDS::ID_GET_HISTORY_MSG_REQ, std::bind(&LogicSystem::GetHistoryMessages, this,
+        std::placeholders::_1, std::placeholders::_2));
+
+    registerMsgCallBacks(MSG_IDS::ID_MARK_MSG_READ_REQ, std::bind(&LogicSystem::MarkMessagesRead, this,
+        std::placeholders::_1, std::placeholders::_2));
 }
 
 LogicSystem::~LogicSystem()
@@ -82,88 +91,90 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const std::str
     std::cout << "user login uid is  " << uid << " user token  is "
         << token << std::endl;
 
-    Json::Value  rtvalue;
-
-    Defer defer([this, &rtvalue, session]()
     {
-        std::string return_str = rtvalue.toStyledString();
-        session->send(return_str, MSG_CHAT_LOGIN_RSP);
-    });
+        Json::Value  rtvalue;
 
-    //从redis获取用户token是否正确
-    std::string uid_str = std::to_string(uid);
-    std::string token_key = USERTOKENPREFIX + uid_str;
-    std::string token_value = "";
-    bool success = RedisManager::GetInstance()->get(token_key, token_value);
-    if (!success) {
-        rtvalue["error_msg"] = "uid无效";
-        rtvalue["error"] = ErrorCodes::UidInvalid;
-        return ;
-    }
+        Defer defer([this, &rtvalue, session]()
+        {
+            std::string return_str = rtvalue.toStyledString();
+            session->send(return_str, MSG_CHAT_LOGIN_RSP);
+        });
 
-    if (token_value != token) {
-        rtvalue["error_msg"] = "Token失效";
-        rtvalue["error"] = ErrorCodes::TokenInvalid;
-        return ;
-    }
-
-    rtvalue["error"] = ErrorCodes::Success;
-
-    // 获取用户信息
-    auto user_info = std::make_shared<UserInfo>();
-    bool b_base = GetBaseInfo(uid, user_info);
-    if (!b_base)
-    {
-        rtvalue["error_msg"] = "uid无效";
-        rtvalue["error"] = ErrorCodes::UidInvalid;
-        return;
-    }
-    rtvalue["uid"] = uid;
-    rtvalue["pwd"] = user_info->pwd;
-    rtvalue["name"] = user_info->name;
-    rtvalue["email"] = user_info->email;
-    rtvalue["nick"] = user_info->nick;
-    rtvalue["desc"] = user_info->desc;
-    rtvalue["sex"] = user_info->sex;
-    rtvalue["icon"] = user_info->icon;
-
-    //从数据库获取申请列表
-    std::vector<std::shared_ptr<ApplyInfo>> apply_list;
-    auto b_apply = GetFriendApplyInfo(uid,apply_list);
-    if (b_apply) {
-        for (auto & apply : apply_list) {
-            Json::Value obj;
-            obj["name"] = apply->_name;
-            obj["uid"] = apply->_uid;
-            obj["icon"] = apply->_icon;
-            obj["nick"] = apply->_nick;
-            obj["sex"] = apply->_sex;
-            obj["desc"] = apply->_desc;
-            obj["status"] = apply->_status;
-            rtvalue["apply_list"].append(obj);
+        //从redis获取用户token是否正确
+        std::string uid_str = std::to_string(uid);
+        std::string token_key = USERTOKENPREFIX + uid_str;
+        std::string token_value = "";
+        bool success = RedisManager::GetInstance()->get(token_key, token_value);
+        if (!success) {
+            rtvalue["error_msg"] = "uid无效";
+            rtvalue["error"] = ErrorCodes::UidInvalid;
+            return ;
         }
+
+        if (token_value != token) {
+            rtvalue["error_msg"] = "Token失效";
+            rtvalue["error"] = ErrorCodes::TokenInvalid;
+            return ;
+        }
+
+        rtvalue["error"] = ErrorCodes::Success;
+
+        // 获取用户信息
+        auto user_info = std::make_shared<UserInfo>();
+        bool b_base = GetBaseInfo(uid, user_info);
+        if (!b_base)
+        {
+            rtvalue["error_msg"] = "uid无效";
+            rtvalue["error"] = ErrorCodes::UidInvalid;
+            return;
+        }
+        rtvalue["uid"] = uid;
+        rtvalue["pwd"] = user_info->pwd;
+        rtvalue["name"] = user_info->name;
+        rtvalue["email"] = user_info->email;
+        rtvalue["nick"] = user_info->nick;
+        rtvalue["desc"] = user_info->desc;
+        rtvalue["sex"] = user_info->sex;
+        rtvalue["icon"] = user_info->icon;
+
+        //从数据库获取申请列表
+        std::vector<std::shared_ptr<ApplyInfo>> apply_list;
+        auto b_apply = GetFriendApplyInfo(uid,apply_list);
+        if (b_apply) {
+            for (auto & apply : apply_list) {
+                Json::Value obj;
+                obj["name"] = apply->_name;
+                obj["uid"] = apply->_uid;
+                obj["icon"] = apply->_icon;
+                obj["nick"] = apply->_nick;
+                obj["sex"] = apply->_sex;
+                obj["desc"] = apply->_desc;
+                obj["status"] = apply->_status;
+                rtvalue["apply_list"].append(obj);
+            }
+        }
+
+        if (b_apply)
+            LOG_INFO << "获取申请列表: " << rtvalue["apply_list"].toStyledString();
+
+        //获取好友列表
+        std::vector<std::shared_ptr<UserInfo>> friend_list;
+        bool b_friend_list = GetFriendList(uid, friend_list);
+        for (auto& friend_ele : friend_list) {
+            Json::Value obj;
+            obj["name"] = friend_ele->name;
+            obj["uid"] = friend_ele->uid;
+            obj["icon"] = friend_ele->icon;
+            obj["nick"] = friend_ele->nick;
+            obj["sex"] = friend_ele->sex;
+            obj["desc"] = friend_ele->desc;
+            obj["back"] = friend_ele->back;
+            rtvalue["friend_list"].append(obj);
+        }
+
+        if (b_friend_list)
+            LOG_INFO << "获取好友列表: " << rtvalue["friend_list"].toStyledString();
     }
-
-    if (b_apply)
-        LOG_INFO << "获取申请列表: " << rtvalue["apply_list"].toStyledString();
-
-    //获取好友列表
-    std::vector<std::shared_ptr<UserInfo>> friend_list;
-    bool b_friend_list = GetFriendList(uid, friend_list);
-    for (auto& friend_ele : friend_list) {
-        Json::Value obj;
-        obj["name"] = friend_ele->name;
-        obj["uid"] = friend_ele->uid;
-        obj["icon"] = friend_ele->icon;
-        obj["nick"] = friend_ele->nick;
-        obj["sex"] = friend_ele->sex;
-        obj["desc"] = friend_ele->desc;
-        obj["back"] = friend_ele->back;
-        rtvalue["friend_list"].append(obj);
-    }
-
-    if (b_friend_list)
-        LOG_INFO << "获取好友列表: " << rtvalue["friend_list"].toStyledString();
 
     // 将登录该服务器的数量增加
     auto &setting = config::Settings::GetInstance();
@@ -182,10 +193,66 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const std::str
     //session绑定用户uid
     session->set_user_id(uid);
     //为用户设置登录ip server的名字, 该用户和某个服务绑定
-    std::string ipkey = USERIPPREFIX + uid_str;
+    std::string ipkey = USERIPPREFIX + std::to_string(uid);
     RedisManager::GetInstance()->set(ipkey, self_server_name);
-    //uid和session绑定管理,方便以后踢人操作
+    //uid和session绑定管理
     UserMgr::GetInstance()->SetUserSession(uid, session);
+
+    /*****************************  发送未读消息 ***************************************/
+
+#if 1
+    auto messages = MySQLManager::GetInstance()->GetRecentMessages(uid, 10);
+    Json::Value response;
+    for (int i = messages.size() - 1; i >= 0; i--)
+    {
+        Json::Value notify;
+        notify["msgid"] = messages[i].msg_id;
+        notify["fromuid"] = messages[i].from_uid;
+        notify["touid"] = messages[i].to_uid;
+        notify["content"] = messages[i].content;
+        notify["msg_type"] = messages[i].msg_type;
+        notify["send_time"] = static_cast<Json::Int64>(messages[i].send_time);
+        notify["status"] = messages[i].status;
+
+        response["messages"].append(notify);
+
+        LOG_INFO << "发送了未读消息 - msgid: " << messages[i].msg_id << " - " << messages[i].content;
+    }
+
+    response["error"] = ErrorCodes::Success;
+    std::string notify_str = response.toStyledString();
+    session->send(notify_str, ID_LOGIN_LOAD_UNREAD_CHAT_MSG);
+
+#else
+    // 获取未读消息
+    auto unread_messages = ChatCacheManager::GetInstance()->GetUnreadMessages(uid);
+    // 发送未读消息给客户端
+    Json::Value response;
+    for (const auto& msg : unread_messages)
+    {
+        Json::Value notify;
+        notify["msgid"] = msg.msg_id;
+        notify["fromuid"] = msg.from_uid;
+        notify["touid"] = msg.to_uid;
+        notify["content"] = msg.content;
+        notify["msg_type"] = msg.msg_type;
+        notify["send_time"] = static_cast<Json::Int64>(msg.send_time);
+        notify["status"] = msg.status;
+
+        response["messages"].append(notify);
+
+        LOG_INFO << "发送了未读消息 - msgid: " << msg.msg_id << " - " << msg.content;
+    }
+
+    response["error"] = ErrorCodes::Success;
+    std::string notify_str = response.toStyledString();
+    session->send(notify_str, ID_LOGIN_LOAD_UNREAD_CHAT_MSG);
+#endif
+
+    // 标记已读
+    // for (const auto& msg : unread_messages) {
+    //     ChatCacheManager::GetInstance()->MarkMessagesAsRead(uid, msg.from_uid);
+    // }
 
     return;
 }
@@ -394,6 +461,150 @@ void LogicSystem::AuthFriendApplyHandler(std::shared_ptr<CSession> session, cons
         //发送通知
         ChatGrpcClient::GetInstance()->NotifyAuthFriend(to_ip_value, auth_req);
     }
+}
+
+void LogicSystem::DealChatTextMsgHandler(std::shared_ptr<CSession> session, const std::string& msg_data)
+{
+    Json::Reader reader;
+    Json::Value root;
+    reader.parse(msg_data, root);
+
+    auto uid = root["fromuid"].asInt();
+    auto touid = root["touid"].asInt();
+    auto content = root["content"].asString();
+    auto msgid = root["msgid"].asString();
+
+    LOG_INFO << "用户 " << uid << " 发送给 " << touid << " 的消息为: " << content;
+
+    // 1. 保存到数据库
+    if (!MySQLManager::GetInstance()->SaveChatMessage(uid, touid, msgid, content)) {
+        LOG_ERROR << "保存消息到数据库失败";
+        return;
+    }
+
+    // 2. 更新缓存
+    if (!ChatCacheManager::GetInstance()->CacheNewMessage(uid, touid, msgid, content)) {
+        LOG_ERROR << "保存消息到缓存失败";
+    }
+
+    Json::Value  rtvalue;
+    rtvalue["error"] = ErrorCodes::Success;
+    rtvalue["fromuid"] = uid;
+    rtvalue["touid"] = touid;
+    rtvalue["content"] = content;
+    rtvalue["msgid"] = msgid;
+
+    Defer defer([this, &rtvalue, session]()
+    {
+        std::string return_str = rtvalue.toStyledString();
+        session->send(return_str, ID_TEXT_CHAT_MSG_RSP);
+    });
+
+    //查询redis 查找touid对应的服务名称
+    auto to_uid_str = std::to_string(touid);
+    auto to_ip_key = USERIPPREFIX + to_uid_str;
+    std::string to_ip_value = "";
+    bool b_ip = RedisManager::GetInstance()->get(to_ip_key, to_ip_value);
+    if (!b_ip)
+    {
+        LOG_WARNING << "查询不到该用户的所在服务 uid: " << touid;
+        rtvalue["error"] = ErrorCodes::UidInvalid;
+        return;
+    }
+
+    if (to_ip_value == config::Settings::GetInstance().value("SelfServer/name").toString())
+    {
+        auto session = UserMgr::GetInstance()->GetSession(touid);
+        if (!session)
+        {
+            LOG_WARNING << "该用户在此服务器上，但是查询不到 session, touid: " << touid;
+            rtvalue["error"] = ErrorCodes::UidInvalid;
+            return;
+        }
+
+        //在内存中则直接发送通知对方
+        std::string return_str = rtvalue.toStyledString();
+        session->send(return_str, ID_NOTIFY_TEXT_CHAT_MSG_REQ);
+    }
+    else
+    {
+        TextChatMsgReq text_msg_req;
+        text_msg_req.set_fromuid(uid);
+        text_msg_req.set_touid(touid);
+        text_msg_req.set_msgid(msgid);
+        text_msg_req.set_content(content);
+
+        ChatGrpcClient::GetInstance()->NotifyTextChatMsg(to_ip_value, text_msg_req);
+    }
+}
+
+void LogicSystem::GetHistoryMessages(std::shared_ptr<CSession> session, const std::string& msg_data)
+{
+    Json::Reader reader;
+    Json::Value root;
+    reader.parse(msg_data, root);
+
+    auto uid = root["uid"].asInt();
+    auto peer_id = root["peer_id"].asInt();
+
+    Json::Value response;
+
+    // 先从缓存获取
+    auto messages = ChatCacheManager::GetInstance()->GetRecentMessages(uid, 50);
+
+    // 如果缓存没有足够的消息，从数据库补充
+    if (messages.size() < 50)
+    {
+        auto db_messages = MySQLManager::GetInstance()->GetRecentMessages(uid, 50 - messages.size());
+        messages.insert(messages.end(), db_messages.begin(), db_messages.end());
+
+        // 顺便把数据库的消息加入缓存
+        for (const auto& msg : db_messages) {
+            ChatCacheManager::GetInstance()->CacheNewMessage(
+                msg.from_uid, msg.to_uid, msg.msg_id, msg.content, msg.msg_type);
+        }
+    }
+
+    // 构造返回数据
+    for (const auto& msg : messages) {
+        Json::Value msgObj;
+        msgObj["msgid"] = msg.msg_id;
+        msgObj["fromuid"] = msg.from_uid;
+        msgObj["touid"] = msg.to_uid;
+        msgObj["content"] = msg.content;
+        msgObj["msg_type"] = msg.msg_type;
+        msgObj["send_time"] = static_cast<Json::Int64>(msg.send_time);
+        msgObj["status"] = msg.status;
+
+        response["messages"].append(msgObj);
+    }
+
+    response["error"] = ErrorCodes::Success;
+
+    std::string return_str = response.toStyledString();
+    session->send(return_str, ID_GET_HISTORY_MSG_RSP);
+}
+
+void LogicSystem::MarkMessagesRead(std::shared_ptr<CSession> session, const std::string& msg_data)
+{
+    Json::Reader reader;
+    Json::Value root;
+    reader.parse(msg_data, root);
+
+    auto uid = root["uid"].asInt();
+    auto peer_id = root["peer_id"].asInt();
+
+    Json::Value response;
+
+    // 同时更新数据库和缓存的已读状态
+    bool db_success = MySQLManager::GetInstance()->MarkMessagesAsRead(uid, peer_id);
+    bool cache_success = ChatCacheManager::GetInstance()->MarkMessagesAsRead(uid, peer_id);
+
+    response["error"] = (db_success && cache_success) ?
+        ErrorCodes::Success : ErrorCodes::DbError;
+
+    std::string return_str = response.toStyledString();
+    session->send(return_str, ID_MARK_MSG_READ_RSP);
 }
 
 bool LogicSystem::isPureDigit(const std::string &str)

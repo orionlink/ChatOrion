@@ -1,8 +1,9 @@
 #include "user_mgr.h"
 
 #include <QJsonArray>
+#include <QDebug>
 
-UserMgr::UserMgr():_user_info(nullptr), _contact_loaded(0), _chat_loaded(0),_chat_count_per_page(5)
+UserMgr::UserMgr():_user_info(nullptr), _contact_loaded(0), _chat_loaded(0),_chat_count_per_page(13)
 {
 
 }
@@ -232,4 +233,24 @@ void UserMgr::UpdateChatLoadedCount()
     }
 
     _chat_loaded = end;
+}
+
+void UserMgr::AppendFriendChatMsg(int friend_id, std::vector<std::shared_ptr<TextChatData>> msgs)
+{
+    auto find_iter = _friend_map.find(friend_id);
+    if(find_iter == _friend_map.end()){
+        qDebug()<<"append friend uid  " << friend_id << " not found";
+        return;
+    }
+
+    find_iter.value()->AppendChatMsgs(msgs);
+}
+
+void UserMgr::AppendSlefChatMsg(std::vector<std::shared_ptr<TextChatData> > msgs)
+{
+    for(const auto & text: msgs)
+    {
+      _user_info->_chat_msgs.push_back(text);
+    }
+
 }

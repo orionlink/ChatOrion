@@ -109,6 +109,7 @@ protected:
     void paintEvent(QPaintEvent*) override;
 private:
     void onChatLoginRsp(int len, QByteArray data);
+    void LoginLoadUnRedChatMsg(int len, QByteArray data);
 
     void showTip(QLabel* label, const QString& tip, bool is_ok);
     void initModulesHandlers();

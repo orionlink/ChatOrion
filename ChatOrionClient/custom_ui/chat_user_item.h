@@ -33,6 +33,8 @@ public:
     void SetRedDot(bool show = false, int count = 0);
 
     std::shared_ptr<UserInfo> GetUserInfo();
+
+    void updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs);
 protected:
     void resizeEvent(QResizeEvent *event) override;
 

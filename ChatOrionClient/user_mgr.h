@@ -103,6 +103,18 @@ public:
      */
     bool IsLoadChatFinal();
     void UpdateChatLoadedCount();
+
+    /**
+     * @brief 将好友发送的消息存储在 _friend_map 中
+     * @param friend_id
+     */
+    void AppendFriendChatMsg(int friend_id,std::vector<std::shared_ptr<TextChatData>>);
+
+    /**
+     * @brief 将自己发送的消息（包含服务器返回的）存储在 _user_info 中
+     * @param msgs
+     */
+    void AppendSlefChatMsg(std::vector<std::shared_ptr<TextChatData>> msgs);
 private:
     explicit UserMgr();
 

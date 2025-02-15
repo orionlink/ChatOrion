@@ -1,4 +1,7 @@
 #include "user_data.h"
+#include "common_utils.h"
+
+#include <QDir>
 
 SearchInfo::SearchInfo(int uid, QString name,
     QString nick, QString desc, int sex, QString icon):_uid(uid)
@@ -18,4 +21,14 @@ void FriendInfo::AppendChatMsgs(const std::vector<std::shared_ptr<TextChatData> 
     for(const auto & text: text_vec){
       _chat_msgs.push_back(text);
     }
+}
+
+bool EmojiManager::loadEmojiData(const QString &fileName)
+{
+    QString currentDir = QDir::currentPath();
+    QString filePath = QDir(currentDir).filePath(fileName);
+    JsonHandler jsonHandler;
+    jsonHandler.readJsonFile(filePath);
+    m_emojiObject = jsonHandler.getJsonObject();
+    return !m_emojiObject.isEmpty();
 }

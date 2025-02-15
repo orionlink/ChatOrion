@@ -8,6 +8,15 @@
 
 MySQLDao::MySQLDao()
 {
+}
+
+MySQLDao::~MySQLDao()
+{
+    _pool->close();
+}
+
+bool MySQLDao::init()
+{
     config::Settings& settings = config::Settings::GetInstance();
     std::string host = settings.value<std::string>("MySQL/host", "127.0.0.1").toString();
     int port = settings.value("MySQL/port", 3306).toInt();
@@ -17,38 +26,37 @@ MySQLDao::MySQLDao()
     std::string database = settings.value("MySQL/database", "ChatOrion").toString();
     _pool.reset(new MySQLConnectPool(5, url, user, password, database));
 
-    std::string sql_content = Tools::ReadFile("user.sql");
-    if (!sql_content.empty())
+    std::string sql_content = Tools::ReadFile("chat_messages.sql");
+    if (sql_content.empty()) return false;
+
+    try
     {
-        try
-        {
-            auto conn = _pool->getConnection();
-            Defer defer([&conn, this] {
-                if (conn != nullptr) _pool->returnConnection(std::move(conn));
-            });
+        auto conn = _pool->getConnection();
+        Defer defer([&conn, this] {
+            if (conn != nullptr) _pool->returnConnection(std::move(conn));
+        });
 
-            std::unique_ptr<sql::Statement> stmt(conn->_connection->createStatement());
+        std::unique_ptr<sql::Statement> stmt(conn->_connection->createStatement());
 
-            // 拆分 SQL 脚本为多个语句
-            std::vector<std::string> sql_statements = splitSQLScript(sql_content);
+        // 拆分 SQL 脚本为多个语句
+        std::vector<std::string> sql_statements = splitSQLScript(sql_content);
 
-            // 逐条执行 SQL 语句
-            for (const auto& statement : sql_statements) {
-                stmt->execute(statement);
-            }
-
-            std::cout << "SQL script executed successfully" << std::endl;
-        } catch (sql::SQLException& e) {
-            std::cerr << "SQLException: " << e.what();
-            std::cerr << " (MySQL error code: " << e.getErrorCode();
-            std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        // 逐条执行 SQL 语句
+        for (const auto& statement : sql_statements) {
+            stmt->execute(statement);
         }
-    }
-}
 
-MySQLDao::~MySQLDao()
-{
-    _pool->close();
+        std::cout << "SQL script executed successfully" << std::endl;
+
+        return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
 }
 
 std::shared_ptr<UserInfo> MySQLDao::GetUser(int uid)
@@ -373,6 +381,193 @@ bool MySQLDao::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>
         }
 
         return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
+}
+
+bool MySQLDao::MarkMessagesAsRead(int uid, int peer_id)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this]
+        {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        std::string sql = "UPDATE chat_messages SET status = 1 "
+                "WHERE to_uid = ? AND from_uid = ? AND status = 0";
+
+        auto stmt = conn->_connection->prepareStatement(sql);
+        stmt->setInt(1, uid);
+        stmt->setInt(2, peer_id);
+        stmt->execute();
+
+        sql = "UPDATE chat_message_relation SET unread_count = 0 "
+              "WHERE user_id = ? AND peer_id = ?";
+
+        stmt = conn->_connection->prepareStatement(sql);
+        stmt->setInt(1, uid);
+        stmt->setInt(2, peer_id);
+        stmt->execute();
+
+        return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
+}
+
+bool MySQLDao::SaveChatMessage(int from_uid, int to_uid, const std::string& msg_id, const std::string& content,
+    int msg_type)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this]
+        {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 保存消息
+        std::string sql = "INSERT INTO chat_messages(msg_id, from_uid, to_uid, content, msg_type) "
+                         "VALUES(?, ?, ?, ?, ?)";
+
+        auto stmt = conn->_connection->prepareStatement(sql);
+        stmt->setString(1, msg_id);
+        stmt->setInt(2, from_uid);
+        stmt->setInt(3, to_uid);
+        stmt->setString(4, content);
+        stmt->setInt(5, msg_type);
+        stmt->execute();
+
+        // 更新或插入消息关系
+        sql = "INSERT INTO chat_message_relation(user_id, peer_id, last_msg_id, unread_count) "
+              "VALUES(?, ?, ?, 1) "
+              "ON DUPLICATE KEY UPDATE last_msg_id = ?, unread_count = unread_count + 1";
+
+        stmt = conn->_connection->prepareStatement(sql);
+        stmt->setInt(1, to_uid);
+        stmt->setInt(2, from_uid);
+        stmt->setString(3, msg_id);
+        stmt->setString(4, msg_id);
+        stmt->execute();
+
+        return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
+}
+
+std::vector<ChatMessage> MySQLDao::GetRecentMessages(int uid, int limit, int64_t before_id)
+{
+    std::vector<ChatMessage> messages;
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return messages;
+
+    try
+    {
+        Defer defer([&conn, this]
+        {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        std::string sql = "SELECT * FROM chat_messages WHERE "
+                         "(from_uid = ? OR to_uid = ?) "
+                         "AND status != 2 "; // 不包括已删除的消息
+
+        if (before_id > 0) {
+            sql += "AND id < ? ";
+        }
+
+        sql += "ORDER BY send_time DESC LIMIT ?";
+
+        auto stmt = conn->_connection->prepareStatement(sql);
+
+        // 设置查询参数
+        int param_index = 1;
+        stmt->setInt(param_index++, uid);
+        stmt->setInt(param_index++, uid);
+
+        if (before_id > 0) {
+            stmt->setInt64(param_index++, before_id);
+        }
+        stmt->setInt(param_index, limit);
+
+        auto resultSet = stmt->executeQuery();
+
+        while (resultSet->next())
+        {
+            ChatMessage msg;
+            msg.msg_id = resultSet->getString("msg_id");
+            msg.from_uid = resultSet->getInt("from_uid");
+            msg.to_uid = resultSet->getInt("to_uid");
+            msg.content = resultSet->getString("content");
+            msg.msg_type = resultSet->getInt("msg_type");
+
+            // 将字符串时间戳转换为time_t
+            std::string time_str = resultSet->getString("send_time");
+            struct tm tm_time = {0};
+            strptime(time_str.c_str(), "%Y-%m-%d %H:%M:%S", &tm_time);
+            msg.send_time = mktime(&tm_time);
+
+            msg.status = resultSet->getInt("status");
+            messages.push_back(msg);
+        }
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+    }
+
+    return messages;
+}
+
+bool MySQLDao::UpdateLastMessage(int uid, int peerId, const std::string& msgId)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this]
+        {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        std::string sql = "INSERT INTO chat_message_relation "
+                         "(user_id, peer_id, last_msg_id) VALUES (?, ?, ?) "
+                         "ON DUPLICATE KEY UPDATE last_msg_id = ?, "
+                         "last_update_time = CURRENT_TIMESTAMP";
+
+        auto stmt = conn->_connection->prepareStatement(sql);
+        stmt->setInt(1, uid);
+        stmt->setInt(2, peerId);
+        stmt->setString(3, msgId);
+        stmt->setString(4, msgId);
+
+        return stmt->executeUpdate() >= 0;
     }
     catch (sql::SQLException& e)
     {

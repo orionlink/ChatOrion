@@ -1,8 +1,10 @@
 #include "content_bubble.h"
 #include "chat_view.h"
 #include "cui_helper.h"
+#include "user_data.h"
 
 #include <QDebug>
+#include <QRegularExpression>
 
 ContentBubbleFrame::ContentBubbleFrame(ChatRole role, QWidget *parent)
     : BubbleFrame(role, parent)
@@ -43,6 +45,13 @@ bool ContentBubbleFrame::setContent(const QVector<MsgInfo> &messages)
     updateGeometry();
 
     return !cursor.document()->toPlainText().isEmpty();
+}
+
+bool ContentBubbleFrame::setContent(const QString &messages)
+{
+    QVector<MsgInfo> msgInfo = parseMixedMessage(messages);
+
+    return setContent(msgInfo);
 }
 
 void ContentBubbleFrame::contextMenuEvent(QContextMenuEvent *event)
@@ -156,6 +165,38 @@ void ContentBubbleFrame::calculateMaxWidth(const QVector<MsgInfo> &messages)
     // 增加一个缓冲区（例如 10 像素），确保文本不会因为计算误差而换行
     int buffer = 5;
     setMaximumWidth(max_width + doc_margin * 2 + (margin_left + margin_right) + buffer + currentLineWidth);//设置最大宽度
+}
+
+QVector<MsgInfo> ContentBubbleFrame::parseMixedMessage(const QString &message)
+{
+    QVector<MsgInfo> result;
+
+    // 正则表达式匹配规则：匹配文本块或表情块（例如 [戳一戳]）
+    QRegularExpression regex(R"((\[.*?\])|([^[]+))"); // 非贪婪匹配表情，剩余部分为文本
+    QRegularExpressionMatchIterator iter = regex.globalMatch(message);
+
+    while (iter.hasNext())
+    {
+        QRegularExpressionMatch match = iter.next();
+        QString emotionPart = match.captured(1); // 捕获表情部分（包含方括号）
+        QString textPart = match.captured(2);    // 捕获文本部分
+
+        if (!emotionPart.isEmpty()) {
+            // 处理表情：去除方括号
+            QString key = emotionPart.mid(1, emotionPart.length() - 2); // 去掉首尾的[]
+            QJsonObject m_emojiObject = EmojiManager::GetInstance()->getEmojiObject();
+            if (!m_emojiObject.isEmpty())
+            {
+                QString content = m_emojiObject.value(key).toString();
+                result.append({"emotion", content});
+            }
+        } else if (!textPart.isEmpty()) {
+            // 处理文本
+            result.append({"text", textPart});
+        }
+    }
+
+    return result;
 }
 
 ContentLabel::ContentLabel(QWidget *parent) : QTextEdit(parent)

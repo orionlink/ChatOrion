@@ -204,15 +204,13 @@ void ChatItemBase::setupLayout()
     } else {
         m_pNameLabel->setContentsMargins(8, 0, 0, 0);
         m_pNameLabel->setAlignment(Qt::AlignLeft);
-        pGLayout->addWidget(m_pIconLabel, 0, 0, 2, 1, Qt::AlignTop);
-        pGLayout->addWidget(m_pNameLabel, 0, 1, 1, 1);
-        pGLayout->addWidget(m_pBubble, 1, 1, 1, 1);
-        pGLayout->addItem(pSpacer, 2, 2, 1, 1);
+        pGLayout->addWidget(m_pIconLabel, 0, 1, 2, 1, Qt::AlignVCenter);
+        pGLayout->addWidget(m_pNameLabel, 0, 2, 1, 1);
+        pGLayout->addWidget(m_pBubble, 1, 2, 1, 1);
+        pGLayout->addItem(pSpacer, 1, 3, 1, 1);
         pGLayout->setColumnStretch(1, 3);
         pGLayout->setColumnStretch(2, 2);
         pGLayout->addWidget(m_pSelectIconLabel, 0, 0, 2, 1, Qt::AlignVCenter);
-        pGLayout->removeWidget(m_pIconLabel);
-        pGLayout->addWidget(m_pIconLabel, 0, 1, 2, 1, Qt::AlignTop);
     }
 
     this->setLayout(pGLayout);

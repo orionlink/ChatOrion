@@ -12,6 +12,7 @@ namespace MessageCommand
     const QString SEARCH_EDIT_TEXT_CHANGED = "SEARCH_EDIT_TEXT_CHANGED"; // 搜索框文本改变
     const QString AUTH_FRIEND_RSP = "AUTH_FRIEND_RSP"; // 好友验证自己点击同意认证后界面刷新
     const QString NOTIFY_AUTH_FRIEND_REQ = "NOTIFY_AUTH_FRIEND_REQ"; // 对端同意认证后通知的信号
+//    const QString NOTIFY_TEXT_CHAT_MSG_REQ = "NOTIFY_TEXT_CHAT_MSG_REQ"; // 聊天消息传递
 
     // 用户相关命令
     const QString LOGIN = "Login";

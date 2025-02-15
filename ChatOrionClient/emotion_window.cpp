@@ -1,6 +1,7 @@
 #include "emotion_window.h"
 #include "common_utils.h"
 #include "emotion_label_item.h"
+#include "user_data.h"
 
 #include <QPainter>
 #include <QFocusEvent>
@@ -32,12 +33,10 @@ void EmotionWindow::initControl()
 
 	CommonUtils::loadStyleSheet(this, "EmotionWindow");
 
-    QString fileName = global_emoji_name;
-    QString currentDir = QDir::currentPath();
-    QString filePath = QDir(currentDir).filePath(fileName);
-    JsonHandler jsonHandler;
-    jsonHandler.readJsonFile(filePath);
-    QJsonObject emoObject = jsonHandler.getJsonObject();
+    bool is_load = EmojiManager::GetInstance()->loadEmojiData(global_emoji_name);
+    if (!is_load) return;
+
+    QJsonObject emoObject = EmojiManager::GetInstance()->getEmojiObject();
 
     if (emoObject.isEmpty()) return;
 

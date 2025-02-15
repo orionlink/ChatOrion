@@ -34,6 +34,14 @@ enum ReqId{
     ID_TEXT_CHAT_MSG_RSP = 1018, //文本聊天信息回复
 
     ID_NOTIFY_TEXT_CHAT_MSG_REQ = 1019, //通知用户文本聊天信息
+
+    ID_GET_HISTORY_MSG_REQ = 1020, // 获取历史消息请求
+    ID_GET_HISTORY_MSG_RSP = 1021,  // 获取历史消息响应
+
+    ID_MARK_MSG_READ_REQ = 1022, // 标记已读请求
+    ID_MARK_MSG_READ_RSP = 1023,  // 标记已读响应
+
+    ID_LOGIN_LOAD_UNREAD_CHAT_MSG = 1024, // 登录加载未读聊天信息
 };
 
 enum ErrorCodes{

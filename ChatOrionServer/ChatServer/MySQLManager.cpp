@@ -4,6 +4,11 @@
 
 #include "MySQLManager.h"
 
+bool MySQLManager::init()
+{
+    return _dao.init();
+}
+
 std::shared_ptr<UserInfo> MySQLManager::GetUser(int uid)
 {
     return _dao.GetUser(uid);
@@ -37,4 +42,25 @@ bool MySQLManager::GetApplyList(int self_id, std::vector<std::shared_ptr<ApplyIn
 bool MySQLManager::GetFriendList(int self_id, std::vector<std::shared_ptr<UserInfo>>& user_info_list)
 {
     return _dao.GetFriendList(self_id, user_info_list);
+}
+
+bool MySQLManager::MarkMessagesAsRead(int uid, int peer_id)
+{
+    return _dao.MarkMessagesAsRead(uid, peer_id);
+}
+
+bool MySQLManager::SaveChatMessage(int from_uid, int to_uid, const std::string& msg_id, const std::string& content,
+    int msg_type)
+{
+    return _dao.SaveChatMessage(from_uid, to_uid, msg_id, content);
+}
+
+std::vector<ChatMessage> MySQLManager::GetRecentMessages(int uid, int limit, int64_t before_id)
+{
+    return _dao.GetRecentMessages(uid, limit, before_id);
+}
+
+bool MySQLManager::UpdateLastMessage(int uid, int peerId, const std::string& msgId)
+{
+    return _dao.UpdateLastMessage(uid, peerId, msgId);
 }

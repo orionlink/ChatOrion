@@ -12,6 +12,7 @@
 #include "log.h"
 #include "StatusGrpcClient.h"
 #include "ChatServiceImpl.h"
+#include "MySQLManager.h"
 
 static void use(char* argv[])
 {
@@ -70,6 +71,14 @@ int main(int argc, char* argv[])
             LOG_ERROR << "服务注册失败: error: " <<  message_res.error();
             return -3;
         }
+
+        if (!MySQLManager::GetInstance()->init())
+        {
+            LOG_ERROR << "数据库初始化失败";
+            return -4;
+        }
+
+        LOG_INFO << "数据库初始化成功!";
 
         // 将登录数设置为0
         RedisManager::GetInstance()->hset(LOGIN_COUNT, server_name, "0");

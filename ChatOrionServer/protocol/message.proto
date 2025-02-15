@@ -128,19 +128,16 @@ message AuthFriendRsp{
 message TextChatMsgReq {
   int32 fromuid = 1;
   int32 touid = 2;
-  repeated TextChatData textmsgs = 3;
-}
-
-message TextChatData{
-  string msgid = 1;
-  string msgcontent = 2;
+  string msgid = 3;
+  string content = 4;
 }
 
 message TextChatMsgRsp {
   int32 error = 1;
   int32 fromuid = 2;
   int32 touid = 3; 
-  repeated TextChatData textmsgs = 4;
+  string msgid = 4;
+  string content = 5;
 }
 
 service ChatService {

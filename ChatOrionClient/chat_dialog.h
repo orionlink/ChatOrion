@@ -35,6 +35,8 @@ private:
 
     void NotifyAddFriendReq(int len, QByteArray data);
 
+    void NotifyTextChatMsgReq(int len, QByteArray data);
+
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     void addChatUserList();
@@ -42,6 +44,8 @@ private:
     void loadMoreChatUser();
 
     void loadMoreConUser();
+
+    void UpdateChatMsg(std::vector<std::shared_ptr<TextChatData>> msgdata);
 private slots:
     /**
      * @brief 点击侧边聊天
@@ -85,11 +89,18 @@ private slots:
 
     void slot_chat_user_item_clicked(QListWidgetItem *item);
 
+    /**
+     * @brief 发送消息，将消息和用户信息保存在 ChatUserItem 中
+     * @param msgdata
+     */
+    void slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata);
+
     void onAuthFriendRsp(const QVariant& data);
     void onNotifyAuthFriendReq(const QVariant& data);
 private:
     Ui::ChatDialog *ui;
     QList<StateWidget*> _side_lb_list;
+    // 保存聊天用户列表项
     QMap<int, QListWidgetItem*> _chat_items_added; // key: uid, value: ChatUserItem
     int _current_chat_uid;
     bool _b_loading;

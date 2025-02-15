@@ -18,6 +18,7 @@ execute_process(
         COMMAND /bin/bash ${CMAKE_SOURCE_DIR}/../protocol/build_proto.sh
         COMMAND cp -rf ${CMAKE_SOURCE_DIR}/../platfrom/config.ini ${CMAKE_SOURCE_DIR}/../bin
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../protocol/
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/chat_messages.sql ${CMAKE_SOURCE_DIR}/../bin
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
         ERROR_VARIABLE error_output
@@ -142,6 +143,9 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
         MySQLManager.cpp
         MySQLDao.h
         MySQLDao.cpp
+        redis_keys.h
+        ChatCacheManager.cpp
+        ChatCacheManager.h
 )
 
 # 链接库

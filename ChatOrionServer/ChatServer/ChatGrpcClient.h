@@ -35,7 +35,6 @@ using message::ChatService;
 
 using message::TextChatMsgReq;
 using message::TextChatMsgRsp;
-using message::TextChatData;
 
 class ChatConPool
 {
@@ -86,10 +85,9 @@ public:
      * 通知对方消息文本
      * @param server_ip
      * @param req
-     * @param rtvalue
      * @return
      */
-    TextChatMsgRsp NotifyTextChatMsg(std::string server_ip, const TextChatMsgReq& req, const Json::Value& rtvalue);
+    TextChatMsgRsp NotifyTextChatMsg(std::string server_ip, const TextChatMsgReq& req);
 private:
     ChatGrpcClient();
     std::unordered_map<std::string, std::unique_ptr<ChatConPool>> _pools;
