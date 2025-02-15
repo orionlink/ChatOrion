@@ -73,11 +73,11 @@ int main(int argc, char *argv[])
     int screenHeight = screenGeometry.height();
 
     // 将窗口移动到鼠标所在屏幕的中心
-    int x = screenGeometry.x() + (screenWidth - 900) / 2;
-    int y = screenGeometry.y() + (screenHeight - 600) / 2;
+    int x = screenGeometry.x() + (screenWidth - 1200) / 2;
+    int y = screenGeometry.y() + (screenHeight - 800) / 2;
 
     w.setBlurRadius(5);
-    w.resize(900, 600);
+    w.resize(1200, 800);
     w.move(x, y);
     w.show();
 

@@ -142,14 +142,14 @@
              <widget class="StateWidget" name="side_chat_lb" native="true">
               <property name="minimumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
              </widget>
@@ -158,14 +158,14 @@
              <widget class="StateWidget" name="side_contact_lb" native="true">
               <property name="minimumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
              </widget>
@@ -174,14 +174,14 @@
              <widget class="StateWidget" name="side_collect_lb" native="true">
               <property name="minimumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
              </widget>
@@ -190,14 +190,14 @@
              <widget class="ClickedLabel" name="side_circle_lb">
               <property name="minimumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="text">
@@ -209,14 +209,14 @@
              <widget class="ClickedLabel" name="side_watch_lb">
               <property name="minimumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="text">
@@ -228,14 +228,14 @@
              <widget class="ClickedLabel" name="side_search_lb">
               <property name="minimumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="text">
@@ -247,14 +247,14 @@
              <widget class="ClickedLabel" name="side_applet_lb">
               <property name="minimumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>20</width>
-                <height>20</height>
+                <width>25</width>
+                <height>25</height>
                </size>
               </property>
               <property name="text">

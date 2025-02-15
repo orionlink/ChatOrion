@@ -1,5 +1,11 @@
 #include "framewgt.h"
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <dwmapi.h>
+#include <windowsx.h>
+#endif
+
 FrameWgt::FrameWgt(QWidget *centerWidget)
 {
     m_pCenter_widget = centerWidget;
@@ -129,9 +135,14 @@ void FrameWgt::addLayoutToTitleBar(QLayout *layout)
 
 void FrameWgt::initialize()
 {
+#ifdef Q_OS_WIN
+    this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinMaxButtonsHint);
+    this->setAttribute(Qt::WA_TranslucentBackground, true);
+#else
+    setMouseTracking(true); // 启用鼠标追踪
     this->setWindowFlags(Qt::FramelessWindowHint | windowFlags()); // 隐藏默认边框
     this->setAttribute(Qt::WA_TranslucentBackground, true); // 设置透明背景
-    setMouseTracking(true); // 启用鼠标追踪
+#endif
     this->resize(400, 300);
     m_pBorder = new QWidget;
     m_pBorder->setCursor(Qt::ArrowCursor);
@@ -235,6 +246,7 @@ void FrameWgt::updateRadius(const uint &r)
     update();
 }
 
+#ifndef Q_OS_WIN
 void FrameWgt::mousePressEvent(QMouseEvent *event)
 {
     QPoint pos = event->pos();
@@ -406,6 +418,7 @@ void FrameWgt::mouseReleaseEvent(QMouseEvent *event)
     Q_UNUSED(event)
     m_isOp = false;
 }
+#endif
 
 void FrameWgt::paintEvent(QPaintEvent *event)
 {
@@ -546,3 +559,113 @@ void FrameWgt::changeEvent(QEvent *event)
     }
     QWidget::changeEvent(event);
 }
+
+#ifdef Q_OS_WIN
+bool FrameWgt::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+    if (!m_bWinNativeEvent) {
+        return QWidget::nativeEvent(eventType, message, result);
+    }
+
+    MSG *msg = static_cast<MSG*>(message);
+    switch (msg->message)
+    {
+        case WM_NCCALCSIZE:
+        {
+            // 必须处理这个消息，否则会有边框
+            if (msg->wParam)
+                *result = 0;
+            return true;
+        }
+        case WM_NCHITTEST:
+        {
+            // 先调用默认处理
+            LRESULT hit = DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
+            if (hit == HTCLIENT)
+            {
+                *result = 0;
+                const LONG border_width = 8;
+                RECT winrect;
+                GetWindowRect(HWND(winId()), &winrect);
+
+                long x = GET_X_LPARAM(msg->lParam);
+                long y = GET_Y_LPARAM(msg->lParam);
+
+                // 确保窗口未最大化
+                if (isMaximized() || isFullScreen())
+                {
+                    *result = HTCLIENT;
+                    return true;
+                }
+
+                bool resizeWidth = minimumWidth() != maximumWidth();
+                bool resizeHeight = minimumHeight() != maximumHeight();
+
+                if (resizeWidth)
+                {
+                    // left border
+                    if (x >= winrect.left && x < winrect.left + border_width)
+                    {
+                        *result = HTLEFT;
+                    }
+                    // right border
+                    if (x < winrect.right && x >= winrect.right - border_width)
+                    {
+                        *result = HTRIGHT;
+                    }
+                }
+                if (resizeHeight)
+                {
+                    // bottom border
+                    if (y < winrect.bottom && y >= winrect.bottom - border_width)
+                    {
+                        *result = HTBOTTOM;
+                    }
+                    // top border
+                    if (y >= winrect.top && y < winrect.top + border_width)
+                    {
+                        *result = HTTOP;
+                    }
+                }
+                if (resizeWidth && resizeHeight)
+                {
+                    // bottom left corner
+                    if (x >= winrect.left && x < winrect.left + border_width &&
+                        y < winrect.bottom && y >= winrect.bottom - border_width)
+                    {
+                        *result = HTBOTTOMLEFT;
+                    }
+                    // bottom right corner
+                    if (x < winrect.right && x >= winrect.right - border_width &&
+                        y < winrect.bottom && y >= winrect.bottom - border_width)
+                    {
+                        *result = HTBOTTOMRIGHT;
+                    }
+                    // top left corner
+                    if (x >= winrect.left && x < winrect.left + border_width &&
+                        y >= winrect.top && y < winrect.top + border_width)
+                    {
+                        *result = HTTOPLEFT;
+                    }
+                    // top right corner
+                    if (x < winrect.right && x >= winrect.right - border_width &&
+                        y >= winrect.top && y < winrect.top + border_width)
+                    {
+                        *result = HTTOPRIGHT;
+                    }
+                }
+
+                if (*result != 0)
+                    return true;
+
+                *result = HTCLIENT;
+                return true;
+            }
+            *result = hit;
+            return true;
+        }
+        break;
+    }
+    return QWidget::nativeEvent(eventType, message, result);
+}
+#endif

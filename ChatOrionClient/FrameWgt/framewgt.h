@@ -85,16 +85,20 @@ protected:
         BR
     };
     void initialize();
+
     void calculateOpflag(QPoint pos);
     void updateRadius(const uint &r);
 
+#ifdef Q_OS_WIN
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+#else
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+#endif
 
     void paintEvent(QPaintEvent *event) override;
     void changeEvent(QEvent *event) override;
-
 private:
     QWidget *m_pCenter_widget = nullptr; // 用户所提供的中间窗口
     QWidget *m_pBorder = nullptr; // 模拟边框的窗口
@@ -102,12 +106,13 @@ private:
     QGridLayout *m_pGridLayout = nullptr;
 
     int m_opFlag = OpFlag::NONE; // 窗口移动、拉伸控制
-    bool m_isOp = false; // 是否能移动、拉伸
+    bool m_isOp = true; // 是否能移动、拉伸
     QPointF m_lastPos; // 上一次的鼠标位置
     QColor m_shadowColor = QColor(0, 0, 0, 0); // 边框阴影颜色
     int m_blurRadius = 10; // 边框阴影范围
     int m_radius = 10; // 边框圆角半径
     QColor m_bgColor = QColor(0, 0, 0, 0);
+    bool m_bWinNativeEvent = true;  // 添加标志位控制是否使用原生事件
 };
 
 #endif // FRAMEWGT_H
