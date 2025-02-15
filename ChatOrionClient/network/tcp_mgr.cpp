@@ -1,6 +1,7 @@
 #include "tcp_mgr.h"
 
 #include <QAbstractSocket>
+#include <QtCore/QtEndian>
 
 TcpMgr::TcpMgr() : _host(""), _port(0),_b_recv_pending(false),_message_id(0),_message_len(0)
 {
@@ -16,44 +17,87 @@ TcpMgr::TcpMgr() : _host(""), _port(0),_b_recv_pending(false),_message_id(0),_me
         // 读取所有数据并追加到缓冲区
         _buffer.append(_socket.readAll());
 
-        QDataStream stream(&_buffer, QIODevice::ReadOnly);
-        stream.setVersion(QDataStream::Qt_5_14);
+//        QDataStream stream(&_buffer, QIODevice::ReadOnly);
+//        stream.setVersion(QDataStream::Qt_5_14);
+//        stream.setByteOrder(QDataStream::BigEndian);
 
-        forever
-        {
+//        forever
+//        {
+//            // 先解析头部
+//            if (!_b_recv_pending)
+//            {
+//                 // 检查缓冲区中的数据是否足够解析出一个消息头（消息ID + 消息长度）
+//                if (_buffer.size() < static_cast<int>(sizeof(qint16) * 2))
+//                {
+//                    return;
+//                }
+
+//                stream >> _message_id >> _message_len;
+
+//                //将buffer 中的前四个字节移除
+//                _buffer = _buffer.mid(sizeof(quint16) * 2);
+
+//                // 输出读取的数据
+//                qDebug() << "Message ID:" << _message_id << ", Length:" << _message_len;
+//            }
+
+//            if (_buffer.size() < _message_len)
+//            {
+//                _b_recv_pending = true;
+//                return;
+//            }
+
+//            _b_recv_pending = false;
+
+//            // 读取消息体
+//            QByteArray messageBody = _buffer.mid(0, _message_len);
+//            qDebug() << "receive body msg is " << messageBody ;
+
+//            _buffer = _buffer.mid(_message_len);
+
+//            handleMsg(ReqId(_message_id),_message_len, messageBody);
+//        }
+
+        forever {
             // 先解析头部
-            if (!_b_recv_pending)
-            {
-                 // 检查缓冲区中的数据是否足够解析出一个消息头（消息ID + 消息长度）
-                if (_buffer.size() < static_cast<int>(sizeof(qint16) * 2))
-                {
+            if (!_b_recv_pending) {
+                // 检查缓冲区中的数据是否足够解析出一个消息头
+                if (_buffer.size() < static_cast<int>(sizeof(qint16) * 2)) {
                     return;
                 }
 
-                stream >> _message_id >> _message_len;
+                // 使用指针直接读取网络字节序的数据
+                const char* data = _buffer.constData();
+                qint16 msgId, msgLen;
 
-                //将buffer 中的前四个字节移除
-                _buffer = _buffer.mid(sizeof(quint16) * 2);
+                // 读取消息ID并转换字节序
+                memcpy(&msgId, data, sizeof(qint16));
+                _message_id = qFromBigEndian(msgId);  // 或者用 ntohs(msgId)
 
-                // 输出读取的数据
+                // 读取消息长度并转换字节序
+                memcpy(&msgLen, data + sizeof(qint16), sizeof(qint16));
+                _message_len = qFromBigEndian(msgLen);  // 或者用 ntohs(msgLen)
+
+                // 移除已处理的头部数据
+                _buffer = _buffer.mid(sizeof(qint16) * 2);
+
                 qDebug() << "Message ID:" << _message_id << ", Length:" << _message_len;
             }
 
-            if (_buffer.size() < _message_len)
-            {
+            // 后续代码保持不变
+            if (_buffer.size() < _message_len) {
                 _b_recv_pending = true;
                 return;
             }
 
             _b_recv_pending = false;
 
-            // 读取消息体
             QByteArray messageBody = _buffer.mid(0, _message_len);
-            qDebug() << "receive body msg is " << messageBody ;
+            qDebug() << "receive body msg is " << messageBody;
 
             _buffer = _buffer.mid(_message_len);
 
-            handleMsg(ReqId(_message_id),_message_len, messageBody);
+            handleMsg(ReqId(_message_id), _message_len, messageBody);
         }
     });
 

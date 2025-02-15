@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-   ChatDialog* dlg = new ChatDialog();
+    ChatDialog* dlg = new ChatDialog();
 
     FrameWgt w(dlg);
 

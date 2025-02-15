@@ -5,6 +5,7 @@
 #include <memory>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <vector>
 
 #include "singleton.h"
 

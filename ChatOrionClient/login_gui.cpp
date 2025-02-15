@@ -1,4 +1,4 @@
-﻿#include "login_gui.h"
+#include "login_gui.h"
 #include "ui_login_gui.h"
 #include "global.h"
 #include "tools.h"
@@ -87,19 +87,25 @@ LoginGUI::LoginGUI(QDialog*parent) :
     ui->remPwd_checkBox->setChecked(remember);
     ui->autoLogin_checkBox->setChecked(autoLogin);
 
+    connect(&_keychain, &KeyChainClass::keyStored, [](const QString &key) {
+        qDebug() << "密钥已存储:" << key;
+    });
+
+    connect(&_keychain, &KeyChainClass::keyRestored, [this, savedUsername, autoLogin](const QString &key, const QString &value) {
+        qDebug() << "读取到密钥:" << key << "值:" << value;
+        // 自动填充并登录
+        ui->lineE_user_name->setText(savedUsername);
+        ui->lineE_pwd->setText(value);
+        if (autoLogin) attemptAutoLogin(savedUsername, value);
+    });
+
+    connect(&_keychain, &KeyChainClass::error, [](const QString &errorMessage) {
+        qDebug() << "发生错误:" << errorMessage;
+    });
+
     if (remember || autoLogin)
     {
-        Tools::loadPassword(savedUsername, this, [this, savedUsername, autoLogin](const QString& password)
-        {
-            if (!password.isEmpty())
-            {
-                qDebug() << "savedUsername: " << savedUsername << " password: " << password;
-                // 自动填充并登录
-                ui->lineE_user_name->setText(savedUsername);
-                ui->lineE_pwd->setText(password);
-                if (autoLogin) attemptAutoLogin(savedUsername, password);
-            }
-        });
+        _keychain.readKey(savedUsername);
     }
 
     QPushButton* btn_login = ui->btn_login;
@@ -175,7 +181,7 @@ void LoginGUI::login()
     }
 
     ui->btn_login->setEnabled(false);
-    ui->btn_login->setText(QString::fromLocal8Bit("登陆中..."));
+    ui->btn_login->setText("登陆中...");
 
     QString username = ui->lineE_user_name->text().toUtf8().constData();
     QString password = Tools::hashString(ui->lineE_pwd->text(), QCryptographicHash::Sha256);
@@ -190,14 +196,15 @@ void LoginGUI::login()
     Tools::saveLoginState(username, rem, autoLogin);
     if (rem || autoLogin)
     {
-        Tools::savePassword(username, ui->lineE_pwd->text());
+//        Tools::savePassword(username, ui->lineE_pwd->text());
+        _keychain.writeKey(username, ui->lineE_pwd->text());
     }
 }
 
 void LoginGUI::attemptAutoLogin(const QString &username, const QString &password)
 {
     ui->btn_login->setEnabled(false);
-    ui->btn_login->setText(QString::fromLocal8Bit("登陆中..."));
+    ui->btn_login->setText("登陆中...");
 
     QJsonObject request_json;
     request_json["username"] = username;
@@ -220,7 +227,7 @@ void LoginGUI::emailLogin()
         return;
     }
 
-    ui->btn_email_login->setText(QString::fromLocal8Bit("正在登陆..."));
+    ui->btn_email_login->setText("正在登陆...");
     ui->btn_email_login->setEnabled(false);
 
     QString email = ui->email_edit_2->text().toUtf8().constData();
@@ -239,7 +246,7 @@ void LoginGUI::registerReq()
         return;
     }
 
-    ui->btn_register_2->setText(QString::fromLocal8Bit("正在注册..."));
+    ui->btn_register_2->setText("正在注册...");
     ui->btn_register_2->setEnabled(false);
 
     string username = ui->user_name_edit->text().toUtf8().constData();
@@ -283,16 +290,16 @@ void LoginGUI::getCode()
     request_json["email"] = email.c_str();
     HttpMgr::GetInstance()->postHttpReq(QUrl(gate_url_prefix + "/get_varifycode"), request_json, Modules::REGISTER_MOD, ReqId::ID_GET_VARIFY_CODE);
 
-#if 0
+#if 1
     // 开始倒计时
     ui->getcodeButton_2->setDisabled(true);
     ui->getcodeButton_3->setDisabled(true);
     ui->getcodeButton->setDisabled(true);
     _countdown_timer->start(1000); // 每秒更新一次
     _remaining_time = 60; // 重置倒计时时间
-    ui->getcodeButton->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
-    ui->getcodeButton_2->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
-    ui->getcodeButton_3->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
+    ui->getcodeButton->setText(QString::number(_remaining_time) + " 秒后重试");
+    ui->getcodeButton_2->setText(QString::number(_remaining_time) + " 秒后重试");
+    ui->getcodeButton_3->setText(QString::number(_remaining_time) + " 秒后重试");
 #endif
 }
 
@@ -303,7 +310,7 @@ void LoginGUI::forgetPassword()
         return;
     }
 
-    ui->btn_submit->setText(QString::fromLocal8Bit("正在提交..."));
+    ui->btn_submit->setText("正在提交...");
     ui->btn_submit->setEnabled(false);
 
     string username = ui->user_name_edit_2->text().toUtf8().constData();
@@ -326,8 +333,8 @@ void LoginGUI::slot_tcp_con_finish(bool bsuccess)
 {
     if(bsuccess)
     {
-      showTip(ui->err_msg, QString::fromLocal8Bit("聊天服务连接成功，正在登录..."), true);
-      showTip(ui->err_msg_3, QString::fromLocal8Bit("聊天服务连接成功，正在登录..."), true);
+      showTip(ui->err_msg, "聊天服务连接成功，正在登录...", true);
+      showTip(ui->err_msg_3, "聊天服务连接成功，正在登录...", true);
       QJsonObject jsonObj;
       jsonObj["uid"] = _uid;
       jsonObj["token"] = _token;
@@ -340,8 +347,8 @@ void LoginGUI::slot_tcp_con_finish(bool bsuccess)
     }
     else
     {
-        showTip(ui->err_msg, QString::fromLocal8Bit("网络异常"), true);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("网络异常"), true);
+        showTip(ui->err_msg, "网络异常", true);
+        showTip(ui->err_msg_3, "网络异常", true);
     }
 }
 
@@ -390,15 +397,15 @@ void LoginGUI::updateButton()
         ui->getcodeButton->setEnabled(true);
         ui->getcodeButton_2->setEnabled(true);
         ui->getcodeButton_3->setEnabled(true);
-        ui->getcodeButton->setText(QString::fromLocal8Bit("获取验证码"));
-        ui->getcodeButton_2->setText(QString::fromLocal8Bit("获取验证码"));
-        ui->getcodeButton_3->setText(QString::fromLocal8Bit("获取验证码"));
+        ui->getcodeButton->setText("获取验证码");
+        ui->getcodeButton_2->setText("获取验证码");
+        ui->getcodeButton_3->setText("获取验证码");
     }
     else 
     {
-        ui->getcodeButton->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
-        ui->getcodeButton_2->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
-        ui->getcodeButton_3->setText(QString::number(_remaining_time) + QString::fromLocal8Bit(" 秒后重试"));
+        ui->getcodeButton->setText(QString::number(_remaining_time) + " 秒后重试");
+        ui->getcodeButton_2->setText(QString::number(_remaining_time) + " 秒后重试");
+        ui->getcodeButton_3->setText(QString::number(_remaining_time) + " 秒后重试");
     }
 }
 
@@ -411,9 +418,9 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
 
     if (err == ErrorCodes::ERR_NETWORK || err == ErrorCodes::ERR_JSON)
     {
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("网络连接失败"), false);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("网络连接失败"), false);
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("网络连接失败"), false);
+        showTip(ui->err_msg_2, "网络连接失败", false);
+        showTip(ui->err_msg_3, "网络连接失败", false);
+        showTip(ui->err_msg_4, "网络连接失败", false);
         return;
     }
 
@@ -424,15 +431,15 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
         int error = res["error"].toInt();
         if(error != ErrorCodes::SUCCESS)
         {
-            showTip(ui->err_msg_2, QString::fromLocal8Bit("参数错误"), false);
-            showTip(ui->err_msg_3, QString::fromLocal8Bit("参数错误"), false);
-            showTip(ui->err_msg_4, QString::fromLocal8Bit("参数错误"), false);
+            showTip(ui->err_msg_2, "参数错误", false);
+            showTip(ui->err_msg_3, "参数错误", false);
+            showTip(ui->err_msg_4, "参数错误", false);
             return;
         }
         auto email = res["email"].toString();
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("验证码已发送到邮箱，注意查收"), true);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("验证码已发送到邮箱，注意查收"), true);
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("验证码已发送到邮箱，注意查收"), true);
+        showTip(ui->err_msg_2, "验证码已发送到邮箱，注意查收", true);
+        showTip(ui->err_msg_3, "验证码已发送到邮箱，注意查收", true);
+        showTip(ui->err_msg_4, "验证码已发送到邮箱，注意查收", true);
         qDebug()<< "email is " << email ;
     }
         break;
@@ -449,9 +456,9 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
         }
 
         auto username = res["username"].toString();
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("用户注册成功，返回登录界面登录"), true);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("用户注册成功，返回登录界面登录"), true);
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("用户注册成功，返回登录界面登录"), true);
+        showTip(ui->err_msg_2, "用户注册成功，返回登录界面登录", true);
+        showTip(ui->err_msg_3, "用户注册成功，返回登录界面登录", true);
+        showTip(ui->err_msg_4, "用户注册成功，返回登录界面登录", true);
         qDebug()<< "username is " << username ;
     }
         break;
@@ -468,9 +475,9 @@ void LoginGUI::regModCallback(ReqId id, QJsonObject res, ErrorCodes err)
         }
 
         auto username = res["username"].toString();
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("密码修改成功，返回登录界面登录"), true);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("密码修改成功，返回登录界面登录"), true);
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("密码修改成功，返回登录界面登录"), true);
+        showTip(ui->err_msg_2,"密码修改成功，返回登录界面登录", true);
+        showTip(ui->err_msg_3, "密码修改成功，返回登录界面登录", true);
+        showTip(ui->err_msg_4, "密码修改成功，返回登录界面登录", true);
         qDebug()<< "username is " << username ;
     }
         break;
@@ -488,9 +495,9 @@ void LoginGUI::loginModCallback(ReqId id, QJsonObject res, ErrorCodes err)
 
     if (err == ErrorCodes::ERR_NETWORK || err == ErrorCodes::ERR_JSON)
     {
-        showTip(ui->err_msg_2, QString::fromLocal8Bit("网络连接失败"), false);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("网络连接失败"), false);
-        showTip(ui->err_msg_4, QString::fromLocal8Bit("网络连接失败"), false);
+        showTip(ui->err_msg_2, "网络连接失败", false);
+        showTip(ui->err_msg_3, "网络连接失败", false);
+        showTip(ui->err_msg_4, "网络连接失败", false);
         return;
     }
 
@@ -512,9 +519,9 @@ void LoginGUI::loginModCallback(ReqId id, QJsonObject res, ErrorCodes err)
         _token = res["token"].toString();
         auto host = res["host"].toString();
         auto port = res["port"].toInt();
-        showTip(ui->err_msg, QString::fromLocal8Bit("正在连接聊天服务器"), true);
-        showTip(ui->err_msg_3, QString::fromLocal8Bit("正在连接聊天服务器"), true);
-        qDebug()<< "username is " << username;
+        showTip(ui->err_msg, "正在连接聊天服务器", true);
+        showTip(ui->err_msg_3, "正在连接聊天服务器", true);
+        qDebug()<< "username is " << username << " 聊天服务器ip: " << host << " port: " << port;
 
         emit sig_connect_tcp(host, port);
     }

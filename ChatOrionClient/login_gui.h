@@ -1,4 +1,4 @@
-﻿#ifndef LOGIN_GUI_H
+#ifndef LOGIN_GUI_H
 #define LOGIN_GUI_H
 
 #include <QWidget>
@@ -22,6 +22,7 @@ class LoginGUI;
 class QLabel;
 
 #include "global.h"
+#include "keychainclass.h"
 
 enum TipErr{
     TIP_SUCCESS = 0,
@@ -130,6 +131,8 @@ private:
 
     int _uid;
     QString _token;
+
+    KeyChainClass _keychain;
 };
 
 #endif // LOGIN_GUI_H

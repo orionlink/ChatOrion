@@ -1,5 +1,5 @@
 /**
-    ¸ÃÒ³ÃæÎªÇ³×ÏÉ«Æ¤·ô
+    è¯¥é¡µé¢ä¸ºæµ…ç´«è‰²çš®è‚¤
 */
 #frame_background{
 border-image:url(:/res/pic/background-3.png);
@@ -78,72 +78,72 @@ QLineEdit{
     color:#7185ff;
 }
 
-/*ÕË»§ºÍÃÜÂë¿ò*/
+/*è´¦æˆ·å’Œå¯†ç æ¡†*/
 #frame_user_name_2,#frame_pwd_2{
     border: 1px solid #696969;
     border-radius: 5px;
 }
 
-/*Í¼±ê-ÕË»§*/
+/*å›¾æ ‡-è´¦æˆ·*/
 #label_user_name_2
 {
     border-image:url(:/res/pic/user_name.png);
 }
-/*Í¼±ê-ÃÜÂë*/
+/*å›¾æ ‡-å¯†ç */
 #label_pwd_2
 {
     border-image:url(:/res/pic/pwd.png);
 
 }
 
-/*Í¼±ê-ÕË»§*/
+/*å›¾æ ‡-è´¦æˆ·*/
 #label_user_name_3
 {
     border-image:url(:/res/pic/user_name.png);
 }
-/*Í¼±ê-ÃÜÂë*/
+/*å›¾æ ‡-å¯†ç */
 #label_pwd_3
 {
     border-image:url(:/res/pic/pwd.png);
 
 }
 
-/*°´Å¥-qq*/
+/*æŒ‰é’®-qq*/
 #btn_qq_2{
     background-image:url(:/res/pic/qq.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-qq-Êó±êĞüÍ£*/
+/*æŒ‰é’®-qq-é¼ æ ‡æ‚¬åœ*/
 #btn_qq_2:hover{
     background-image:url(:/res/pic/qq-hover.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-Î¢ĞÅ*/
+/*æŒ‰é’®-å¾®ä¿¡*/
 #btn_wx_2{
     background-image:url(:/res/pic/wx.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-Î¢ĞÅ-Êó±êĞüÍ£*/
+/*æŒ‰é’®-å¾®ä¿¡-é¼ æ ‡æ‚¬åœ*/
 #btn_wx_2:hover{
     background-image:url(:/res/pic/wx-hover.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-Î¢²©-*/
+/*æŒ‰é’®-å¾®åš-*/
 #btn_wb_2{
     background-image:url(:/res/pic/email.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-Î¢²©-Êó±êĞüÍ£*/
+/*æŒ‰é’®-å¾®åš-é¼ æ ‡æ‚¬åœ*/
 #btn_wb_2:hover{
     background-image:url(:/res/pic/email-hover.png);
     background-position:center;
@@ -153,42 +153,42 @@ QLineEdit{
 
 /***********************************************************************************
 
-/*°´Å¥-qq*/
+/*æŒ‰é’®-qq*/
 #btn_qq_3{
     background-image:url(:/res/pic/qq.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-qq-Êó±êĞüÍ£*/
+/*æŒ‰é’®-qq-é¼ æ ‡æ‚¬åœ*/
 #btn_qq_3:hover{
     background-image:url(:/res/pic/qq-hover.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-Î¢ĞÅ*/
+/*æŒ‰é’®-å¾®ä¿¡*/
 #btn_wx_3{
     background-image:url(:/res/pic/wx.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-Î¢ĞÅ-Êó±êĞüÍ£*/
+/*æŒ‰é’®-å¾®ä¿¡-é¼ æ ‡æ‚¬åœ*/
 #btn_wx_3:hover{
     background-image:url(:/res/pic/wx-hover.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-Î¢²©-*/
+/*æŒ‰é’®-å¾®åš-*/
 #btn_wb_3{
     background-image:url(:/res/pic/email.png);
     background-position:center;
     background-repeat:no-repeat;
     border:none;
 }
-/*°´Å¥-Î¢²©-Êó±êĞüÍ£*/
+/*æŒ‰é’®-å¾®åš-é¼ æ ‡æ‚¬åœ*/
 #btn_wb_3:hover{
     background-image:url(:/res/pic/email-hover.png);
     background-position:center;
@@ -198,28 +198,28 @@ QLineEdit{
 
 /**********************************************************************************
 
-/*°´Å¥-·Ûºì*/
+/*æŒ‰é’®-ç²‰çº¢*/
 #btn_1{
 color:#e83737;
 background-color:#ffffff;
 border:none;
 border-radius: 10px;
 }
-/*°´Å¥-»ÆÂÌ*/
+/*æŒ‰é’®-é»„ç»¿*/
 #btn_2{
 color:#d7b105;
 background-color:#ffffff;
 border:none;
 border-radius: 10px;
 }
-/*°´Å¥-Ç³×Ï*/
+/*æŒ‰é’®-æµ…ç´«*/
 #btn_3{
 color:#7185ff;
 background-color:#ffffff;
 border:none;
 border-radius: 10px;
 }
-/*°´Å¥-ÇàÂÌ*/
+/*æŒ‰é’®-é’ç»¿*/
 #btn_4{
 color:#7bb7a5;
 background-color:#ffffff;

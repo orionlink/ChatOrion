@@ -1,6 +1,6 @@
 #include "tools.h"
 
-#include <qt5keychain/keychain.h>
+#include <keychain.h>
 #include <QSettings>
 #include <QDebug>
 
@@ -26,12 +26,24 @@ void Tools::savePassword(const QString &username, const QString &password)
     auto* job = new QKeychain::WritePasswordJob("ChatOrion");
     job->setKey(username);
     job->setTextData(password);
+
+    QObject::connect(job, &QKeychain::Job::finished, job, [](QKeychain::Job* job) {
+        if (job->error()) {
+            qWarning() << "密码保存失败:" << job->errorString()
+                      << " Error code:" << job->error()
+                      << " Key:" << job->key();
+        } else {
+            qDebug() << "密码保存成功:" << job->key();
+        }
+        job->deleteLater();
+    });
+
     job->start();
 }
 
 void Tools::loadPassword(const QString &username, QObject *receiver, std::function<void (const QString &)> callback)
 {
-    auto* job = new QKeychain::ReadPasswordJob("ChatOrion");
+    auto* job = new QKeychain::ReadPasswordJob("ChatOrion", receiver);
     job->setKey(username);
     QObject::connect(job, &QKeychain::Job::finished, receiver, [callback](QKeychain::Job* job)
     {
@@ -51,7 +63,8 @@ void Tools::loadPassword(const QString &username, QObject *receiver, std::functi
 
 void Tools::saveLoginState(const QString &username, bool remember, bool autoLogin)
 {
-    QSettings settings;
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+                          "ChatOrion", "ChatOrion");
     settings.setValue("username", remember ? username : "");
     settings.setValue("rememberPassword", remember);
     settings.setValue("autoLogin", autoLogin);
@@ -59,7 +72,8 @@ void Tools::saveLoginState(const QString &username, bool remember, bool autoLogi
 
 void Tools::loadLoginState(QString &username, bool &remember, bool &autoLogin)
 {
-    QSettings settings;
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+                          "ChatOrion", "ChatOrion");
     username = settings.value("username").toString();
     remember = settings.value("rememberPassword").toBool();
     autoLogin = settings.value("autoLogin").toBool();

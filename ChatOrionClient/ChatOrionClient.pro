@@ -53,6 +53,7 @@ SOURCES += \
     network/http_mgr.cpp \
     network/tcp_mgr.cpp \
     normal_page.cpp \
+    utils/keychainclass.cpp \
     utils/tools.cpp \
     user_data.cpp \
     user_mgr.cpp \
@@ -105,6 +106,7 @@ HEADERS += \
     network/tcp_mgr.h \
     normal_page.h \
     singleton.h \
+    utils/keychainclass.h \
     utils/tools.h \
     user_data.h \
     user_mgr.h \
@@ -136,28 +138,54 @@ DESTDIR = $$PWD/bin
 INCLUDEPATH += $$PWD/custom_ui
 INCLUDEPATH += $$PWD/network
 INCLUDEPATH += $$PWD/utils
-INCLUDEPATH += $$PWD/../third/linux/qtkeychain/include
-
-LIBS += -L$$PWD/../third/linux/qtkeychain/lib -lqt5keychain
 
 include($$PWD/FrameWgt/FrameWgt.pri)
+include($$PWD/qtkeychain.pri)
 
 DISTFILES += \
     config.ini \
     res/pic/normal_logo.png
 
-win32:CONFIG(debug, debug | release) {
-    # Windows 环境配置
-    TargetConfig = $${PWD}/config.ini
-    TargetConfig = $$replace(TargetConfig, /, \\)  # 将路径中的 '/' 替换为 '\\'
-
-    # 获取输出目录并转换路径分隔符
-    OutputDir = $${OUT_PWD}/$${DESTDIR}
-    OutputDir = $$replace(OutputDir, /, \\)  # 将路径中的 '/' 替换为 '\\'
-
-    # 在 Windows 上使用 `copy` 命令
-    QMAKE_POST_LINK += copy /Y \"$$TargetConfig\" \"$$OutputDir\"
+# Linux 系统
+unix {
+    LIBS += -L$$PWD/../third/linux/qtkeychain/lib -lqt5keychain
+    INCLUDEPATH += $$PWD/../third/linux/qtkeychain/include
 }
+
+# Windows 系统
+win32 {
+    LIBS += -lCrypt32
+    INCLUDEPATH += $$PWD/qtkeychain
+    QMAKE_CXXFLAGS += -utf-8
+}
+
+win32-msvc* {
+    QMAKE_CFLAGS += /utf-8
+    QMAKE_CXXFLAGS += /utf-8
+    QMAKE_CXXFLAGS += -Zm800
+}
+
+CONFIG += resources_big
+CONFIG += utf8_source
+QMAKE_RESOURCE_FLAGS += -no-compress
+
+#win32:CONFIG(debug, debug | release) {
+#    # Windows 环境配置
+#    TargetConfig = $${PWD}/config.ini
+#    TargetEmoji = $$PWD/emoji.json
+#    TargetConfig = $$replace(TargetConfig, /, \\)  # 将路径中的 '/' 替换为 '\\'
+#    TargetEmoji = $$replace(TargetEmoji, /, \\)
+
+#    # 获取输出目录并转换路径分隔符
+#    OutputDir = $${OUT_PWD}/$${DESTDIR}
+#    OutputDir = $$replace(OutputDir, /, \\)  # 将路径中的 '/' 替换为 '\\'
+
+#    # 在 Windows 上使用 `copy` 命令
+#    QMAKE_POST_LINK += copy /Y \"$$TargetConfig\" \"$$OutputDir\"
+#    QMAKE_POST_LINK += copy /Y \"$$TargetEmoji\" \"$$OutputDir\"
+
+#    LIBS += -L$$PWD/../third/win/qtkeychain/lib -lqt5keychain
+#}
 
 #unix:CONFIG(debug, debug | release) {
 #    # Linux 环境配置
@@ -174,6 +202,8 @@ win32:CONFIG(debug, debug | release) {
 #    QMAKE_POST_LINK += mkdir -p $$OutputDir
 #    QMAKE_POST_LINK += cp -f "$$TargetConfig" "$$OutputDir"
 #    QMAKE_POST_LINK += cp -f "$$TargetEmoji" "$$OutputDir"
+
+#    LIBS += -L$$PWD/../third/linux/qtkeychain/lib -lqt5keychain
 #}
 
 # Default rules for deployment.

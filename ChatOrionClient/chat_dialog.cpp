@@ -623,7 +623,10 @@ void ChatDialog::slot_chat_user_item_clicked(QListWidgetItem *item)
 
        auto chat_wid = qobject_cast<ChatUserItem*>(customItem);
        auto item_user_info = chat_wid->GetUserInfo();
-       if (item_user_info->_chat_msgs.empty())
+
+       static bool first_in = true;
+
+       if (item_user_info->_chat_msgs.empty() || first_in)
        {
 //           auto friendInfo = UserMgr::GetInstance()->GetFriendById(user_info->_uid);
 //           if (friendInfo)
@@ -642,6 +645,8 @@ void ChatDialog::slot_chat_user_item_clicked(QListWidgetItem *item)
                    }
                }
            }
+
+           first_in = false;
        }
 
        //跳转到聊天界面
