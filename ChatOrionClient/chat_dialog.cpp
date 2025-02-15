@@ -372,10 +372,10 @@ void ChatDialog::NotifyTextChatMsgReq(int len, QByteArray data)
 
     qDebug() << "Receive Text Chat Notify Success " ;
 
+    // 每次接收到消息，未读消息++
+    _unread_msg_total_count++;
     if (!ui->side_chat_lb->isSelected())
     {
-        // 每次接收到消息，未读消息++
-        _unread_msg_total_count++;
         ui->side_chat_lb->SetRedDot(true, _unread_msg_total_count);
     }
 
@@ -399,12 +399,11 @@ void ChatDialog::NotifyTextChatMsgReq(int len, QByteArray data)
         }
         chat_user_item->updateLastMsg(msg_ptr->_chat_msgs);
 
+        int unread_count = _chat_user_unread_msg_count.value(fromuid);
+        unread_count++;
+        _chat_user_unread_msg_count[fromuid] = unread_count;
         if (!chat_user_item->isSelected())
         {
-            int unread_count = _chat_user_unread_msg_count.value(fromuid);
-            unread_count++;
-            _chat_user_unread_msg_count[fromuid] = unread_count;
-
             chat_user_item->SetRedDot(true, unread_count);
         }
 
@@ -479,12 +478,25 @@ bool ChatDialog::eventFilter(QObject *obj, QEvent *event)
 
 void ChatDialog::slot_side_chat()
 {
-    _unread_msg_total_count = 0;
-
     ui->side_chat_lb->SetRedDot(false);
     clearLabelState(ui->side_chat_lb);
     ui->stackedWidget->setCurrentWidget(ui->chat_page);
     ui->user_stacked->setCurrentWidget(ui->chat_user_list_page);
+
+    QWidget *widget = ui->chat_user_list->itemWidget(ui->chat_user_list->currentItem());
+    if(!widget){
+        qDebug()<< "slot item clicked widget is nullptr";
+        return;
+    }
+
+    // 对自定义widget进行操作， 将item 转化为基类ListItemBase
+    ChatUserItem *chatItem = qobject_cast<ChatUserItem*>(widget);
+    if (chatItem)
+    {
+        int uid = chatItem->GetUserInfo()->_uid;
+        _unread_msg_total_count -= _chat_user_unread_msg_count.value(uid);
+        _chat_user_unread_msg_count[uid] = 0;
+    }
 }
 
 void ChatDialog::slot_side_contact()
@@ -669,7 +681,9 @@ void ChatDialog::slot_chat_user_item_clicked(QListWidgetItem *item)
        auto item_user_info = chat_wid->GetUserInfo();
 
        // 重置计数器
+       int unread_count = _chat_user_unread_msg_count.value(item_user_info->_uid);
        _chat_user_unread_msg_count[item_user_info->_uid] = 0;
+       _unread_msg_total_count -= unread_count;
        chat_wid->SetRedDot(false);
 
        static bool first_in = true;
