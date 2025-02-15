@@ -12,6 +12,7 @@ class ChatDialog;
 
 class StateWidget;
 class QListWidgetItem;
+class ChatUserItem;
 
 class ChatDialog : public QDialog
 {
@@ -20,6 +21,9 @@ class ChatDialog : public QDialog
 public:
     explicit ChatDialog(QWidget *parent = nullptr);
     ~ChatDialog();
+
+signals:
+    void sig_notify_text_chat_msg(std::vector<std::shared_ptr<TextChatData>> chat_msgs);
 private:
     /**
      * @brief 添加到按钮组，支持互斥点击
@@ -35,6 +39,11 @@ private:
 
     void NotifyAddFriendReq(int len, QByteArray data);
 
+    /**
+     * @brief 接收好友发送的消息
+     * @param len
+     * @param data
+     */
     void NotifyTextChatMsgReq(int len, QByteArray data);
 
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -104,6 +113,12 @@ private:
     QMap<int, QListWidgetItem*> _chat_items_added; // key: uid, value: ChatUserItem
     int _current_chat_uid;
     bool _b_loading;
+
+    int _unread_msg_total_count; // 当前消息的总数
+    // key: uid, value: unread_msg_count
+    QMap<int, int> _chat_user_unread_msg_count; // 关联和当前好友未读消息的数量
+
+    ChatUserItem* _last_selected_item = nullptr; // 记录上一次点击的item
 };
 
 #endif // CHAT_DIALOG_H

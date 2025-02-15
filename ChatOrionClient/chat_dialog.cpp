@@ -47,7 +47,8 @@ ChatDialog::ChatDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ChatDialog),
     _current_chat_uid(0),
-    _b_loading(false)
+    _b_loading(false),
+    _unread_msg_total_count(0)
 {
     ui->setupUi(this);
     this->setWindowTitle(QStringLiteral("微信"));
@@ -129,6 +130,8 @@ ChatDialog::ChatDialog(QWidget *parent) :
 
     // 客户端接收chat_page缓存消息
     connect(ui->chat_page, &ChatPage::sig_append_send_chat_msg, this, &ChatDialog::slot_append_send_chat_msg);
+
+    connect(this, &ChatDialog::sig_notify_text_chat_msg, ui->chat_page, &ChatPage::slot_notify_text_chat_msg);
 
     //链接自己认证回复信号
     MessageBus::instance()->registerHandler(MessageCommand::AUTH_FRIEND_RSP, this, &ChatDialog::onAuthFriendRsp);
@@ -222,6 +225,7 @@ void ChatDialog::loadMoreChatUser()
         user_info->_icon = heads[head_i];
 #endif
         chat_user_wid->SetInfo(user_info);
+        _chat_user_unread_msg_count.insert(user_info->_uid, 0);
         QListWidgetItem *item = new QListWidgetItem;
         //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
         item->setSizeHint(chat_user_wid->sizeHint());
@@ -367,6 +371,14 @@ void ChatDialog::NotifyTextChatMsgReq(int len, QByteArray data)
     }
 
     qDebug() << "Receive Text Chat Notify Success " ;
+
+    if (!ui->side_chat_lb->isSelected())
+    {
+        // 每次接收到消息，未读消息++
+        _unread_msg_total_count++;
+        ui->side_chat_lb->SetRedDot(true, _unread_msg_total_count);
+    }
+
     auto fromuid = jsonObj["fromuid"].toInt();
     auto touid = jsonObj["touid"].toInt();
     auto content = jsonObj["content"].toString();
@@ -386,9 +398,21 @@ void ChatDialog::NotifyTextChatMsgReq(int len, QByteArray data)
             return;
         }
         chat_user_item->updateLastMsg(msg_ptr->_chat_msgs);
+
+        if (!chat_user_item->isSelected())
+        {
+            int unread_count = _chat_user_unread_msg_count.value(fromuid);
+            unread_count++;
+            _chat_user_unread_msg_count[fromuid] = unread_count;
+
+            chat_user_item->SetRedDot(true, unread_count);
+        }
+
         //更新当前聊天页面记录
         UpdateChatMsg(msg_ptr->_chat_msgs);
         UserMgr::GetInstance()->AppendFriendChatMsg(fromuid, msg_ptr->_chat_msgs);
+
+        emit sig_notify_text_chat_msg(msg_ptr->_chat_msgs);
         return;
     }
 
@@ -405,6 +429,8 @@ void ChatDialog::NotifyTextChatMsgReq(int len, QByteArray data)
     ui->chat_user_list->insertItem(0, item);
     ui->chat_user_list->setItemWidget(item, chat_user_item);
     _chat_items_added.insert(fromuid, item);
+
+    emit sig_notify_text_chat_msg(msg_ptr->_chat_msgs);
 }
 
 bool ChatDialog::eventFilter(QObject *obj, QEvent *event)
@@ -453,6 +479,8 @@ bool ChatDialog::eventFilter(QObject *obj, QEvent *event)
 
 void ChatDialog::slot_side_chat()
 {
+    _unread_msg_total_count = 0;
+
     ui->side_chat_lb->SetRedDot(false);
     clearLabelState(ui->side_chat_lb);
     ui->stackedWidget->setCurrentWidget(ui->chat_page);
@@ -622,19 +650,34 @@ void ChatDialog::slot_chat_user_item_clicked(QListWidgetItem *item)
        qDebug()<< "contact user item clicked ";
 
        auto chat_wid = qobject_cast<ChatUserItem*>(customItem);
+       chat_wid->SetSelected(true);
+
+       // 如果点击的是同一个item，不做处理
+       if (_last_selected_item == chat_wid) {
+           return;
+       }
+
+       // 取消上一个选中状态
+       if (_last_selected_item) {
+           _last_selected_item->SetSelected(false);
+       }
+
+       // 设置新的选中状态
+       chat_wid->SetSelected(true);
+       _last_selected_item = chat_wid;
+
        auto item_user_info = chat_wid->GetUserInfo();
+
+       // 重置计数器
+       _chat_user_unread_msg_count[item_user_info->_uid] = 0;
+       chat_wid->SetRedDot(false);
 
        static bool first_in = true;
 
        if (item_user_info->_chat_msgs.empty() || first_in)
        {
-//           auto friendInfo = UserMgr::GetInstance()->GetFriendById(user_info->_uid);
-//           if (friendInfo)
-//           {
-//               user_info->_chat_msgs = friendInfo->_chat_msgs;
-//           }
-
            auto userInfo = UserMgr::GetInstance()->GetUserInfo();
+           item_user_info->_chat_msgs.clear();
            if (userInfo)
            {
                for (auto msg : userInfo->_chat_msgs)
@@ -694,6 +737,8 @@ void ChatDialog::slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata
         //设置信息
         auto user_info = con_item->GetUserInfo();
         user_info->_chat_msgs.push_back(msgdata);
+        con_item->SetLastMsg(msgdata->_msg_content);
+
         std::vector<std::shared_ptr<TextChatData>> msg_vec;
         msg_vec.push_back(msgdata);
         UserMgr::GetInstance()->AppendFriendChatMsg(_current_chat_uid, msg_vec);

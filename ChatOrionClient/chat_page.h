@@ -11,6 +11,8 @@ namespace Ui {
 class ChatPage;
 }
 
+class ChatView;
+
 class ChatPage : public QWidget
 {
     Q_OBJECT
@@ -22,8 +24,16 @@ public:
     void SetFriendUserInfo(std::shared_ptr<UserInfo> user_info);
 
     void AppendChatMsg(std::shared_ptr<TextChatData> msg);
+
 signals:
     void sig_append_send_chat_msg(std::shared_ptr<TextChatData> msg);
+
+public slots:
+    /**
+     * @brief 接收消息，将消息和用户信息保存在 _chat_view_cache 中
+     * @param chat_msgs
+     */
+    void slot_notify_text_chat_msg(std::vector<std::shared_ptr<TextChatData>> chat_msgs);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -46,6 +56,12 @@ private slots:
     void onDeleteLabelClicked();
 
     void onCloseLabelClicked();
+
+    /**
+     * @brief 发送消息，将消息和用户信息保存在 _chat_view_cache 中
+     * @param msgdata
+     */
+    void slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata);
 private:
 
     /**
@@ -60,6 +76,12 @@ private:
     Ui::ChatPage *ui;
     EmotionWindow* _emotion_wid;
     std::shared_ptr<UserInfo> _friend_user_info; // 记录当前对话的用户信息
+
+    struct ChatViewData {
+        ChatView* view;
+        std::vector<std::shared_ptr<TextChatData>> messages;
+    };
+    QMap<int, ChatViewData> _chat_view_cache;  // 用户ID -> 对应的聊天视图缓存
 };
 
 #endif // CHAT_PAGE_H

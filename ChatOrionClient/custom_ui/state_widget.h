@@ -21,6 +21,7 @@ public:
                   QString select="", QString select_hover="", QString select_press="");
 
     ClickLbState GetCurState();
+    bool isSelected() { return _curstate == ClickLbState::Selected; }
     void ClearState();
 
     void SetSelected(bool bselected);

@@ -12,6 +12,7 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QDebug>
+#include <QScreen>
 #include <QJsonDocument>
 
 ChatPage::ChatPage(QWidget *parent) :
@@ -82,6 +83,8 @@ ChatPage::ChatPage(QWidget *parent) :
 
         repolish(ui->send_btn);
     });
+
+    connect(this, &ChatPage::sig_append_send_chat_msg, this, &ChatPage::slot_append_send_chat_msg);
 }
 
 ChatPage::~ChatPage()
@@ -91,15 +94,103 @@ ChatPage::~ChatPage()
         _emotion_wid->deleteLater();
 }
 
+//void ChatPage::SetFriendUserInfo(std::shared_ptr<UserInfo> user_info)
+//{
+//    _friend_user_info = user_info;
+
+//    //设置ui界面
+//    ui->username_label->setText(_friend_user_info->_name);
+//    ui->chat_data_list->removeAllItem();
+//    for(auto & msg : user_info->_chat_msgs){
+//        AppendChatMsg(msg);
+//    }
+//}
+
 void ChatPage::SetFriendUserInfo(std::shared_ptr<UserInfo> user_info)
 {
     _friend_user_info = user_info;
+    ui->username_label->setText(user_info->_name);
 
-    //设置ui界面
-    ui->username_label->setText(_friend_user_info->_name);
-    ui->chat_data_list->removeAllItem();
-    for(auto & msg : user_info->_chat_msgs){
-        AppendChatMsg(msg);
+    int userId = user_info->_uid;
+    ChatViewData& viewData = _chat_view_cache[userId];
+
+    if (!viewData.view)
+    {
+        viewData.view = new ChatView(ui->chat_data_wid);
+        viewData.view->setObjectName("chat_data_list");
+        if (ui->chat_data_list) {
+            viewData.view->setSizePolicy(ui->chat_data_list->sizePolicy());
+        }
+    }
+
+    // 更新布局
+    QVBoxLayout* dataLayout = qobject_cast<QVBoxLayout*>(ui->chat_data_wid->layout());
+    if (dataLayout) {
+        if (ui->chat_data_list) {
+            ui->chat_data_list->hide();
+            dataLayout->removeWidget(ui->chat_data_list);
+        }
+
+        dataLayout->addWidget(viewData.view);
+        ui->chat_data_list = viewData.view;
+    }
+
+    // 检查消息是否需要更新
+    bool needUpdate = viewData.messages.size() != user_info->_chat_msgs.size();
+//    if (!needUpdate) {
+//        // 如果大小相同，逐个比较确认是否需要更新
+//        for (size_t i = 0; i < viewData.messages.size(); ++i) {
+//            if (viewData.messages[i] != user_info->_chat_msgs[i]) {
+//                needUpdate = true;
+//                break;
+//            }
+//        }
+//    }
+
+    if (needUpdate)
+    {
+        viewData.messages = user_info->_chat_msgs;
+        viewData.view->removeAllItem();
+        for(auto & msg : viewData.messages) {
+            AppendChatMsg(msg);
+        }
+    }
+
+    viewData.view->show();
+}
+
+void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
+{
+    auto self_info = UserMgr::GetInstance()->GetUserInfo();
+    ChatRole role;
+    //todo... 添加聊天显示
+    if (msg->_from_uid == self_info->_uid) {
+        role = ChatRole::Self;
+        auto pChatItem = std::make_unique<ChatItemBase>(role);
+
+        pChatItem->setUserName(self_info->_name);
+        pChatItem->setUserIcon(QPixmap(self_info->_icon));
+        ContentBubbleFrame* pBubble = nullptr;
+        pBubble = new ContentBubbleFrame(role);
+        pBubble->setContent(msg->_msg_content);
+        pChatItem->setWidget(pBubble);
+        ui->chat_data_list->appendChatItem(std::move(pChatItem));
+    }
+    else {
+        role = ChatRole::Other;
+        auto pChatItem = std::make_unique<ChatItemBase>(role);
+        auto friend_info = UserMgr::GetInstance()->GetFriendById(msg->_from_uid);
+        if (friend_info == nullptr)
+        {
+            return;
+        }
+        pChatItem->setUserName(friend_info->_name);
+        pChatItem->setUserIcon(QPixmap(friend_info->_icon));
+        ContentBubbleFrame* pBubble = nullptr;
+        pBubble = new ContentBubbleFrame(role);
+        pBubble->setContent(msg->_msg_content);
+        pChatItem->setWidget(pBubble);
+        ui->chat_data_list->appendChatItem(std::move(pChatItem));
     }
 }
 
@@ -252,49 +343,26 @@ QString ChatPage::createAndAppendChatItem(std::shared_ptr<UserInfo> user_info,co
     return uuid;
 }
 
-void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
-{
-    auto self_info = UserMgr::GetInstance()->GetUserInfo();
-    ChatRole role;
-    //todo... 添加聊天显示
-    if (msg->_from_uid == self_info->_uid) {
-        role = ChatRole::Self;
-        auto pChatItem = std::make_unique<ChatItemBase>(role);
-
-        pChatItem->setUserName(self_info->_name);
-        pChatItem->setUserIcon(QPixmap(self_info->_icon));
-        ContentBubbleFrame* pBubble = nullptr;
-        pBubble = new ContentBubbleFrame(role);
-        pBubble->setContent(msg->_msg_content);
-        pChatItem->setWidget(pBubble);
-        ui->chat_data_list->appendChatItem(std::move(pChatItem));
-    }
-    else {
-        role = ChatRole::Other;
-        auto pChatItem = std::make_unique<ChatItemBase>(role);
-        auto friend_info = UserMgr::GetInstance()->GetFriendById(msg->_from_uid);
-        if (friend_info == nullptr)
-        {
-            return;
-        }
-        pChatItem->setUserName(friend_info->_name);
-        pChatItem->setUserIcon(QPixmap(friend_info->_icon));
-        ContentBubbleFrame* pBubble = nullptr;
-        pBubble = new ContentBubbleFrame(role);
-        pBubble->setContent(msg->_msg_content);
-        pChatItem->setWidget(pBubble);
-        ui->chat_data_list->appendChatItem(std::move(pChatItem));
-    }
-}
-
 void ChatPage::onEmoLabelClicked(QString text, ClickLbState state)
 {
     if (state == ClickLbState::Selected)
     {
         _emotion_wid->setVisible(!_emotion_wid->isVisible());
-        QPoint emotionPoint = this->mapToGlobal(ui->emo_lb->pos());
-        emotionPoint.setX(emotionPoint.x());
-        emotionPoint.setY(emotionPoint.y());
+
+        // 获取按钮的全局位置
+        QPoint btnGlobalPos = ui->emo_lb->mapToGlobal(QPoint(0,0));
+
+        // 获取表情窗口的大小
+        QSize emoSize = _emotion_wid->size();
+
+        // 计算表情窗口位置
+        // x: 按钮的左边对齐
+        // y: 按钮的顶部位置 减去 表情窗口的高度 再往上偏移一点(比如5像素)
+        QPoint emotionPoint(
+            btnGlobalPos.x(),  // 左对齐
+            btnGlobalPos.y() - emoSize.height() - 5  // 在按钮上方
+        );
+
         _emotion_wid->move(emotionPoint);
     }
 }
@@ -313,4 +381,21 @@ void ChatPage::onDeleteLabelClicked()
 void ChatPage::onCloseLabelClicked()
 {
     MessageBus::sendMessage(MessageCommand::MULTI_SELECT_REQ, false);
+}
+
+void ChatPage::slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata)
+{
+    if (msgdata == nullptr) return;
+
+    _chat_view_cache[msgdata->_to_uid].messages.push_back(msgdata);
+}
+
+void ChatPage::slot_notify_text_chat_msg(std::vector<std::shared_ptr<TextChatData> > chat_msgs)
+{
+    if (chat_msgs.empty()) return;
+
+    for (auto msg : chat_msgs)
+    {
+        _chat_view_cache[msg->_from_uid].messages.push_back(msg);
+    }
 }

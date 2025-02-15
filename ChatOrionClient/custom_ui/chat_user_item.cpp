@@ -53,7 +53,7 @@ void ChatUserItem::SetInfo(std::shared_ptr<FriendInfo> friend_info)
     ui->user_chat_lb->setText(_user_info->_last_msg);
 }
 
-void ChatUserItem::SetInfo(QString name, QString head, QString msg)
+void ChatUserItem::SetInfo(QString name, QString head, QString msg, QString last_msg)
 {
     // 加载图片
     QPixmap pixmap(head);
@@ -64,6 +64,7 @@ void ChatUserItem::SetInfo(QString name, QString head, QString msg)
 
     ui->user_name_lb->setText(name);
     ui->user_chat_lb->setText(msg);
+    ui->user_chat_lb->setText(last_msg);
 }
 
 void ChatUserItem::SetRedDot(bool show, int count)
@@ -78,7 +79,7 @@ std::shared_ptr<UserInfo> ChatUserItem::GetUserInfo()
     return _user_info;
 }
 
-void ChatUserItem::updateLastMsg(std::vector<std::shared_ptr<TextChatData> > msgs)
+void ChatUserItem::updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs)
 {
     QString last_msg = "";
     for (auto& msg : msgs) {
@@ -88,6 +89,11 @@ void ChatUserItem::updateLastMsg(std::vector<std::shared_ptr<TextChatData> > msg
 
     _user_info->_last_msg = last_msg;
     ui->user_chat_lb->setText(_user_info->_last_msg);
+}
+
+void ChatUserItem::SetLastMsg(const QString &msg)
+{
+    ui->user_chat_lb->setText(msg);
 }
 
 void ChatUserItem::resizeEvent(QResizeEvent *event)

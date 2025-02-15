@@ -246,11 +246,27 @@ void UserMgr::AppendFriendChatMsg(int friend_id, std::vector<std::shared_ptr<Tex
     find_iter.value()->AppendChatMsgs(msgs);
 }
 
-void UserMgr::AppendSlefChatMsg(std::vector<std::shared_ptr<TextChatData> > msgs)
+void UserMgr::AppendSlefChatMsg(std::vector<std::shared_ptr<TextChatData>> msgs)
 {
+
+    QString last_msg = "";
     for(const auto & text: msgs)
     {
+      last_msg = text->_msg_content;
+      _user_info->_last_msg = last_msg;
       _user_info->_chat_msgs.push_back(text);
     }
 
+    int fromid = 0, toid = 0;
+    if (!msgs.empty())
+    {
+        fromid = msgs.at(0)->_from_uid; // msgs 中只有一个数据
+        toid = msgs.at(0)->_to_uid; // msgs 中只有一个数据
+    }
+
+    for (const auto& friend_info : _friend_list)
+    {
+        if (fromid == friend_info->_uid || friend_info->_uid == toid)
+            friend_info->_last_msg = last_msg;
+    }
 }

@@ -54,8 +54,6 @@ void ConUserItem::SetInfo(int uid, QString name, QString icon)
      // 设置图片自动缩放
      ui->icon_lb->setPixmap(pixmap.scaled(ui->icon_lb->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
      ui->icon_lb->setScaledContents(true);
-
-     ui->user_name_lb->setText(_info->_name);
 }
 
 void ConUserItem::SetRedDot(bool show, int count)
