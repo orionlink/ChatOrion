@@ -110,7 +110,9 @@ Status ChatServiceImpl::NotifyTextChatMsg(grpc::ServerContext *context, const Te
     response->set_error(ErrorCodes::Success);
 
     //用户不在内存中则直接返回
-    if (session == nullptr) {
+    if (session == nullptr)
+    {
+        LOG_ERROR << "消息通知时，查询不到该uid的会话";
         return Status::OK;
     }
 
@@ -124,6 +126,7 @@ Status ChatServiceImpl::NotifyTextChatMsg(grpc::ServerContext *context, const Te
 
     std::string return_str = rtvalue.toStyledString();
 
+    LOG_INFO << "rpc服务器中 - 用户 " << request->fromuid() << " 发送给 " << touid << " 的消息为: " << request->content();
     session->send(return_str, ID_NOTIFY_TEXT_CHAT_MSG_REQ);
     return Status::OK;
 }
