@@ -207,7 +207,8 @@ void SearchList::searchUserRsp(int len, QByteArray data)
     //此处分两种情况，一种是搜多到已经是自己的朋友了，一种是未添加好友
     //查找是否已经是好友
     bool bExist = UserMgr::GetInstance()->CheckFriendById(search_info->_uid);
-    if(bExist){
+    if(bExist)
+    {
         // 此处处理已经添加的好友，实现页面跳转
         // 跳转到聊天界面指定的item中
         emit sig_jump_chat_item(search_info);

@@ -55,6 +55,8 @@ private:
     void loadMoreConUser();
 
     void UpdateChatMsg(std::vector<std::shared_ptr<TextChatData>> msgdata);
+
+    void SetSelectChatItem(int uid = 0);
 private slots:
     /**
      * @brief 点击侧边聊天
@@ -86,6 +88,8 @@ private slots:
      */
     void slot_jump_chat_item(std::shared_ptr<SearchInfo> si);
 
+    void slot_jump_chat_item_from_infopage(std::shared_ptr<UserInfo> user_info);
+
     /**
      * @brief 加载联系人
      */
@@ -97,6 +101,8 @@ private slots:
     void slot_loading_chat_user();
 
     void slot_chat_user_item_clicked(QListWidgetItem *item);
+
+    void slot_friend_info_page(std::shared_ptr<UserInfo> user_info);
 
     /**
      * @brief 发送消息，将消息和用户信息保存在 ChatUserItem 中

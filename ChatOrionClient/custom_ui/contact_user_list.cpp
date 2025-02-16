@@ -364,9 +364,27 @@ void ContactUserList::slot_item_clicked(QListWidgetItem *item)
        qDebug()<< "contact user item clicked ";
 
        auto con_item = qobject_cast<ConUserItem*>(customItem);
-       auto user_info = con_item->GetInfo();
+       auto item_user_info = con_item->GetInfo();
 
-       emit sig_switch_friend_info_page(user_info);
+       if (item_user_info->_chat_msgs.empty() || con_item->isFirstClick())
+       {
+           auto userInfo = UserMgr::GetInstance()->GetUserInfo();
+           item_user_info->_chat_msgs.clear();
+           if (userInfo)
+           {
+               for (auto msg : userInfo->_chat_msgs)
+               {
+                   if (msg->_to_uid == item_user_info->_uid || item_user_info->_uid == msg->_from_uid)
+                   {
+                       item_user_info->_chat_msgs.push_back(msg);
+                   }
+               }
+           }
+
+           con_item->SetFirstClick(false);
+       }
+
+       emit sig_switch_friend_info_page(item_user_info);
        return;
    }
 }

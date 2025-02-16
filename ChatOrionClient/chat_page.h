@@ -38,6 +38,10 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event);
 private slots:
+
+    /**
+     * @brief 点击发送消息
+     */
     void on_send_btn_clicked();
 
     /**

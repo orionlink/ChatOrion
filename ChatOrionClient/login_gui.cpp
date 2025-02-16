@@ -677,6 +677,8 @@ void LoginGUI::LoginLoadUnRedChatMsg(int len, QByteArray data)
         UserMgr::GetInstance()->AppendFriendChatMsg(fromuid, msg_ptr->_chat_msgs);
         UserMgr::GetInstance()->AppendSlefChatMsg(msg_ptr->_chat_msgs);
     }
+
+    MessageBus::instance()->sendMessage(MessageCommand::BEGIN_LOAD_ALL_INFO, true);
 }
 
 void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)

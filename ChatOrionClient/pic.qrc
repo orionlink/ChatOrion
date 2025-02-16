@@ -275,5 +275,8 @@
         <file>res/pic/video.png</file>
         <file>res/pic/telphone2.png</file>
         <file>res/pic/telphone.png</file>
+        <file>res/pic/星标.png</file>
+        <file>res/pic/用户-男.png</file>
+        <file>res/pic/用户-女.png</file>
     </qresource>
 </RCC>

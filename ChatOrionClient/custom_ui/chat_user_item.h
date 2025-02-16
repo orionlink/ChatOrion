@@ -40,6 +40,9 @@ public:
 
     void SetSelected(bool selected) { _selected = selected; }
     bool isSelected() { return _selected; }
+
+    void SetFirstClick(bool is_first_click) { _first_click = is_first_click; }
+    bool isFirstClick() { return _first_click; }
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -53,6 +56,8 @@ private:
     std::shared_ptr<UserInfo> _user_info;
 
     bool _selected = false;
+
+    bool _first_click = true;  // 标记是否是首次点击
 };
 
 #endif // CHATUSER_ITEM_H

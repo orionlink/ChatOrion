@@ -64,8 +64,17 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="username_label">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">font: 17pt &quot;黑体&quot;;</string>
+           </property>
            <property name="text">
-            <string>燃烧的胸毛</string>
+            <string/>
            </property>
           </widget>
          </item>

@@ -478,6 +478,7 @@
        </property>
       </layout>
      </widget>
+     <widget class="FriendInfoPage" name="friend_info_page"/>
      <widget class="ApplyFriendPage" name="apply_friend_page"/>
      <widget class="QWidget" name="friend_apply_page"/>
      <widget class="NormalPage" name="normal_page"/>
@@ -489,7 +490,7 @@
   <customwidget>
    <class>ClickedBtn</class>
    <extends>QPushButton</extends>
-   <header location="global">clicked_btn.h</header>
+   <header>clicked_btn.h</header>
   </customwidget>
   <customwidget>
    <class>ClickedLabel</class>
@@ -538,6 +539,12 @@
    <class>ApplyFriendPage</class>
    <extends>QWidget</extends>
    <header>apply_friend_page.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FriendInfoPage</class>
+   <extends>QWidget</extends>
+   <header>friend_info_page.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

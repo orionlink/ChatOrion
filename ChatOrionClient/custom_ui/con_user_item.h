@@ -30,6 +30,9 @@ public:
 
     void SetRedDot(bool show, int count = 0);
     std::shared_ptr<UserInfo> GetInfo();
+
+    void SetFirstClick(bool is_first_click) { _first_click = is_first_click; }
+    bool isFirstClick() { return _first_click; }
 private:
     void resizeEvent(QResizeEvent *event) override;
     void updateRedDotPosition();
@@ -37,6 +40,8 @@ private:
     Ui::ConUserItem *ui;
     std::shared_ptr<UserInfo> _info;
     RedDotLabel* _redDotLabel;
+
+    bool _first_click = true;
 };
 
 #endif // CON_USER_ITEM_H

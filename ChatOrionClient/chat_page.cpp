@@ -94,18 +94,6 @@ ChatPage::~ChatPage()
         _emotion_wid->deleteLater();
 }
 
-//void ChatPage::SetFriendUserInfo(std::shared_ptr<UserInfo> user_info)
-//{
-//    _friend_user_info = user_info;
-
-//    //设置ui界面
-//    ui->username_label->setText(_friend_user_info->_name);
-//    ui->chat_data_list->removeAllItem();
-//    for(auto & msg : user_info->_chat_msgs){
-//        AppendChatMsg(msg);
-//    }
-//}
-
 void ChatPage::SetFriendUserInfo(std::shared_ptr<UserInfo> user_info)
 {
     _friend_user_info = user_info;
@@ -149,6 +137,7 @@ void ChatPage::SetFriendUserInfo(std::shared_ptr<UserInfo> user_info)
 
     if (needUpdate)
     {
+        viewData.messages.clear();
         viewData.messages = user_info->_chat_msgs;
         viewData.view->removeAllItem();
         for(auto & msg : viewData.messages) {
@@ -156,7 +145,16 @@ void ChatPage::SetFriendUserInfo(std::shared_ptr<UserInfo> user_info)
         }
     }
 
+//    if (forcedUpdate)
+//    {
+//        viewData.view->removeAllItem();
+//        for(auto & msg : user_info->_chat_msgs) {
+//            AppendChatMsg(msg);
+//        }
+//    }
+
     viewData.view->show();
+    viewData.view->update();
 }
 
 void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
@@ -169,6 +167,11 @@ void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
         auto pChatItem = std::make_unique<ChatItemBase>(role);
 
         pChatItem->setUserName(self_info->_name);
+
+#if 1
+        self_info->_icon = ":/res/pic/head_3.jpg";
+#endif
+
         pChatItem->setUserIcon(QPixmap(self_info->_icon));
         ContentBubbleFrame* pBubble = nullptr;
         pBubble = new ContentBubbleFrame(role);
@@ -214,8 +217,6 @@ void ChatPage::on_send_btn_clicked()
     QVector<MsgInfo> currentGroup;
 
     QJsonObject textObj;
-//    QJsonArray textArray;
-//    int txt_size = 0;
     QString content = "";
 
     // 遍历消息列表
