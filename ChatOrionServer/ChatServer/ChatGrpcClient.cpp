@@ -147,6 +147,42 @@ AuthFriendRsp ChatGrpcClient::NotifyAuthFriend(std::string server_ip, const Auth
     return rsp;
 }
 
+TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip, const TextChatMsgReq &req)
+{
+    TextChatMsgRsp rsp;
+    rsp.set_error(ErrorCodes::Success);
+
+    Defer defer([&rsp, &req]()
+    {
+        rsp.set_fromuid(req.fromuid());
+        rsp.set_touid(req.touid());
+        rsp.set_msgid(req.msgid());
+        rsp.set_content(req.content());
+    });
+
+    auto find_iter = _pools.find(server_ip);
+    if (find_iter == _pools.end()) {
+        LOG_ERROR << "在rpc请求池中找不到需要请求的服务 server_name: " << server_ip;
+        return rsp;
+    }
+
+    auto& pool = find_iter->second;
+    ClientContext context;
+    auto stub = pool->getConnection();
+    Status status = stub->NotifyTextChatMsg(&context, req, &rsp);
+    Defer defercon([&stub, this, &pool]() {
+        pool->returnConnection(std::move(stub));
+    });
+
+    if (!status.ok()) {
+        LOG_ERROR << "rpc请求失败";
+        rsp.set_error(ErrorCodes::RPCFailed);
+        return rsp;
+    }
+
+    return rsp;
+}
+
 bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo> &userinfo)
 {
     //优先查redis中查询用户信息
@@ -192,38 +228,4 @@ bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<
     }
 
     return true;
-}
-
-TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip, const TextChatMsgReq &req)
-{
-    TextChatMsgRsp rsp;
-    rsp.set_error(ErrorCodes::Success);
-
-    Defer defer([&rsp, &req]()
-    {
-        rsp.set_fromuid(req.fromuid());
-        rsp.set_touid(req.touid());
-        rsp.set_msgid(req.msgid());
-        rsp.set_content(req.content());
-    });
-
-    auto find_iter = _pools.find(server_ip);
-    if (find_iter == _pools.end()) {
-        return rsp;
-    }
-
-    auto& pool = find_iter->second;
-    ClientContext context;
-    auto stub = pool->getConnection();
-    Status status = stub->NotifyTextChatMsg(&context, req, &rsp);
-    Defer defercon([&stub, this, &pool]() {
-        pool->returnConnection(std::move(stub));
-    });
-
-    if (!status.ok()) {
-        rsp.set_error(ErrorCodes::RPCFailed);
-        return rsp;
-    }
-
-    return rsp;
 }

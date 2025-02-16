@@ -201,7 +201,7 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const std::str
     /*****************************  发送未读消息 ***************************************/
 
 #if 1
-    auto messages = MySQLManager::GetInstance()->GetRecentMessages(uid, 10);
+    auto messages = MySQLManager::GetInstance()->GetRecentMessages(uid, 100);
     Json::Value response;
     for (int i = messages.size() - 1; i >= 0; i--)
     {
@@ -474,8 +474,6 @@ void LogicSystem::DealChatTextMsgHandler(std::shared_ptr<CSession> session, cons
     auto content = root["content"].asString();
     auto msgid = root["msgid"].asString();
 
-    LOG_INFO << "用户 " << uid << " 发送给 " << touid << " 的消息为: " << content;
-
     // 1. 保存到数据库
     if (!MySQLManager::GetInstance()->SaveChatMessage(uid, touid, msgid, content)) {
         LOG_ERROR << "保存消息到数据库失败";
@@ -524,6 +522,8 @@ void LogicSystem::DealChatTextMsgHandler(std::shared_ptr<CSession> session, cons
 
         //在内存中则直接发送通知对方
         std::string return_str = rtvalue.toStyledString();
+
+        LOG_INFO << "发送的用户在此服务器上 - 用户 " << uid << " 发送给 " << touid << " 的消息为: " << content;
         session->send(return_str, ID_NOTIFY_TEXT_CHAT_MSG_REQ);
     }
     else

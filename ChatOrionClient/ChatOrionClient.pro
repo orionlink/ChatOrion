@@ -151,8 +151,8 @@ DISTFILES += \
 
 # Linux 系统
 unix {
-    LIBS += -L$$PWD/../third/linux/qtkeychain/lib -lqt5keychain
-    INCLUDEPATH += $$PWD/../third/linux/qtkeychain/include
+#    LIBS += -L$$PWD/../third/linux/qtkeychain/lib -lqt5keychain
+#    INCLUDEPATH += $$PWD/../third/linux/qtkeychain/include
 }
 
 # Windows 系统
