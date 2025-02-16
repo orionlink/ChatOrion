@@ -109,8 +109,23 @@ void MessageTextEdit::dropEvent(QDropEvent *event)
 
 void MessageTextEdit::keyPressEvent(QKeyEvent *e)
 {
-    if ((e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) && !(e->modifiers() & Qt::ShiftModifier)) {
-        emit send();
+//    if ((e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) && !(e->modifiers() & Qt::ShiftModifier)) {
+//        emit send();
+//        return;
+//    }
+
+    if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)
+    {
+        if (e->modifiers() & Qt::ControlModifier)
+        {
+            QTextCursor cursor = textCursor();
+            cursor.insertText("\n");
+            return;
+        }
+        else
+        {
+            emit send();
+        }
         return;
     }
 

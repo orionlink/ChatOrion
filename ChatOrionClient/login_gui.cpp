@@ -663,16 +663,16 @@ void LoginGUI::LoginLoadUnRedChatMsg(int len, QByteArray data)
     {
         QJsonObject msg = msgArray.at(i).toObject();
 
-        auto fromuid = msg["fromuid"].toInt();
-        auto touid = msg["touid"].toInt();
+        auto fromuid = msg["from_uid"].toInt();
+        auto touid = msg["to_uid"].toInt();
         auto content = msg["content"].toString();
-        auto msgid = msg["msgid"].toString();
+        auto msgid = msg["msg_id"].toString();
         auto msg_type = msg["msg_type"].toInt();
         auto send_time = msg["send_time"].toInt();
         auto status = msg["status"].toInt();
 
         auto msg_ptr = std::make_shared<TextChatMsg>(fromuid,
-                        touid, msgid, content);
+                        touid, msgid, content, send_time, msg_type, status);
 
         UserMgr::GetInstance()->AppendFriendChatMsg(fromuid, msg_ptr->_chat_msgs);
         UserMgr::GetInstance()->AppendSlefChatMsg(msg_ptr->_chat_msgs);

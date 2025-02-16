@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QScreen>
 #include <QJsonDocument>
+#include <QDateTime>
 
 ChatPage::ChatPage(QWidget *parent) :
     QWidget(parent),
@@ -56,6 +57,8 @@ ChatPage::ChatPage(QWidget *parent) :
 
     ui->action_close_lb->SetState("normal","hover","press","normal","hover","press");
 
+    ui->receive_btn->hide();
+
     ui->stackedWidget->setCurrentWidget(ui->input_page);
     MessageBus::instance()->registerHandler(MessageCommand::MULTI_SELECT_REQ, this, [this](const QVariant& data)
     {
@@ -65,6 +68,9 @@ ChatPage::ChatPage(QWidget *parent) :
         else
             ui->stackedWidget->setCurrentWidget(ui->input_page);
     });
+
+
+    QObject::connect(ui->chatEdit, &MessageTextEdit::send, this, &ChatPage::on_send_btn_clicked);
 
     QObject::connect(ui->emo_lb, &ClickedLabel::clicked, this, &ChatPage::onEmoLabelClicked);
     QObject::connect(ui->delete_lb, &ClickedLabel::clicked, this, &ChatPage::onDeleteLabelClicked);
@@ -234,10 +240,15 @@ void ChatPage::on_send_btn_clicked()
             {
                 QString msgid = createAndAppendChatItem(user_info, currentGroup, false);
 
-                textObj["fromuid"] = user_info->_uid;
-                textObj["touid"] = _friend_user_info->_uid;
-                textObj["msgid"] = msgid;
+                textObj["from_uid"] = user_info->_uid;
+                textObj["to_uid"] = _friend_user_info->_uid;
+                textObj["msg_id"] = msgid;
                 textObj["content"] = content;
+
+                QDateTime currentDateTime = QDateTime::currentDateTime();
+                qint64 send_time = currentDateTime.currentSecsSinceEpoch();
+                textObj["send_time"] = send_time;
+                textObj["msg_type"] = MessageType::TEXT;
 
                 qDebug() << "消息发送的文本内容: " << content;
 
@@ -247,7 +258,7 @@ void ChatPage::on_send_btn_clicked()
                 emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_TEXT_CHAT_MSG_REQ, jsonData);
 
                 auto txt_msg = std::make_shared<TextChatData>(msgid, content,
-                                user_info->_uid, _friend_user_info->_uid);
+                                user_info->_uid, _friend_user_info->_uid, send_time, MessageType::TEXT, 0);
                 emit sig_append_send_chat_msg(txt_msg);
 
                 //发送并清空之前累计的文本
@@ -292,10 +303,15 @@ void ChatPage::on_send_btn_clicked()
     {
         QString msgid = createAndAppendChatItem(user_info, currentGroup, false);
 
-        textObj["fromuid"] = user_info->_uid;
-        textObj["touid"] = _friend_user_info->_uid;
-        textObj["msgid"] = msgid;
+        textObj["from_uid"] = user_info->_uid;
+        textObj["to_uid"] = _friend_user_info->_uid;
+        textObj["msg_id"] = msgid;
         textObj["content"] = content;
+
+        QDateTime currentDateTime = QDateTime::currentDateTime();
+        qint64 send_time = currentDateTime.currentSecsSinceEpoch();
+        textObj["send_time"] = send_time;
+        textObj["msg_type"] = MessageType::TEXT;
 
         QJsonDocument doc(textObj);
         QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
@@ -303,7 +319,7 @@ void ChatPage::on_send_btn_clicked()
         emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_TEXT_CHAT_MSG_REQ, jsonData);
 
         auto txt_msg = std::make_shared<TextChatData>(msgid, content,
-                        user_info->_uid, _friend_user_info->_uid);
+                        user_info->_uid, _friend_user_info->_uid, send_time, MessageType::TEXT, 0);
         emit sig_append_send_chat_msg(txt_msg);
 
         //发送并清空之前累计的文本列表

@@ -13,6 +13,11 @@ class ChatPage;
 
 class ChatView;
 
+enum MessageType
+{
+    TEXT = 1,
+};
+
 class ChatPage : public QWidget
 {
     Q_OBJECT

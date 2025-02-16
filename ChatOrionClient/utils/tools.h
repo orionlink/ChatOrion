@@ -16,6 +16,8 @@ public:
 
     static void saveLoginState(const QString& username, bool remember, bool autoLogin);
     static void loadLoginState(QString& username, bool& remember, bool& autoLogin);
+
+    static QString getFormattedTimeString(const QDateTime& datetime);
 };
 
 #endif // TOOLS_H

@@ -2,6 +2,7 @@
 
 #include <keychain.h>
 #include <QSettings>
+#include <QDateTime>
 #include <QDebug>
 
 Tools::Tools()
@@ -77,4 +78,19 @@ void Tools::loadLoginState(QString &username, bool &remember, bool &autoLogin)
     username = settings.value("username").toString();
     remember = settings.value("rememberPassword").toBool();
     autoLogin = settings.value("autoLogin").toBool();
+}
+
+QString Tools::getFormattedTimeString(const QDateTime &datetime)
+{
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QDate yesterday = currentDateTime.date().addDays(-1);
+
+    if (datetime.date() == currentDateTime.date()) {
+        return datetime.toString("HH:mm");
+    } else if (datetime.date() == yesterday) {
+        return QString("昨天 ") + datetime.toString("HH:mm");
+    } else {
+        // 使用自定义格式，只显示年份后两位
+        return datetime.toString("yy/MM/dd HH:mm");
+    }
 }

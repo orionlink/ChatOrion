@@ -252,6 +252,8 @@ void ChatDialog::loadMoreChatUser()
         _chat_items_added.insert(friend_ele->_uid, item);
     }
 
+    ui->chat_user_list->update();
+
     //更新已加载条目
     UserMgr::GetInstance()->UpdateChatLoadedCount();
 }
@@ -443,13 +445,15 @@ void ChatDialog::NotifyTextChatMsgReq(int len, QByteArray data)
         ui->side_chat_lb->SetRedDot(true, _unread_msg_total_count);
     }
 
-    auto fromuid = jsonObj["fromuid"].toInt();
-    auto touid = jsonObj["touid"].toInt();
+    auto fromuid = jsonObj["from_uid"].toInt();
+    auto touid = jsonObj["to_uid"].toInt();
     auto content = jsonObj["content"].toString();
-    auto msgid = jsonObj["msgid"].toString();
+    auto msgid = jsonObj["msg_id"].toString();
+    auto send_time = jsonObj["send_time"].toInt();
+    auto msg_type = jsonObj["msg_type"].toInt();
 
     auto msg_ptr = std::make_shared<TextChatMsg>(fromuid,
-                    touid, msgid, content);
+                    touid, msgid, content, send_time, msg_type, 0);
 
     auto find_iter = _chat_items_added.find(fromuid);
     if(find_iter != _chat_items_added.end())
@@ -883,6 +887,7 @@ void ChatDialog::slot_append_send_chat_msg(std::shared_ptr<TextChatData> msgdata
         auto user_info = con_item->GetUserInfo();
         user_info->_chat_msgs.push_back(msgdata);
         con_item->SetLastMsg(msgdata->_msg_content);
+        con_item->SetLastMsgTime(msgdata->_send_time);
 
         std::vector<std::shared_ptr<TextChatData>> msg_vec;
         msg_vec.push_back(msgdata);

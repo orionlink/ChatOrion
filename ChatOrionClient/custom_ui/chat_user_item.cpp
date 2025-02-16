@@ -1,8 +1,11 @@
 #include "chat_user_item.h"
 #include "ui_chat_user_item.h"
 #include "red_dot_label.h"
+#include "tools.h"
 
 #include <QPainter>
+#include <QDateTime>
+#include <QDebug>
 
 ChatUserItem::ChatUserItem(QWidget *parent) :
     ListItemBase(parent),
@@ -35,6 +38,11 @@ void ChatUserItem::SetInfo(std::shared_ptr<UserInfo> user_info)
 
     ui->user_name_lb->setText(_user_info->_name);
     ui->user_chat_lb->setText(_user_info->_last_msg);
+
+    QDateTime datetime = QDateTime::fromSecsSinceEpoch(_user_info->_last_msg_time);
+    qDebug() << "datetime: " << datetime;
+    ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
+    qDebug() << "datetime-str: " << Tools::getFormattedTimeString(datetime);
 }
 
 void ChatUserItem::SetInfo(std::shared_ptr<FriendInfo> friend_info)
@@ -51,9 +59,12 @@ void ChatUserItem::SetInfo(std::shared_ptr<FriendInfo> friend_info)
 
     ui->user_name_lb->setText(_user_info->_name);
     ui->user_chat_lb->setText(_user_info->_last_msg);
+
+    QDateTime datetime = QDateTime::fromSecsSinceEpoch(_user_info->_last_msg_time);
+    ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
 }
 
-void ChatUserItem::SetInfo(QString name, QString head, QString msg, QString last_msg)
+void ChatUserItem::SetInfo(QString name, QString head, QString msg, int64_t last_msg_time, QString last_msg)
 {
     // 加载图片
     QPixmap pixmap(head);
@@ -65,6 +76,9 @@ void ChatUserItem::SetInfo(QString name, QString head, QString msg, QString last
     ui->user_name_lb->setText(name);
     ui->user_chat_lb->setText(msg);
     ui->user_chat_lb->setText(last_msg);
+
+    QDateTime datetime = QDateTime::fromSecsSinceEpoch(last_msg_time);
+    ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
 }
 
 void ChatUserItem::SetRedDot(bool show, int count)
@@ -82,18 +96,30 @@ std::shared_ptr<UserInfo> ChatUserItem::GetUserInfo()
 void ChatUserItem::updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs)
 {
     QString last_msg = "";
+    int64_t last_msg_time = 0;
     for (auto& msg : msgs) {
         last_msg = msg->_msg_content;
+        last_msg_time = msg->_send_time;
         _user_info->_chat_msgs.push_back(msg);
     }
 
     _user_info->_last_msg = last_msg;
+    _user_info->_last_msg_time = last_msg_time;
+
     ui->user_chat_lb->setText(_user_info->_last_msg);
+    QDateTime datetime = QDateTime::fromSecsSinceEpoch(_user_info->_last_msg_time);
+    ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
 }
 
 void ChatUserItem::SetLastMsg(const QString &msg)
 {
     ui->user_chat_lb->setText(msg);
+}
+
+void ChatUserItem::SetLastMsgTime(int64_t time)
+{
+    QDateTime datetime = QDateTime::fromSecsSinceEpoch(time);
+    ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
 }
 
 void ChatUserItem::resizeEvent(QResizeEvent *event)

@@ -250,10 +250,15 @@ void UserMgr::AppendSlefChatMsg(std::vector<std::shared_ptr<TextChatData>> msgs)
 {
 
     QString last_msg = "";
+    int64_t last_msg_time = 0;
     for(const auto & text: msgs)
     {
       last_msg = text->_msg_content;
+      last_msg_time = text->_send_time;
+
       _user_info->_last_msg = last_msg;
+      _user_info->_last_msg_time = last_msg_time;
+
       _user_info->_chat_msgs.push_back(text);
     }
 
@@ -267,6 +272,9 @@ void UserMgr::AppendSlefChatMsg(std::vector<std::shared_ptr<TextChatData>> msgs)
     for (const auto& friend_info : _friend_list)
     {
         if (fromid == friend_info->_uid || friend_info->_uid == toid)
+        {
             friend_info->_last_msg = last_msg;
+            friend_info->_last_msg_time = last_msg_time;
+        }
     }
 }
