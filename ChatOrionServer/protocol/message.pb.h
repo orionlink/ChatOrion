@@ -3046,6 +3046,8 @@ class TextChatMsgReq PROTOBUF_FINAL :
     kContentFieldNumber = 4,
     kFromuidFieldNumber = 1,
     kTouidFieldNumber = 2,
+    kSendTimeFieldNumber = 6,
+    kMsgTypeFieldNumber = 7,
   };
   // string msgid = 3;
   void clear_msgid();
@@ -3097,6 +3099,24 @@ class TextChatMsgReq PROTOBUF_FINAL :
   void _internal_set_touid(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
+  // int64 send_time = 6;
+  void clear_send_time();
+  ::PROTOBUF_NAMESPACE_ID::int64 send_time() const;
+  void set_send_time(::PROTOBUF_NAMESPACE_ID::int64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int64 _internal_send_time() const;
+  void _internal_set_send_time(::PROTOBUF_NAMESPACE_ID::int64 value);
+  public:
+
+  // int32 msg_type = 7;
+  void clear_msg_type();
+  ::PROTOBUF_NAMESPACE_ID::int32 msg_type() const;
+  void set_msg_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_msg_type() const;
+  void _internal_set_msg_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:message.TextChatMsgReq)
  private:
   class _Internal;
@@ -3108,6 +3128,8 @@ class TextChatMsgReq PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr content_;
   ::PROTOBUF_NAMESPACE_ID::int32 fromuid_;
   ::PROTOBUF_NAMESPACE_ID::int32 touid_;
+  ::PROTOBUF_NAMESPACE_ID::int64 send_time_;
+  ::PROTOBUF_NAMESPACE_ID::int32 msg_type_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_message_2eproto;
 };
@@ -3231,6 +3253,8 @@ class TextChatMsgRsp PROTOBUF_FINAL :
     kErrorFieldNumber = 1,
     kFromuidFieldNumber = 2,
     kTouidFieldNumber = 3,
+    kMsgTypeFieldNumber = 7,
+    kSendTimeFieldNumber = 6,
   };
   // string msgid = 4;
   void clear_msgid();
@@ -3291,6 +3315,24 @@ class TextChatMsgRsp PROTOBUF_FINAL :
   void _internal_set_touid(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
+  // int32 msg_type = 7;
+  void clear_msg_type();
+  ::PROTOBUF_NAMESPACE_ID::int32 msg_type() const;
+  void set_msg_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_msg_type() const;
+  void _internal_set_msg_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int64 send_time = 6;
+  void clear_send_time();
+  ::PROTOBUF_NAMESPACE_ID::int64 send_time() const;
+  void set_send_time(::PROTOBUF_NAMESPACE_ID::int64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int64 _internal_send_time() const;
+  void _internal_set_send_time(::PROTOBUF_NAMESPACE_ID::int64 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:message.TextChatMsgRsp)
  private:
   class _Internal;
@@ -3303,6 +3345,8 @@ class TextChatMsgRsp PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::int32 error_;
   ::PROTOBUF_NAMESPACE_ID::int32 fromuid_;
   ::PROTOBUF_NAMESPACE_ID::int32 touid_;
+  ::PROTOBUF_NAMESPACE_ID::int32 msg_type_;
+  ::PROTOBUF_NAMESPACE_ID::int64 send_time_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_message_2eproto;
 };
@@ -5141,6 +5185,46 @@ inline void TextChatMsgReq::set_allocated_content(std::string* content) {
   // @@protoc_insertion_point(field_set_allocated:message.TextChatMsgReq.content)
 }
 
+// int64 send_time = 6;
+inline void TextChatMsgReq::clear_send_time() {
+  send_time_ = PROTOBUF_LONGLONG(0);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 TextChatMsgReq::_internal_send_time() const {
+  return send_time_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 TextChatMsgReq::send_time() const {
+  // @@protoc_insertion_point(field_get:message.TextChatMsgReq.send_time)
+  return _internal_send_time();
+}
+inline void TextChatMsgReq::_internal_set_send_time(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  
+  send_time_ = value;
+}
+inline void TextChatMsgReq::set_send_time(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  _internal_set_send_time(value);
+  // @@protoc_insertion_point(field_set:message.TextChatMsgReq.send_time)
+}
+
+// int32 msg_type = 7;
+inline void TextChatMsgReq::clear_msg_type() {
+  msg_type_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::_internal_msg_type() const {
+  return msg_type_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgReq::msg_type() const {
+  // @@protoc_insertion_point(field_get:message.TextChatMsgReq.msg_type)
+  return _internal_msg_type();
+}
+inline void TextChatMsgReq::_internal_set_msg_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  msg_type_ = value;
+}
+inline void TextChatMsgReq::set_msg_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_msg_type(value);
+  // @@protoc_insertion_point(field_set:message.TextChatMsgReq.msg_type)
+}
+
 // -------------------------------------------------------------------
 
 // TextChatMsgRsp
@@ -5327,6 +5411,46 @@ inline void TextChatMsgRsp::set_allocated_content(std::string* content) {
   content_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), content,
       GetArena());
   // @@protoc_insertion_point(field_set_allocated:message.TextChatMsgRsp.content)
+}
+
+// int64 send_time = 6;
+inline void TextChatMsgRsp::clear_send_time() {
+  send_time_ = PROTOBUF_LONGLONG(0);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 TextChatMsgRsp::_internal_send_time() const {
+  return send_time_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 TextChatMsgRsp::send_time() const {
+  // @@protoc_insertion_point(field_get:message.TextChatMsgRsp.send_time)
+  return _internal_send_time();
+}
+inline void TextChatMsgRsp::_internal_set_send_time(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  
+  send_time_ = value;
+}
+inline void TextChatMsgRsp::set_send_time(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  _internal_set_send_time(value);
+  // @@protoc_insertion_point(field_set:message.TextChatMsgRsp.send_time)
+}
+
+// int32 msg_type = 7;
+inline void TextChatMsgRsp::clear_msg_type() {
+  msg_type_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::_internal_msg_type() const {
+  return msg_type_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 TextChatMsgRsp::msg_type() const {
+  // @@protoc_insertion_point(field_get:message.TextChatMsgRsp.msg_type)
+  return _internal_msg_type();
+}
+inline void TextChatMsgRsp::_internal_set_msg_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  msg_type_ = value;
+}
+inline void TextChatMsgRsp::set_msg_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_msg_type(value);
+  // @@protoc_insertion_point(field_set:message.TextChatMsgRsp.msg_type)
 }
 
 #ifdef __GNUC__

@@ -23,6 +23,10 @@ public:
     static void RemoveWhitespace(std::string& str);
 
     static std::vector<std::string> GetLocalIPs();
+
+    static std::string timeToString(time_t timeVal);
+
+    static int64_t stringToTimestamp(const std::string& timeStr);
 private:
     Tools();
 };

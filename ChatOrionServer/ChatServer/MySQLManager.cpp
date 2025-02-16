@@ -55,6 +55,11 @@ bool MySQLManager::SaveChatMessage(int from_uid, int to_uid, const std::string& 
     return _dao.SaveChatMessage(from_uid, to_uid, msg_id, content);
 }
 
+bool MySQLManager::SaveChatMessage(const ChatMessage& chat_message)
+{
+    return _dao.SaveChatMessage(chat_message);
+}
+
 std::vector<ChatMessage> MySQLManager::GetRecentMessages(int uid, int limit, int64_t before_id)
 {
     return _dao.GetRecentMessages(uid, limit, before_id);

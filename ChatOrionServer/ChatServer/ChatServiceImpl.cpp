@@ -119,10 +119,13 @@ Status ChatServiceImpl::NotifyTextChatMsg(grpc::ServerContext *context, const Te
     //在内存中则直接发送通知对方
     Json::Value  rtvalue;
     rtvalue["error"] = ErrorCodes::Success;
-    rtvalue["fromuid"] = request->fromuid();
-    rtvalue["touid"] = request->touid();
-    rtvalue["msgid"] = request->msgid();
+    rtvalue["from_uid"] = request->fromuid();
+    rtvalue["to_uid"] = request->touid();
+    rtvalue["msg_id"] = request->msgid();
     rtvalue["content"] = request->content();
+    rtvalue["send_time"] = request->send_time();
+    rtvalue["msg_type"] = request->msg_type();
+
 
     std::string return_str = rtvalue.toStyledString();
 

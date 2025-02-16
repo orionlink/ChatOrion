@@ -35,6 +35,8 @@ public:
     bool SaveChatMessage(int from_uid, int to_uid, const std::string& msg_id,
             const std::string& content, int msg_type = 1);
 
+    bool SaveChatMessage(const ChatMessage& chat_message);
+
     std::vector<ChatMessage> GetRecentMessages(int uid, int limit = 50, int64_t before_id = 0);
 
     // 更新会话最后一条消息

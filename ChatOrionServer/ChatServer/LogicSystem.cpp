@@ -12,10 +12,9 @@
 #include "UserMgr.h"
 #include "const.h"
 #include "MySQLManager.h"
-
-#include <RedisManager.h>
-
+#include "data.h"
 #include "ChatGrpcClient.h"
+#include "RedisManager.h"
 
 LogicSystem::LogicSystem()
     :_b_stop(false)
@@ -206,9 +205,9 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const std::str
     for (int i = messages.size() - 1; i >= 0; i--)
     {
         Json::Value notify;
-        notify["msgid"] = messages[i].msg_id;
-        notify["fromuid"] = messages[i].from_uid;
-        notify["touid"] = messages[i].to_uid;
+        notify["msg_id"] = messages[i].msg_id;
+        notify["from_uid"] = messages[i].from_uid;
+        notify["to_uid"] = messages[i].to_uid;
         notify["content"] = messages[i].content;
         notify["msg_type"] = messages[i].msg_type;
         notify["send_time"] = static_cast<Json::Int64>(messages[i].send_time);
@@ -469,13 +468,18 @@ void LogicSystem::DealChatTextMsgHandler(std::shared_ptr<CSession> session, cons
     Json::Value root;
     reader.parse(msg_data, root);
 
-    auto uid = root["fromuid"].asInt();
-    auto touid = root["touid"].asInt();
+    auto uid = root["from_uid"].asInt();
+    auto touid = root["to_uid"].asInt();
     auto content = root["content"].asString();
-    auto msgid = root["msgid"].asString();
+    auto msgid = root["msg_id"].asString();
+    auto timeStamp = root["send_time"].asInt64();
+    auto msg_type = root["msg_type"].asInt();
+
+    ChatMessage chat_message;
+    chat_message.parseJson(root);
 
     // 1. 保存到数据库
-    if (!MySQLManager::GetInstance()->SaveChatMessage(uid, touid, msgid, content)) {
+    if (!MySQLManager::GetInstance()->SaveChatMessage(chat_message)) {
         LOG_ERROR << "保存消息到数据库失败";
         return;
     }
@@ -487,10 +491,11 @@ void LogicSystem::DealChatTextMsgHandler(std::shared_ptr<CSession> session, cons
 
     Json::Value  rtvalue;
     rtvalue["error"] = ErrorCodes::Success;
-    rtvalue["fromuid"] = uid;
-    rtvalue["touid"] = touid;
+    rtvalue["from_uid"] = uid;
+    rtvalue["to_uid"] = touid;
     rtvalue["content"] = content;
-    rtvalue["msgid"] = msgid;
+    rtvalue["send_time"] = timeStamp;
+    rtvalue["msg_type"] = msg_type;
 
     Defer defer([this, &rtvalue, session]()
     {
@@ -533,6 +538,8 @@ void LogicSystem::DealChatTextMsgHandler(std::shared_ptr<CSession> session, cons
         text_msg_req.set_touid(touid);
         text_msg_req.set_msgid(msgid);
         text_msg_req.set_content(content);
+        text_msg_req.set_send_time(timeStamp);
+        text_msg_req.set_msg_type(msg_type);
 
         ChatGrpcClient::GetInstance()->NotifyTextChatMsg(to_ip_value, text_msg_req);
     }

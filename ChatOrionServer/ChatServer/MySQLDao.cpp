@@ -478,6 +478,54 @@ bool MySQLDao::SaveChatMessage(int from_uid, int to_uid, const std::string& msg_
     }
 }
 
+bool MySQLDao::SaveChatMessage(const ChatMessage& chat_message)
+{
+    auto conn = _pool->getConnection();
+    if (conn == nullptr) return false;
+
+    try
+    {
+        Defer defer([&conn, this]
+        {
+            _pool->returnConnection(std::move(conn));
+        });
+
+        // 保存消息
+        std::string sql = "INSERT INTO chat_messages(msg_id, from_uid, to_uid, content, msg_type, send_time) "
+                         "VALUES(?, ?, ?, ?, ?, TIMESTAMP(FROM_UNIXTIME(?)))";
+
+        auto stmt = conn->_connection->prepareStatement(sql);
+        stmt->setString(1, chat_message.msg_id);
+        stmt->setInt(2, chat_message.from_uid);
+        stmt->setInt(3, chat_message.to_uid);
+        stmt->setString(4, chat_message.content);
+        stmt->setInt(5, chat_message.msg_type);
+        stmt->setInt64(6, chat_message.send_time);
+        stmt->execute();
+
+        // 更新或插入消息关系
+        sql = "INSERT INTO chat_message_relation(user_id, peer_id, last_msg_id, unread_count) "
+              "VALUES(?, ?, ?, 1) "
+              "ON DUPLICATE KEY UPDATE last_msg_id = ?, unread_count = unread_count + 1";
+
+        stmt = conn->_connection->prepareStatement(sql);
+        stmt->setInt(1, chat_message.to_uid);
+        stmt->setInt(2, chat_message.from_uid);
+        stmt->setString(3, chat_message.msg_id);
+        stmt->setString(4, chat_message.msg_id);
+        stmt->execute();
+
+        return true;
+    }
+    catch (sql::SQLException& e)
+    {
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
+}
+
 std::vector<ChatMessage> MySQLDao::GetRecentMessages(int uid, int limit, int64_t before_id)
 {
     std::vector<ChatMessage> messages;
@@ -526,9 +574,7 @@ std::vector<ChatMessage> MySQLDao::GetRecentMessages(int uid, int limit, int64_t
 
             // 将字符串时间戳转换为time_t
             std::string time_str = resultSet->getString("send_time");
-            struct tm tm_time = {0};
-            strptime(time_str.c_str(), "%Y-%m-%d %H:%M:%S", &tm_time);
-            msg.send_time = mktime(&tm_time);
+            msg.send_time = Tools::stringToTimestamp(time_str);
 
             msg.status = resultSet->getInt("status");
             messages.push_back(msg);

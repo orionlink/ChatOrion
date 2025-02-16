@@ -130,6 +130,8 @@ message TextChatMsgReq {
   int32 touid = 2;
   string msgid = 3;
   string content = 4;
+  int64 send_time = 6;
+  int32 msg_type = 7;
 }
 
 message TextChatMsgRsp {
@@ -138,6 +140,8 @@ message TextChatMsgRsp {
   int32 touid = 3; 
   string msgid = 4;
   string content = 5;
+  int64 send_time = 6;
+  int32 msg_type = 7;
 }
 
 service ChatService {

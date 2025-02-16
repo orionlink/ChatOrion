@@ -6,6 +6,8 @@
 #include <sstream>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <iomanip>
+#include <sstream>
 
 Tools::Tools()
 {
@@ -128,4 +130,44 @@ std::vector<std::string> Tools::GetLocalIPs()
     }
 
     return result;
+}
+
+std::string Tools::timeToString(time_t timeVal)
+{
+    if (timeVal <= 0) {
+        return "1970-01-01 00:00:00"; // Or handle invalid timestamp differently
+    }
+
+    std::tm timeInfo;
+#ifdef _WIN32
+    localtime_s(&timeInfo, &timeVal);
+#else
+    localtime_r(&timeVal, &timeInfo);
+#endif
+
+    char buffer[32];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &timeInfo);
+    return std::string(buffer);
+}
+
+int64_t Tools::stringToTimestamp(const std::string& timeStr)
+{
+    struct tm tm_time = {0};
+
+#ifdef _WIN32
+    // Windows 版本
+    std::istringstream ss(timeStr);
+    ss >> std::get_time(&tm_time, "%Y-%m-%d %H:%M:%S");
+    if (ss.fail()) {
+        return 0;
+    }
+#else
+    // Linux 版本
+    if (!strptime(timeStr.c_str(), "%Y-%m-%d %H:%M:%S", &tm_time)) {
+        return 0;
+    }
+#endif
+
+    tm_time.tm_isdst = -1;
+    return static_cast<int64_t>(mktime(&tm_time));
 }
