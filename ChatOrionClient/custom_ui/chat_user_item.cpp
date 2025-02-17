@@ -43,6 +43,7 @@ void ChatUserItem::SetInfo(std::shared_ptr<UserInfo> user_info)
     qDebug() << "datetime: " << datetime;
     ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
     qDebug() << "datetime-str: " << Tools::getFormattedTimeString(datetime);
+    ui->time_lb->setVisible(true);
 }
 
 void ChatUserItem::SetInfo(std::shared_ptr<FriendInfo> friend_info)
@@ -62,6 +63,7 @@ void ChatUserItem::SetInfo(std::shared_ptr<FriendInfo> friend_info)
 
     QDateTime datetime = QDateTime::fromSecsSinceEpoch(_user_info->_last_msg_time);
     ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
+    ui->time_lb->setVisible(true);
 }
 
 void ChatUserItem::SetInfo(QString name, QString head, QString msg, int64_t last_msg_time, QString last_msg)
@@ -79,6 +81,7 @@ void ChatUserItem::SetInfo(QString name, QString head, QString msg, int64_t last
 
     QDateTime datetime = QDateTime::fromSecsSinceEpoch(last_msg_time);
     ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
+    ui->time_lb->setVisible(true);
 }
 
 void ChatUserItem::SetRedDot(bool show, int count)
