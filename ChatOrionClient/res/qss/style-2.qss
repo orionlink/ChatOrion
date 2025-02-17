@@ -1,0 +1,536 @@
+/**
+    该页面为黄绿色皮肤
+*/
+
+QFrame
+{
+	border:none;
+}
+
+#frame_background{
+border-image:url(:/res/pic/background-2.png);
+}
+
+#frame_login{background-color:#ffffff}
+
+#frame_pic{
+    background-image:url(:/res/pic/2.png);
+
+}
+
+#frame_user_name,#frame_pwd{
+    border: 1px solid #696969;
+    border-radius: 5px;
+}
+
+#frame_user_name_3,#frame_pwd_3{
+    border: 1px solid #696969;
+    border-radius: 5px;
+}
+
+#frame_email_2,#frame_code_2{
+    border: 1px solid #696969;
+    border-radius: 5px;
+}
+
+#frame_email_3,#frame_code_3{
+    border: 1px solid #696969;
+    border-radius: 5px;
+}
+
+QLineEdit{
+    border: none;
+}
+
+#btn_direct_login{
+    border:none;
+    color:#d7b105;
+}
+
+
+#btn_direct_login:hover{
+    border:none;
+    color:#d7b105;
+}
+
+#btn_username{
+    border:none;
+    color:#d7b105;
+}
+
+#btn_username:hover{
+    border:none;
+    color:#d7b105;
+}
+
+#btn_forget{
+    border:none;
+    color:#d7b105;
+}
+
+
+#btn_forget:hover{
+    border:none;
+    color:#d7b105;
+}
+
+#btn_login_page{
+    border:none;
+    color:#d7b105;
+}
+
+#btn_login_page:hover{
+    border:none;
+    color:#d7b105;
+}
+
+#btn_register_2{
+    color:#80712d;
+    border: none;
+    background-color:#ffde49;
+    border-radius: 5px;
+}
+
+#btn_register_2:hover{
+    color:#80712d;
+    border: none;
+    background-color:#fdd72d;
+    border-radius: 5px;
+}
+
+#btn_register_2:pressed{
+    color:#80712d;
+    border: none;
+    background-color:#ffde49;
+    border-radius: 5px;
+}
+
+#btn_login{
+    color:#80712d;
+    border: none;
+    background-color:#ffde49;
+    border-radius: 5px;
+}
+
+#btn_login:hover{
+    color:#80712d;
+    border: none;
+    background-color:#fdd72d;
+    border-radius: 5px;
+}
+
+#btn_login:pressed{
+    color:#80712d;
+    border: none;
+    background-color:#ffde49;
+    border-radius: 5px;
+}
+
+#btn_email_login{
+    color:#80712d;
+    border: none;
+    background-color:#ffde49;
+    border-radius: 5px;
+}
+
+#btn_email_login:hover{
+    color:#80712d;
+    border: none;
+    background-color:#fdd72d;
+    border-radius: 5px;
+}
+
+#btn_email_login:pressed{
+    color:#80712d;
+    border: none;
+    background-color:#ffde49;
+    border-radius: 5px;
+}
+
+#btn_submit{
+    color:#80712d;
+    border: none;
+    background-color:#ffde49;
+    border-radius: 5px;
+}
+
+#btn_submit:hover{
+    color:#80712d;
+    border: none;
+    background-color:#fdd72d;
+    border-radius: 5px;
+}
+
+#btn_submit:pressed{
+    color:#80712d;
+    border: none;
+    background-color:#ffde49;
+    border-radius: 5px;
+}
+
+#label_register_2
+{
+    color:#d7b105;
+
+}
+
+#label_login
+{
+    color:#d7b105;
+}
+
+#label_email
+{
+    color:#d7b105;
+}
+
+#label_forget
+{
+    color:#d7b105;
+}
+
+#label_user_name
+{
+    border-image:url(:/res/pic/user_name.png);
+}
+
+#label_pwd
+{
+    border-image:url(:/res/pic/pwd.png);
+
+}
+
+#label_user_name_3
+{
+    border-image:url(:/res/pic/user_name.png);
+}
+
+#label_pwd_3
+{
+    border-image:url(:/res/pic/pwd.png);
+
+}
+
+#btn_qq{
+    background-image:url(:/res/pic/qq.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+
+#btn_qq:hover{
+    background-image:url(:/res/pic/qq-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+
+#btn_wx{
+    background-image:url(:/res/pic/wx.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+
+#btn_wx:hover{
+    background-image:url(:/res/pic/wx-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+
+#btn_wb{
+    background-image:url(:/res/pic/email.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+
+#btn_wb:hover{
+    background-image:url(:/res/pic/email-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+
+/*账户和密码框*/
+#frame_user_name_2,#frame_pwd_2{
+    border: 1px solid #696969;
+    border-radius: 5px;
+}
+
+/*图标-账户*/
+#label_user_name_2
+{
+    border-image:url(:/res/pic/user_name.png);
+}
+/*图标-密码*/
+#label_pwd_2
+{
+    border-image:url(:/res/pic/pwd.png);
+
+}
+/*按钮-qq*/
+#btn_qq_2{
+    background-image:url(:/res/pic/qq.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-qq-鼠标悬停*/
+#btn_qq_2:hover{
+    background-image:url(:/res/pic/qq-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-微信*/
+#btn_wx_2{
+    background-image:url(:/res/pic/wx.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-微信-鼠标悬停*/
+#btn_wx_2:hover{
+    background-image:url(:/res/pic/wx-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-微博-*/
+#btn_wb_2{
+    background-image:url(:/res/pic/email.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-微博-鼠标悬停*/
+#btn_wb_2:hover{
+    background-image:url(:/res/pic/email-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+
+/***********************************************************************************
+
+/*按钮-qq*/
+#btn_qq_3{
+    background-image:url(:/res/pic/qq.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-qq-鼠标悬停*/
+#btn_qq_3:hover{
+    background-image:url(:/res/pic/qq-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-微信*/
+#btn_wx_3{
+    background-image:url(:/res/pic/wx.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-微信-鼠标悬停*/
+#btn_wx_3:hover{
+    background-image:url(:/res/pic/wx-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-微博-*/
+#btn_wb_3{
+    background-image:url(:/res/pic/email.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+/*按钮-微博-鼠标悬停*/
+#btn_wb_3:hover{
+    background-image:url(:/res/pic/email-hover.png);
+    background-position:center;
+    background-repeat:no-repeat;
+    border:none;
+}
+
+/**********************************************************************************/
+
+#minPushButton{
+   border-radius: 8px;
+   background-color: transparent;
+   border: none;
+}
+
+#minPushButton:hover{
+   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+   background-color: white;
+   border: none;
+}
+
+#closePushButton{
+   border-radius: 8px;
+   background-color: transparent;
+   border: none;
+}
+
+#closePushButton:hover{
+   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+   background-color: red;
+   border: none;
+}
+
+/******************************* 设置窗口圆角 ****************************/
+
+#frame_login
+{
+   border-radius: 10px;
+}
+
+
+#frame
+{
+   border-radius: 10px;
+}
+
+
+#frame_background{ 
+	border-radius: 10px;
+        border-style:solid;
+        border-width:2px;
+        border-color:rgb(213, 213, 213);
+}
+
+/************************* 错误框显示样式 *****************************/
+#err_msg[state='normal']
+{
+	font: 12pt;
+	color: green;
+}
+
+#err_msg[state='err']
+{
+	font: 12pt;
+	color: red;
+}
+
+#err_msg_2[state='normal']
+{
+	font: 12pt;
+	color: green;
+}
+
+#err_msg_2[state='err']
+{
+	font: 12pt;
+	color: red;
+}
+
+#err_msg_3[state='normal']
+{
+	font: 12pt;
+	color: green;
+}
+
+#err_msg_3[state='err']
+{
+	font: 12pt;
+	color: red;
+}
+
+#err_msg_4[state='normal']
+{
+	font: 12pt;
+	color: green;
+}
+
+#err_msg_4[state='err']
+{
+	font: 12pt;
+	color: red;
+}
+/*********  错误框显示样式 end ************************/
+
+
+/***************** 密码框显隐 ****************************/
+#pass_visible[state='unvisible']{
+   border-image: url(:/res/pic/unvisible.png);
+}
+
+#pass_visible[state='unvisible_hover']{
+   border-image: url(:/res/pic/unvisible_hover.png);
+}
+
+#pass_visible[state='visible']{
+   border-image: url(:/res/pic/visible.png);
+}
+
+#pass_visible[state='visible_hover']{
+   border-image: url(:/res/pic/visible_hover.png);
+}
+
+#pass_visible_2[state='unvisible']{
+   border-image: url(:/res/pic/unvisible.png);
+}
+
+#pass_visible_2[state='unvisible_hover']{
+   border-image: url(:/res/pic/unvisible_hover.png);
+}
+
+#pass_visible_2[state='visible']{
+   border-image: url(:/res/pic/visible.png);
+}
+
+#pass_visible_2[state='visible_hover']{
+   border-image: url(:/res/pic/visible_hover.png);
+}
+
+#pass_visible_3[state='unvisible']{
+   border-image: url(:/res/pic/unvisible.png);
+}
+
+#pass_visible_3[state='unvisible_hover']{
+   border-image: url(:/res/pic/unvisible_hover.png);
+}
+
+#pass_visible_3[state='visible']{
+   border-image: url(:/res/pic/visible.png);
+}
+
+#pass_visible_3[state='visible_hover']{
+   border-image: url(:/res/pic/visible_hover.png);
+}
+/*************************************************************/
+
+/*按钮-粉红*/
+#btn_1{
+color:#e83737;
+background-color:#ffffff;
+border:none;
+border-radius: 10px;
+}
+/*按钮-黄绿*/
+#btn_2{
+color:#d7b105;
+background-color:#ffffff;
+border:none;
+border-radius: 10px;
+}
+/*按钮-浅紫*/
+#btn_3{
+color:#7185ff;
+background-color:#ffffff;
+border:none;
+border-radius: 10px;
+}
+/*按钮-青绿*/
+#btn_4{
+color:#7bb7a5;
+background-color:#ffffff;
+border:none;
+border-radius: 10px;
+}

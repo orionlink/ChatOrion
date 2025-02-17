@@ -1,0 +1,10 @@
+prefix=/home/hwk/github/glog/lib_glog
+exec_prefix=/home/hwk/github/glog/lib_glog/bin
+libdir=/home/hwk/github/glog/lib_glog/lib
+includedir=/home/hwk/github/glog/lib_glog/include
+
+Name: libglog
+Description: Google Log (glog) C++ logging framework
+Version: 0.5.0
+Libs: -L${libdir} -lglog
+Cflags: -I${includedir}
