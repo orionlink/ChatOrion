@@ -39,9 +39,16 @@ void ChatUserItem::SetInfo(std::shared_ptr<UserInfo> user_info)
     ui->user_name_lb->setText(_user_info->_name);
     ui->user_chat_lb->setText(_user_info->_last_msg);
 
+    if (_user_info->_last_msg_time <= 0)
+    {
+        ui->time_lb->setVisible(false);
+        return;
+    }
+
     QDateTime datetime = QDateTime::fromSecsSinceEpoch(_user_info->_last_msg_time);
     qDebug() << "datetime: " << datetime;
     ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
+    ui->time_lb->setVisible(true);
     qDebug() << "datetime-str: " << Tools::getFormattedTimeString(datetime);
     ui->time_lb->setVisible(true);
 }
@@ -61,6 +68,12 @@ void ChatUserItem::SetInfo(std::shared_ptr<FriendInfo> friend_info)
     ui->user_name_lb->setText(_user_info->_name);
     ui->user_chat_lb->setText(_user_info->_last_msg);
 
+    if (_user_info->_last_msg_time <= 0)
+    {
+        ui->time_lb->setVisible(false);
+        return;
+    }
+
     QDateTime datetime = QDateTime::fromSecsSinceEpoch(_user_info->_last_msg_time);
     ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
     ui->time_lb->setVisible(true);
@@ -78,6 +91,12 @@ void ChatUserItem::SetInfo(QString name, QString head, QString msg, int64_t last
     ui->user_name_lb->setText(name);
     ui->user_chat_lb->setText(msg);
     ui->user_chat_lb->setText(last_msg);
+
+    if (last_msg_time <= 0)
+    {
+        ui->time_lb->setVisible(false);
+        return;
+    }
 
     QDateTime datetime = QDateTime::fromSecsSinceEpoch(last_msg_time);
     ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
@@ -98,9 +117,12 @@ std::shared_ptr<UserInfo> ChatUserItem::GetUserInfo()
 
 void ChatUserItem::updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs)
 {
+    if (_user_info == nullptr) return;
+
     QString last_msg = "";
     int64_t last_msg_time = 0;
-    for (auto& msg : msgs) {
+    for (auto& msg : msgs)
+    {
         last_msg = msg->_msg_content;
         last_msg_time = msg->_send_time;
         _user_info->_chat_msgs.push_back(msg);
@@ -109,9 +131,16 @@ void ChatUserItem::updateLastMsg(std::vector<std::shared_ptr<TextChatData>> msgs
     _user_info->_last_msg = last_msg;
     _user_info->_last_msg_time = last_msg_time;
 
+    if (_user_info->_last_msg <= 0)
+    {
+        ui->time_lb->setVisible(false);
+        return;
+    }
+
     ui->user_chat_lb->setText(_user_info->_last_msg);
     QDateTime datetime = QDateTime::fromSecsSinceEpoch(_user_info->_last_msg_time);
     ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
+    ui->time_lb->setVisible(true);
 }
 
 void ChatUserItem::SetLastMsg(const QString &msg)
@@ -121,8 +150,15 @@ void ChatUserItem::SetLastMsg(const QString &msg)
 
 void ChatUserItem::SetLastMsgTime(int64_t time)
 {
+    if (time <= 0)
+    {
+        ui->time_lb->setVisible(false);
+        return;
+    }
+
     QDateTime datetime = QDateTime::fromSecsSinceEpoch(time);
     ui->time_lb->setText(Tools::getFormattedTimeString(datetime));
+    ui->time_lb->setVisible(true);
 }
 
 void ChatUserItem::resizeEvent(QResizeEvent *event)

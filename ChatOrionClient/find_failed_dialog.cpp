@@ -6,13 +6,11 @@
 #include <QMouseEvent>
 
 FindFailedDialog::FindFailedDialog(QWidget *parent) :
-    QDialog(parent),
+    BaseDialog(parent),
     ui(new Ui::FindFailedDialog)
 {
     ui->setupUi(this);
 
-    // 隐藏对话框标题栏
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     // 获取当前应用程序的路径
     QString app_path = QCoreApplication::applicationDirPath();
     QString pix_path = QDir::toNativeSeparators(app_path +

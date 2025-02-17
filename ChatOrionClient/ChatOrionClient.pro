@@ -24,6 +24,8 @@ SOURCES += \
     custom_ui/red_dot_label.cpp \
     find_failed_dialog.cpp \
     friend_info_page.cpp \
+    self_info_dialog.cpp \
+    utils/base_dialog.cpp \
     utils/common_utils.cpp \
     custom_ui/bubble_frame.cpp \
     custom_ui/chat_item_base.cpp \
@@ -78,6 +80,8 @@ HEADERS += \
     custom_ui/red_dot_label.h \
     find_failed_dialog.h \
     friend_info_page.h \
+    self_info_dialog.h \
+    utils/base_dialog.h \
     utils/common_utils.h \
     custom_ui/bubble_frame.h \
     custom_ui/chat_item_base.h \
@@ -134,7 +138,8 @@ FORMS += \
     find_success_dialog.ui \
     friend_info_page.ui \
     login_gui.ui \
-    normal_page.ui
+    normal_page.ui \
+    self_info_dialog.ui
 
 DESTDIR = $$PWD/bin
 
