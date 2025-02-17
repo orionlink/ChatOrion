@@ -24,6 +24,7 @@ public:
 
 signals:
     void sig_notify_text_chat_msg(std::vector<std::shared_ptr<TextChatData>> chat_msgs);
+
 private:
     /**
      * @brief 添加到按钮组，支持互斥点击
@@ -71,6 +72,13 @@ private slots:
     void slot_side_collect();
 
     void slot_setting_label();
+
+    void slot_side_head();
+
+    /**
+     * @brief 有请求消息
+     */
+    void slot_presence_apply(int new_apply_count);
 
     /**
      * @brief 搜索框文本修改槽函数
@@ -125,6 +133,8 @@ private:
     QMap<int, int> _chat_user_unread_msg_count; // 关联和当前好友未读消息的数量
 
     ChatUserItem* _last_selected_item = nullptr; // 记录上一次点击的item
+
+    QDialog *_selfInfoDialog = nullptr;
 };
 
 #endif // CHAT_DIALOG_H

@@ -626,6 +626,8 @@ void LoginGUI::onChatLoginRsp(int len, QByteArray data)
         UserMgr::GetInstance()->AppendFriendList(jsonObj["friend_list"].toArray());
     }
 
+    MessageBus::instance()->sendMessage(MessageCommand::BEGIN_LOAD_APPLY_CONTENT_LIST, true);
+
     QDialog::accept();
 }
 
@@ -678,7 +680,7 @@ void LoginGUI::LoginLoadUnRedChatMsg(int len, QByteArray data)
         UserMgr::GetInstance()->AppendSlefChatMsg(msg_ptr->_chat_msgs);
     }
 
-    MessageBus::instance()->sendMessage(MessageCommand::BEGIN_LOAD_ALL_INFO, true);
+    MessageBus::instance()->sendMessage(MessageCommand::LOGIN_LOAD_UNREAD_CHAT_MSG, true);
 }
 
 void LoginGUI::showTip(QLabel *label, const QString &tip, bool is_ok)

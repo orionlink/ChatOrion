@@ -6,6 +6,7 @@
 
 #include <log.h>
 #include <message.pb.h>
+#include <tools.h>
 
 #include "Settings.h"
 #include "RedisManager.h"
@@ -377,15 +378,33 @@ void LogicSystem::AuthFriendApplyHandler(std::shared_ptr<CSession> session, cons
     auto fromuid = root["fromuid"].asInt();
     auto back_name = root["back_name"].asString();
     auto touid = root["touid"].asInt();
+    auto apply_name = root["apply_name"].asString();
 
     LOG_INFO << "AuthFriendApplyHandler fromuid is  " << fromuid << " bakname  is " << back_name << " touid is " << touid;
 
     Json::Value  rtvalue;
     rtvalue["error"] = ErrorCodes::Success;
-    Defer defer([this, &rtvalue, session]
+    Defer defer([this, &rtvalue, session, fromuid, touid, apply_name]
     {
         std::string return_str = rtvalue.toStyledString();
-        session->send(return_str, ID_AUTH_FRIEND_RSP);
+        session->send(return_str, ID_AUTH_FRIEND_RSP); // 先发送这个
+
+#if 0
+        Json::Value chat_value;
+        chat_value["error"] = ErrorCodes::Success;
+        chat_value["from_uid"] = touid;
+        chat_value["to_uid"] = fromuid;
+        std::string content = "我是";
+        content += apply_name;
+        chat_value["content"] = content;
+        chat_value["msg_id"] = Tools::generate_unique_string();
+        chat_value["send_time"] = Tools::getCurrentTimestampInSeconds();
+        chat_value["msg_type"] = 1;
+        std::string chat_value_string = chat_value.toStyledString();
+
+        session->send(chat_value_string, ID_NOTIFY_TEXT_CHAT_MSG_REQ);
+#endif
+
     });
 
     auto user_info = std::make_shared<UserInfo>();
@@ -424,8 +443,8 @@ void LogicSystem::AuthFriendApplyHandler(std::shared_ptr<CSession> session, cons
 
     if (to_ip_value == config::Settings::GetInstance().value("SelfServer/name").toString())
     {
-        auto session = UserMgr::GetInstance()->GetSession(touid);
-        if (!session)
+        auto to_session = UserMgr::GetInstance()->GetSession(touid);
+        if (!to_session)
         {
             LOG_WARNING << "该用户在此服务器上，但是查询不到 session, touid: " << touid;
             rtvalue["error"] = ErrorCodes::UidInvalid;
@@ -449,7 +468,7 @@ void LogicSystem::AuthFriendApplyHandler(std::shared_ptr<CSession> session, cons
             notify["error"] = ErrorCodes::UidInvalid;
         }
         std::string return_str = notify.toStyledString();
-        session->send(return_str, ID_NOTIFY_AUTH_FRIEND_REQ);
+        to_session->send(return_str, ID_NOTIFY_AUTH_FRIEND_REQ);
     }
     else
     {

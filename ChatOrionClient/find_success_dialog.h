@@ -4,12 +4,13 @@
 #include <QDialog>
 
 #include "user_data.h"
+#include "base_dialog.h"
 
 namespace Ui {
 class FindSuccessDialog;
 }
 
-class FindSuccessDialog : public QDialog
+class FindSuccessDialog : public BaseDialog
 {
     Q_OBJECT
 

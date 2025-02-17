@@ -8,6 +8,7 @@
 #include "user_mgr.h"
 #include "con_user_item.h"
 #include "loading_dlg.h"
+#include "self_info_dialog.h"
 
 #include <QMenu>
 #include <QFile>
@@ -51,6 +52,7 @@ ChatDialog::ChatDialog(QWidget *parent) :
     _unread_msg_total_count(0)
 {
     ui->setupUi(this);
+
     this->setWindowTitle(QStringLiteral("微信"));
 
     ui->side_chat_lb->setProperty("state","normal");
@@ -102,6 +104,7 @@ ChatDialog::ChatDialog(QWidget *parent) :
     addLBGroup(ui->side_contact_lb);
     addLBGroup(ui->side_collect_lb);
 
+    connect(ui->side_head_lb, &ClickedLabel::clicked, this, &ChatDialog::slot_side_head);
     connect(ui->side_chat_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_chat);
     connect(ui->side_contact_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_contact);
     connect(ui->side_collect_lb, &StateWidget::clicked, this, &ChatDialog::slot_side_collect);
@@ -139,6 +142,8 @@ ChatDialog::ChatDialog(QWidget *parent) :
     // 客户端接收chat_page缓存消息
     connect(ui->chat_page, &ChatPage::sig_append_send_chat_msg, this, &ChatDialog::slot_append_send_chat_msg);
 
+    connect(ui->apply_friend_page, &ApplyFriendPage::sig_presence_apply, this, &ChatDialog::slot_presence_apply);
+
     connect(this, &ChatDialog::sig_notify_text_chat_msg, ui->chat_page, &ChatPage::slot_notify_text_chat_msg);
 
     //链接自己认证回复信号
@@ -165,7 +170,7 @@ ChatDialog::ChatDialog(QWidget *parent) :
     // 初始化聊天用户；列表
 //    addChatUserList();
 
-    MessageBus::instance()->registerHandler(MessageCommand::BEGIN_LOAD_ALL_INFO, this, [this](const QVariant& data)
+    MessageBus::instance()->registerHandler(MessageCommand::LOGIN_LOAD_UNREAD_CHAT_MSG, this, [this](const QVariant& data)
     {
         bool is_load = data.toBool();
         if (is_load)
@@ -287,8 +292,10 @@ void ChatDialog::loadMoreConUser()
 
 void ChatDialog::UpdateChatMsg(std::vector<std::shared_ptr<TextChatData> > msgdata)
 {
-    for(auto & msg : msgdata){
-        if(msg->_from_uid != _current_chat_uid){
+    for(auto & msg : msgdata)
+    {
+        if(msg->_from_uid != _current_chat_uid)
+        {
             break;
         }
 
@@ -382,14 +389,14 @@ void ChatDialog::NotifyAddFriendReq(int len, QByteArray data)
     }
 
      int from_uid = jsonObj["applyuid"].toInt();
-     QString name = jsonObj["name"].toString();
+     QString applyname = jsonObj["name"].toString();
      QString desc = jsonObj["desc"].toString();
      QString icon = jsonObj["icon"].toString();
      QString nick = jsonObj["nick"].toString();
      int sex = jsonObj["sex"].toInt();
 
     auto apply_info = std::make_shared<AddFriendApply>(
-                from_uid, name, desc,
+                from_uid, applyname, desc,
                   icon, nick, sex);
 
     bool b_already = UserMgr::GetInstance()->AlreadyApply(apply_info->_from_uid);
@@ -398,14 +405,15 @@ void ChatDialog::NotifyAddFriendReq(int len, QByteArray data)
     }
 
     UserMgr::GetInstance()->AddApplyList(std::make_shared<ApplyInfo>(apply_info));
-    ui->side_contact_lb->SetRedDot(true);
-    ui->con_user_list->SetRedDot(true);
+
     ui->apply_friend_page->AddNewApply(apply_info);
 
     if (!ui->side_contact_lb->isSelected())
     {
         ui->side_contact_lb->SetRedDot(true);
     }
+
+    ui->con_user_list->SetRedDot(true);
 }
 
 void ChatDialog::NotifyTextChatMsgReq(int len, QByteArray data)
@@ -455,53 +463,54 @@ void ChatDialog::NotifyTextChatMsgReq(int len, QByteArray data)
     auto msg_ptr = std::make_shared<TextChatMsg>(fromuid,
                     touid, msgid, content, send_time, msg_type, 0);
 
+    ChatUserItem* chat_user_item = nullptr;
+
     auto find_iter = _chat_items_added.find(fromuid);
     if(find_iter != _chat_items_added.end())
     {
         qDebug() << "set chat item msg, uid is " <<fromuid;
 
         QWidget *widget = ui->chat_user_list->itemWidget(find_iter.value());
-        auto chat_user_item = qobject_cast<ChatUserItem*>(widget);
-        if(!chat_user_item){
-            return;
-        }
-        chat_user_item->updateLastMsg(msg_ptr->_chat_msgs);
+        chat_user_item = qobject_cast<ChatUserItem*>(widget);
+    }
+    else
+    {
+        //如果没找到，则创建新的插入listwidget
+        chat_user_item = new ChatUserItem();
+        //查询好友信息
+        auto fi_ptr = UserMgr::GetInstance()->GetFriendById(fromuid);
+        chat_user_item->SetInfo(fi_ptr);
 
-        int unread_count = _chat_user_unread_msg_count.value(fromuid);
-        unread_count++;
-        _chat_user_unread_msg_count[fromuid] = unread_count;
-        if (!chat_user_item->isSelected())
-        {
-            chat_user_item->SetRedDot(true, unread_count);
-        }
+        QListWidgetItem* item = new QListWidgetItem;
+        item->setSizeHint(chat_user_item->sizeHint());
 
-        // 如果当前ui->side_chat_lb是选择状态，并且chat_user_item也是选中状态，则总计数器需要减去
-        if (ui->side_chat_lb->isSelected() && chat_user_item->isSelected() && _unread_msg_total_count > 0)
-        {
-            _unread_msg_total_count--;
-        }
+        ui->chat_user_list->insertItem(0, item);
+        ui->chat_user_list->setItemWidget(item, chat_user_item);
 
-        //更新当前聊天页面记录
-        UpdateChatMsg(msg_ptr->_chat_msgs);
-        UserMgr::GetInstance()->AppendFriendChatMsg(fromuid, msg_ptr->_chat_msgs);
-
-        emit sig_notify_text_chat_msg(msg_ptr->_chat_msgs);
-        return;
+        _chat_items_added.insert(fromuid, item);
     }
 
-    //如果没找到，则创建新的插入listwidget
-    auto* chat_user_item = new ChatUserItem();
-    //查询好友信息
-    auto fi_ptr = UserMgr::GetInstance()->GetFriendById(fromuid);
-    chat_user_item->SetInfo(fi_ptr);
-    QListWidgetItem* item = new QListWidgetItem;
-    //qDebug()<<"chat_user_wid sizeHint is " << chat_user_wid->sizeHint();
-    item->setSizeHint(chat_user_item->sizeHint());
+    if (chat_user_item == nullptr) return;
+
     chat_user_item->updateLastMsg(msg_ptr->_chat_msgs);
+
+    int unread_count = _chat_user_unread_msg_count.value(fromuid);
+    unread_count++;
+    _chat_user_unread_msg_count[fromuid] = unread_count;
+    if (!chat_user_item->isSelected())
+    {
+        chat_user_item->SetRedDot(true, unread_count);
+    }
+
+    // 如果当前ui->side_chat_lb是选择状态，并且chat_user_item也是选中状态，则总计数器需要减去
+    if (ui->side_chat_lb->isSelected() && chat_user_item->isSelected() && _unread_msg_total_count > 0)
+    {
+        _unread_msg_total_count--;
+    }
+
+    //更新当前聊天页面记录
+    UpdateChatMsg(msg_ptr->_chat_msgs);
     UserMgr::GetInstance()->AppendFriendChatMsg(fromuid, msg_ptr->_chat_msgs);
-    ui->chat_user_list->insertItem(0, item);
-    ui->chat_user_list->setItemWidget(item, chat_user_item);
-    _chat_items_added.insert(fromuid, item);
 
     emit sig_notify_text_chat_msg(msg_ptr->_chat_msgs);
 }
@@ -544,6 +553,14 @@ bool ChatDialog::eventFilter(QObject *obj, QEvent *event)
                     qDebug() << "Dialog closed because click was outside.";
                 }
             }
+
+            if (_selfInfoDialog)
+            {
+                if (!_selfInfoDialog->geometry().contains(posInDialog)) {
+                    _selfInfoDialog->setVisible(false);
+                    qDebug() << "Dialog closed because click was outside.";
+                }
+            }
         }
     }
 
@@ -558,7 +575,9 @@ void ChatDialog::slot_side_chat()
     ui->user_stacked->setCurrentWidget(ui->chat_user_list_page);
 
     QWidget *widget = ui->chat_user_list->itemWidget(ui->chat_user_list->currentItem());
-    if(!widget){
+    if(!widget)
+    {
+        ui->stackedWidget->setCurrentWidget(ui->normal_page);
         qDebug()<< "slot item clicked widget is nullptr";
         return;
     }
@@ -616,6 +635,44 @@ void ChatDialog::slot_setting_label()
     globalPos.setY(globalPos.y());
 
     menu->exec(globalPos);
+}
+
+void ChatDialog::slot_side_head()
+{
+    if (!_selfInfoDialog) {
+        _selfInfoDialog = new SelfInfoDialog(this);
+        auto user_info = UserMgr::GetInstance()->GetUserInfo();
+        auto self = qobject_cast<SelfInfoDialog*>(_selfInfoDialog);
+        self->SetUserInfo(user_info);
+    }
+
+    QPoint headGlobalPos = ui->side_head_lb->mapToGlobal(QPoint(0, 0));
+
+    QSize btnSize = ui->side_head_lb->size();
+
+    // 计算窗口位置
+    // x: 按钮的右边界
+    // y: 按钮的底部位置
+    QPoint dialogPoint(
+        headGlobalPos.x() + btnSize.width(),  // 右对齐
+        headGlobalPos.y() + btnSize.height()  // 在按钮下方
+    );
+
+    _selfInfoDialog->move(dialogPoint);
+
+    _selfInfoDialog->setVisible(!_selfInfoDialog->isVisible());
+}
+
+void ChatDialog::slot_presence_apply(int new_apply_count)
+{
+    if (new_apply_count == 0) return;
+
+    if (!ui->side_contact_lb->isSelected())
+    {
+        ui->side_contact_lb->SetRedDot(true, new_apply_count);
+    }
+
+    ui->con_user_list->SetRedDot(true);
 }
 
 void ChatDialog::slot_search_edit_text_changed()

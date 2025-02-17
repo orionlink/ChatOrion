@@ -194,6 +194,9 @@ void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
             return;
         }
         pChatItem->setUserName(friend_info->_name);
+#if 1
+        friend_info->_icon = ":/res/pic/head_2.jpg";
+#endif
         pChatItem->setUserIcon(QPixmap(friend_info->_icon));
         ContentBubbleFrame* pBubble = nullptr;
         pBubble = new ContentBubbleFrame(role);
@@ -216,6 +219,10 @@ void ChatPage::on_send_btn_clicked()
     auto pTextEdit = ui->chatEdit;
 
     auto user_info = UserMgr::GetInstance()->GetUserInfo();
+
+#if 1
+    user_info->_icon = ":/res/pic/head_1.jpg";
+#endif
 
     const QVector<MsgInfo>& msgList = pTextEdit->getMsgList();
     if (msgList.isEmpty()) return;

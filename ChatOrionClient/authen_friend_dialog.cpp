@@ -305,6 +305,7 @@ void AuthenFriendDialog::SlotApplySure()
         back_name = ui->back_ed->text();
     }
     jsonObj["back_name"] = back_name;
+    jsonObj["apply_name"] = _apply_info->_name;
 
     QJsonDocument doc(jsonObj);
     QByteArray jsonData = doc.toJson(QJsonDocument::Compact);

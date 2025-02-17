@@ -44,7 +44,7 @@ ApplyFriendPage::ApplyFriendPage(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->apply_friend_list, &ApplyFriendList::sig_show_search, this, &ApplyFriendPage::sig_show_search);
-    loadApplyList();
+
     //接受tcp传递的authrsp信号处理
     MessageBus::instance()->registerHandler(MessageCommand::AUTH_FRIEND_RSP, this,[this](const QVariant& data)
     {
@@ -60,6 +60,14 @@ ApplyFriendPage::ApplyFriendPage(QWidget *parent) :
         find_iter->second->ShowAddBtn(false);
     });
 
+    MessageBus::instance()->registerHandler(MessageCommand::BEGIN_LOAD_APPLY_CONTENT_LIST, this, [this](const QVariant& data)
+    {
+        bool is_load = data.toBool();
+        if (is_load)
+        {
+            loadApplyList();
+        }
+    });
 }
 
 ApplyFriendPage::~ApplyFriendPage()
@@ -112,8 +120,10 @@ void ApplyFriendPage::paintEvent(QPaintEvent *event)
 void ApplyFriendPage::loadApplyList()
 {
     //添加好友申请
+    int new_apply_count = 0;
     auto apply_list = UserMgr::GetInstance()->GetApplyList();
-    for(auto &apply: apply_list){
+    for(auto &apply: apply_list)
+    {
         int randomValue = QRandomGenerator::global()->bounded(100); // 生成0到99之间的随机整数
         int head_i = randomValue % heads.size();
         auto* apply_item = new ApplyFriendItem();
@@ -125,12 +135,17 @@ void ApplyFriendPage::loadApplyList()
         item->setFlags(item->flags() & ~Qt::ItemIsEnabled & ~Qt::ItemIsSelectable);
         ui->apply_friend_list->insertItem(0,item);
         ui->apply_friend_list->setItemWidget(item, apply_item);
-        if(apply->_status){
+
+        if(apply->_status)
+        {
             apply_item->ShowAddBtn(false);
-        }else{
+        }
+        else
+        {
              apply_item->ShowAddBtn(true);
              auto uid = apply_item->GetUid();
-             _unauth_items[uid] = apply_item;
+            _unauth_items[uid] = apply_item;
+             new_apply_count++;
         }
 
         //收到审核好友信号
@@ -141,6 +156,8 @@ void ApplyFriendPage::loadApplyList()
             authFriend->show();
         });
     }
+
+    emit sig_presence_apply(new_apply_count);
 
 #if 0
     // 模拟假数据，创建QListWidgetItem，并设置自定义的widget

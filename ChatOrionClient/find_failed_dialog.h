@@ -3,11 +3,13 @@
 
 #include <QDialog>
 
+#include "base_dialog.h"
+
 namespace Ui {
 class FindFailedDialog;
 }
 
-class FindFailedDialog : public QDialog
+class FindFailedDialog : public BaseDialog
 {
     Q_OBJECT
 

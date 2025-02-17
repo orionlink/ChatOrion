@@ -40,6 +40,9 @@ bool MySQLDao::init()
 
             std::unique_ptr<sql::Statement> stmt(conn->_connection->createStatement());
 
+            stmt->execute("DROP PROCEDURE IF EXISTS reg_user");
+            stmt->execute(sql_procedure);
+
             // 拆分 SQL 脚本为多个语句
             std::vector<std::string> sql_statements = splitSQLScript(sql_content);
 
@@ -48,8 +51,6 @@ bool MySQLDao::init()
                 stmt->execute(statement);
             }
 
-            stmt->execute("DROP PROCEDURE IF EXISTS reg_user");
-            stmt->execute(sql_procedure);
             LOG_INFO << "SQL script executed successfully";
             return true;
         } catch (sql::SQLException& e) {

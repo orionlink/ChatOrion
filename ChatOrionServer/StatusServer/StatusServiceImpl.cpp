@@ -11,19 +11,6 @@
 #include "RedisManager.h"
 
 #include <sstream>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
-std::string generate_unique_string()
-{
-    boost::uuids::uuid uuid = boost::uuids::random_generator()();
-
-    // 将UUID转换为字符串
-    std::string unique_string = to_string(uuid);
-
-    return unique_string;
-}
 
 StatusServiceImpl::StatusServiceImpl()
 {
@@ -80,7 +67,7 @@ Status StatusServiceImpl::GetChatServer(ServerContext* context, const GetChatSer
         reply->set_host(server.host);
         reply->set_port(std::atoi(server.port.c_str()));
         reply->set_error(ErrorCodes::Success);
-        reply->set_token(generate_unique_string());
+        reply->set_token(Tools::generate_unique_string());
 
         insertToken(request->uid(), reply->token());
     }

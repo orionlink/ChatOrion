@@ -30,6 +30,11 @@ private:
     std::unordered_map<int, ApplyFriendItem*> _unauth_items;
 signals:
     void sig_show_search(bool);
+
+    /**
+     * @brief 存在新的请求消息
+     */
+    void sig_presence_apply(int new_apply_count);
 };
 
 #endif // APPLY_FRIEND_PAGE_H
