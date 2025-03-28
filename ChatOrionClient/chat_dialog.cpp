@@ -891,7 +891,7 @@ void ChatDialog::slot_chat_user_item_clicked(QListWidgetItem *item)
 
        //跳转到聊天界面
        ui->chat_page->SetFriendUserInfo(item_user_info);
-        ui->chat_page->update();
+       ui->chat_page->update();
        _current_chat_uid = item_user_info->_uid;
        ui->stackedWidget->setCurrentWidget(ui->chat_page);
 

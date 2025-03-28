@@ -32,6 +32,8 @@ public:
     bool isInSelectionMode() const { return m_selectionMode; }
     void setSelectionMode(bool enabled);
     void clearSelection();
+
+    size_t getChatItemCount() const { return m_chatItems.size(); }
 protected:
     bool eventFilter(QObject *o, QEvent *e) override;
     void paintEvent(QPaintEvent *event) override;
