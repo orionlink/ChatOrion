@@ -17,6 +17,7 @@ ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false), m_se
     QVBoxLayout *pMainLayout = new QVBoxLayout();
     this->setLayout(pMainLayout);
     pMainLayout->setMargin(0);
+    pMainLayout->setSpacing(10);
     pMainLayout->setContentsMargins(10, 0, 10, 0);
 
     m_pScrollArea = new QScrollArea();
@@ -28,7 +29,7 @@ ChatView::ChatView(QWidget *parent) : QWidget(parent), m_isAppended(false), m_se
     w->setAutoFillBackground(true);
     QVBoxLayout *pVLayout_1 = new QVBoxLayout();
     pVLayout_1->setMargin(0);
-    pVLayout_1->setSpacing(0);
+    pVLayout_1->setSpacing(10);
     // 默认往里面加一个widget(item)，每条消息(item)就会被顶到顶部，如果没有拉伸因子
     // 会导致一条消息占满整个界面, 消息是一个widget
     pVLayout_1->addWidget(new QWidget(), 100000);

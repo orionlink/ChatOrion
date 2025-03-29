@@ -213,5 +213,7 @@ void ChatItemBase::setupLayout()
         pGLayout->addWidget(m_pSelectIconLabel, 0, 0, 2, 1, Qt::AlignVCenter);
     }
 
+    // 单聊不显示用户名
+    m_pNameLabel->hide();
     this->setLayout(pGLayout);
 }

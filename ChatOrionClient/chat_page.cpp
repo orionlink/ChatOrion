@@ -154,9 +154,9 @@ void ChatPage::SetFriendUserInfo(std::shared_ptr<UserInfo> user_info)
     ///< 在当前用户窗口接收另一个用户消息时，此时的 item 不会插入到 ChatView
     ///< 当用户点击该新消息到来的聊天窗口时，由于 viewData.messages 会在接收消息
     ///< 时更新数据，但是 ChatView 没有插入对应的 item 所以在此处判断，并插入新消息
-    if (viewData.view->getChatItemCount() < viewData.messages.size())
+    while (viewData.view->getChatItemCount() < viewData.messages.size())
     {
-        AppendChatMsg(viewData.messages.at(viewData.messages.size() - 1));
+        AppendChatMsg(viewData.messages.at(viewData.view->getChatItemCount()));
     }
 
     viewData.view->show();
@@ -172,6 +172,7 @@ void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
         role = ChatRole::Self;
         auto pChatItem = std::make_unique<ChatItemBase>(role);
 
+        // 单聊不显示用户名
         pChatItem->setUserName(self_info->_name);
 
 #if 1
@@ -193,6 +194,7 @@ void ChatPage::AppendChatMsg(std::shared_ptr<TextChatData> msg)
         {
             return;
         }
+        // 单聊不显示用户名
         pChatItem->setUserName(friend_info->_name);
 #if 1
         friend_info->_icon = ":/res/pic/head_2.jpg";
