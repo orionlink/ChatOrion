@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(ITEM_NAME platfrom)
+set(ITEM_NAME platform)
 project(${ITEM_NAME} LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)

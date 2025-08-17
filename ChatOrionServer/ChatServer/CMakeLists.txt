@@ -16,7 +16,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 # 执行构建proto文件脚本
 execute_process(
         COMMAND /bin/bash ${CMAKE_SOURCE_DIR}/../protocol/build_proto.sh
-        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/../platfrom/config.ini ${CMAKE_SOURCE_DIR}/../bin
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/../platform/config.ini ${CMAKE_SOURCE_DIR}/../bin
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/../protocol/
         COMMAND cp -rf ${CMAKE_SOURCE_DIR}/chat_messages.sql ${CMAKE_SOURCE_DIR}/../bin
         RESULT_VARIABLE result
@@ -31,9 +31,9 @@ else()
     message(WARNING "Error Output: ${error_output}")
 endif()
 
-# 设置platfrom
-set(PLATFROM_PATHS
-        "${CMAKE_SOURCE_DIR}/../platfrom"
+# 设置platform
+set(PLATFORM_PATHS
+        "${CMAKE_SOURCE_DIR}/../platform"
 )
 
 # 设置third party根目录
@@ -70,12 +70,12 @@ set(GLOG_PATHS
 )
 
 # 将所有路径加入到 CMAKE_PREFIX_PATH
-list(APPEND CMAKE_PREFIX_PATH ${PLATFROM_PATHS} ${GRPC_PATHS}
+list(APPEND CMAKE_PREFIX_PATH ${PLATFORM_PATHS} ${GRPC_PATHS}
         ${BOOST_PATHS} ${JSONCPP_PATHS} ${HREDIS_PATHS} ${MYSQL_CONNECTOR_PATHS} ${GLOG_PATHS})
 
 # 添加include路径
 include_directories(
-        ${PLATFROM_PATHS}
+        ${PLATFORM_PATHS}
         ${GRPC_PATHS}/include
         ${BOOST_PATHS}/include
         ${JSONCPP_PATHS}/include
@@ -120,7 +120,7 @@ set(HIREDIS_LIBRARIES ${HIREDIS_PATHS}/lib/libhiredis.so)
 file(GLOB HEADER_FILES "*.h" "*.hpp")
 file(GLOB SEC_LSIT "*cpp" "*.cc" "*.cxx")
 
-set(PLATFROM_LIBRARIES ${CMAKE_SOURCE_DIR}/../lib/libplatfrom.so)
+set(PLATFORM_LIBRARIES ${CMAKE_SOURCE_DIR}/../lib/libplatform.so)
 
 # 添加可执行文件
 add_executable(${ITEM_NAME} ${SEC_LSIT}
@@ -151,7 +151,7 @@ add_executable(${ITEM_NAME} ${SEC_LSIT}
 # 链接库
 target_link_libraries(${ITEM_NAME}
         PRIVATE
-        ${PLATFROM_LIBRARIES}
+        ${PLATFORM_LIBRARIES}
         ${_REFLECTION}
         ${_GRPC_GRPCPP}
         ${_PROTOBUF_LIBPROTOBUF}
