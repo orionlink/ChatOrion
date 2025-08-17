@@ -81,3 +81,5 @@ CMakeLists.txt.user*
 .uic/
 /build*/
 /bin/
+debug/
+release/
