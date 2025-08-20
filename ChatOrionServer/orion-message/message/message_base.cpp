@@ -4,7 +4,7 @@
 
 #include "message_base.h"
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 namespace message
 {

@@ -4,7 +4,7 @@
 
 #include "text_chat_message.h"
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 namespace message
 {
