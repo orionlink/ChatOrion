@@ -71,6 +71,8 @@ include_directories(
         ${GRPC_PATHS}/include
         ${JSONCPP_PATHS}/include
         ${GLOG_PATHS}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/message
 )
 
 # 查找线程库
@@ -104,7 +106,9 @@ add_library(${ITEM_NAME} SHARED ${SEC_LSIT} ${HEADER_FILES}
         message/message_type.h
         utils.h
         message/text_chat_message.cpp
-        message/text_chat_message.h)
+        message/text_chat_message.h
+        message_factory.cpp
+        message_factory.h)
 
 # 链接所需的库
 target_link_libraries(${ITEM_NAME}

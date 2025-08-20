@@ -6,6 +6,7 @@
 #define ORION_MESSAGE_TEXT_CHAT_MESSAGE_H
 
 #include "message_base.h"
+#include "message_factory.h"
 
 namespace message
 {
@@ -33,7 +34,7 @@ namespace message
         std::string _content;
         MessageType _msg_type;
     };
-
+    REGISTER_MESSAGE(ID_TEXT_CHAT_MSG_REQ, TextChatMessage)
 }
 
 #endif //ORION_MESSAGE_TEXT_CHAT_MESSAGE_H
