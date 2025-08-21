@@ -38,25 +38,10 @@ set(GRPC_PATHS
         "${THIRD_PARTY_ROOT}/linux/grpc"
 )
 
-## 设置 Boost 的路径列表
-#set(BOOST_PATHS
-#        "${THIRD_PARTY_ROOT}/linux/boost"
-#)
-
 # 设置 jsoncpp 的路径列表
 set(JSONCPP_PATHS
         "${THIRD_PARTY_ROOT}/linux/jsoncpp"
 )
-
-## 设置 hredis 的路径列表
-#set(HIREDIS_PATHS
-#        "${THIRD_PARTY_ROOT}/linux/hiredis"
-#)
-#
-## 设置 mysql_connector 的路径列表
-#set(MYSQL_CONNECTOR_PATHS
-#        "${THIRD_PARTY_ROOT}/linux/mysql_connector"
-#)
 
 # 设置 glog 的路径列表
 set(GLOG_PATHS
@@ -99,11 +84,15 @@ find_package (glog 0.5.0 REQUIRED)
 set(JSONCPP_LIBRARIES ${JSONCPP_PATHS}/lib/libjsoncpp.so)
 
 # 源文件
-file(GLOB_RECURSE HEADER_FILES "*.h" "*.hpp")
-file(GLOB_RECURSE SEC_LSIT "*cpp" "*.cc" "*.cxx")
+#file(GLOB_RECURSE HEADER_FILES "*.h" "*.hpp")
+#file(GLOB_RECURSE SEC_LSIT "*cpp" "*.cc" "*.cxx")
 
-add_library(${ITEM_NAME} SHARED ${SEC_LSIT} ${HEADER_FILES}
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+
+add_library(${ITEM_NAME} SHARED # ${SEC_LSIT} ${HEADER_FILES}
         message/message_type.h
+        message/message_base.h
+        message/message_base.cpp
         utils.h
         message/text_chat_message.cpp
         message/text_chat_message.h

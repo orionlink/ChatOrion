@@ -25,8 +25,24 @@ namespace message {
         MessageBase() = default;
         virtual ~MessageBase() = default;
 
+        /**
+         * 序列化body
+         * @return
+         */
         virtual std::string Serialize() = 0;
-        virtual bool Deserialize(const std::string& data) = 0;
+
+        /**
+         * 如果是基类，能够反序列化头部
+         * @param data
+         * @return
+         */
+        virtual bool Deserialize(const std::string& data);
+
+        /**
+         * 序列化头部
+         * @return
+         */
+        std::string SerializeHeader();
 
         MSG_IDS message_id() const { return _message_id; }
         ErrorCodes error_codes() const { return _error_codes; }

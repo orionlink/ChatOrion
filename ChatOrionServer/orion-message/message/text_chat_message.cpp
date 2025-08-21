@@ -20,9 +20,7 @@ namespace message
         root["chat_msg_id"] = _chat_msg_id;
         root["content"] = _content;
 
-        auto serialize_str = fast_writer.write(root);
-
-        return serialize_str;
+        return fast_writer.write(root);
     }
 
     bool TextChatMessage::Deserialize(const std::string &data) {
@@ -34,6 +32,7 @@ namespace message
             _msg_type = static_cast<MessageType>(root["msg_type"].asInt());
             _chat_msg_id = root["chat_msg_id"].asString();
             _content = root["content"].asString();
+            return true;
         }
 
         return false;
