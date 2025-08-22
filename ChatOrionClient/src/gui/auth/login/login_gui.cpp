@@ -329,7 +329,7 @@ void LoginGUI::forgetPassword()
                                         json_obj, Modules::REGISTER_MOD, ReqId::ID_RESET_PWD);
 }
 
-void LoginGUI::slot_tcp_con_finish(bool bsuccess)
+void LoginGUI::slot_tcp_con_finish(bool bsuccess, QString error_msg)
 {
     if(bsuccess)
     {
@@ -347,8 +347,8 @@ void LoginGUI::slot_tcp_con_finish(bool bsuccess)
     }
     else
     {
-        showTip(ui->err_msg, "网络异常", true);
-        showTip(ui->err_msg_3, "网络异常", true);
+        showTip(ui->err_msg, error_msg, false);
+        showTip(ui->err_msg_3, error_msg, false);
     }
 }
 
@@ -495,6 +495,7 @@ void LoginGUI::loginModCallback(ReqId id, QJsonObject res, ErrorCodes err)
 
     if (err == ErrorCodes::ERR_NETWORK || err == ErrorCodes::ERR_JSON)
     {
+        showTip(ui->err_msg, "网络连接失败", false);
         showTip(ui->err_msg_2, "网络连接失败", false);
         showTip(ui->err_msg_3, "网络连接失败", false);
         showTip(ui->err_msg_4, "网络连接失败", false);

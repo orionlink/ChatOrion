@@ -34,7 +34,7 @@ public slots:
     void slot_tcp_connect(const QString& host, uint16_t port);
     void slot_send_data(ReqId reqId, QByteArray dataBytes);
 signals:
-    void sig_con_success(bool bsuccess);
+    void sig_con_success(bool bsuccess, QString error_msg = "");
     void sig_send_data(ReqId reqId, QByteArray data);
     void sig_swich_chatdlg();
 };

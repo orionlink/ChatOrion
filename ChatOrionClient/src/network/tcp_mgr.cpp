@@ -63,28 +63,129 @@ TcpMgr::TcpMgr() : _host(""), _port(0),_b_recv_pending(false),_message_id(0),_me
     // 处理错误（适用于Qt 5.15之前的版本）
     QObject::connect(&_socket, static_cast<void (QTcpSocket::*)(QTcpSocket::SocketError)>(&QTcpSocket::error),
                         [&](QTcpSocket::SocketError socketError) {
-           qDebug() << "Error:" << _socket.errorString() ;
+           QString error_str = _socket.errorString();
+           qDebug() << "Error:" << error_str;
            switch (socketError) {
                case QTcpSocket::ConnectionRefusedError:
-                   qDebug() << "Connection Refused!";
-                   emit sig_con_success(false);
+                   error_str = "连接被拒绝!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
                    break;
                case QTcpSocket::RemoteHostClosedError:
-                   qDebug() << "Remote Host Closed Connection!";
+                   error_str = " 远程主机已关闭!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
                    break;
-               case QTcpSocket::HostNotFoundError:
-                   qDebug() << "Host Not Found!";
-                   emit sig_con_success(false);
+               case QTcpSocket::SocketAccessError:
+                   error_str = " 网络套接字访问错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::SocketResourceError:
+                   error_str = "网络套接字资源错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
                    break;
                case QTcpSocket::SocketTimeoutError:
-                   qDebug() << "Connection Timeout!";
-                   emit sig_con_success(false);
+                   error_str = "连接超时，请检查网络连接!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::DatagramTooLargeError:
+                   error_str = "数据报包过大错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
                    break;
                case QTcpSocket::NetworkError:
-                   qDebug() << "Network Error!";
+                   error_str = "网络错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::AddressInUseError:
+                   error_str = "地址已占用错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::SocketAddressNotAvailableError:
+                   error_str = "地址不可用错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::UnsupportedSocketOperationError:
+                   error_str = "不支持的套接字操作错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::UnfinishedSocketOperationError:
+                   error_str = "未完成的套接字操作错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::ProxyAuthenticationRequiredError:
+                   error_str = "代理认证要求错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::SslHandshakeFailedError:
+                   error_str = "SSL 会话失败错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::ProxyConnectionRefusedError:
+                   error_str = "代理连接被拒绝错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::ProxyConnectionClosedError:
+                   error_str = "代理连接已关闭错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::ProxyConnectionTimeoutError:
+                   error_str = "代理连接超时错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::ProxyNotFoundError:
+                   error_str = "代理未找到错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::ProxyProtocolError:
+                   error_str = "代理协议错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::OperationError:
+                   error_str = "操作错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::SslInternalError:
+                   error_str = "SSL 内部错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::SslInvalidUserDataError:
+                   error_str = "SSL 无效用户数据错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::TemporaryError:
+                   error_str = "临时错误!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
+                   break;
+               case QTcpSocket::HostNotFoundError:
+                   error_str = "服务器未找到!";
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
                    break;
                default:
-                   qDebug() << "Other Error!";
+                   QString tmp = "[其他错误]: ";
+                   tmp += error_str;
+                   qDebug() << error_str;
+                   emit sig_con_success(false, error_str);
                    break;
            }
      });

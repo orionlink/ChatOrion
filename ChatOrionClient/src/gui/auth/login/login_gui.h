@@ -97,7 +97,7 @@ public slots:
      */
     void forgetPassword();
 
-    void slot_tcp_con_finish(bool bsuccess);
+    void slot_tcp_con_finish(bool bsuccess, QString error_msg = "");
 
     void updateButton(); // 新增的用于更新按钮状态的槽
 
