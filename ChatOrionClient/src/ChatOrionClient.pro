@@ -11,9 +11,6 @@ CONFIG += c++17
 SOURCES += \
     app/main.cpp \
     core/global.cpp \
-    core/messaging/message/message_base.cpp \
-    core/messaging/message/text_chat_message.cpp \
-    core/messaging/message_factory.cpp \
     core/user/user_data.cpp \
     core/user/user_mgr.cpp \
     gui/apply_friend_page.cpp \
@@ -149,8 +146,6 @@ DESTDIR = $$PWD/../bin
 INCLUDEPATH += $$PWD/app
 INCLUDEPATH += $$PWD/core
 INCLUDEPATH += $$PWD/core/user
-INCLUDEPATH += $$PWD/core/messaging
-INCLUDEPATH += $$PWD/core/messaging/message
 INCLUDEPATH += $$PWD/gui
 INCLUDEPATH += $$PWD/gui/auth/login
 INCLUDEPATH += $$PWD/gui/chats
